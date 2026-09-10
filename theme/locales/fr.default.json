@@ -116,14 +116,6 @@
     "view_addresses": "Voir les adresses",
     "no_orders": "Vous n'avez pas encore passé de commande."
   },
-  "blog": {
-    "read_more": "Lire la suite",
-    "published": "Publié le",
-    "article_count": {
-      "one": "{{ count }} article",
-      "other": "{{ count }} articles"
-    }
-  },
   "contact": {
     "title": "Contact",
     "name": "Nom",

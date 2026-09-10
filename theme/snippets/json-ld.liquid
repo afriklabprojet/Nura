@@ -38,21 +38,3 @@
 }
 </script>
 {%- endif -%}
-
-{%- if request.page_type == 'article' -%}
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Article",
-  "headline": {{ article.title | json }},
-  "datePublished": {{ article.published_at | date: '%Y-%m-%d' | json }},
-  {%- if article.image -%}
-  "image": {{ article.image | image_url: width: 1200 | json }},
-  {%- endif -%}
-  "author": {
-    "@type": "Person",
-    "name": {{ article.author | json }}
-  }
-}
-</script>
-{%- endif -%}

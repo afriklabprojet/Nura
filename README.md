@@ -51,7 +51,7 @@ theme/
 ## Données à configurer dans l'admin Shopify
 
 - **Menus** : créer les menus `main-menu` (Accueil, Parfums, Bodycare, Collections,
-  À propos, Journal, Contact) et `footer` (liens légaux + navigation).
+  À propos, Contact) et `footer` (liens légaux + navigation).
 - **Metafields produits** (namespace `custom`) utilisés par le thème :
   - `custom.type_produit` (Parfum / Bodycare / Coffret)
   - `custom.contenance` (ex. « 50 ml »)
@@ -71,7 +71,6 @@ theme/
 - `À propos` (template `page.about`), `FAQ` (`page.faq`), `Contact` (`page.contact`)
 - Pages légales : CGV, Politique de confidentialité, Mentions légales,
   Livraison & retours (template `page`).
-- Blog `Journal` (template `blog`) + articles.
 
 ## Évolutivité
 

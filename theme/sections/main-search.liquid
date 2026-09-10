@@ -30,20 +30,6 @@
             {%- for item in search.results -%}
               {%- if item.object_type == 'product' -%}
                 {%- render 'product-card', product: item -%}
-              {%- elsif item.object_type == 'article' -%}
-                <div class="article-card">
-                  <a href="{{ item.url }}" class="article-card__media">
-                    {%- if item.image -%}
-                      {{ item.image | image_url: width: 700 | image_tag: loading: 'lazy' }}
-                    {%- else -%}
-                      {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
-                    {%- endif -%}
-                  </a>
-                  <a href="{{ item.url }}">
-                    <span class="article-card__date">{{ item.published_at | date: '%d.%m.%Y' }}</span>
-                    <h3 class="article-card__title">{{ item.title }}</h3>
-                  </a>
-                </div>
               {%- endif -%}
             {%- endfor -%}
           </div>

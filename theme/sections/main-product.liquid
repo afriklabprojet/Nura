@@ -1,0 +1,178 @@
+{%- liquid
+  assign vendor = product.metafields.custom.type_produit | default: product.type
+  assign notes_tete = product.metafields.custom.notes_tete
+  assign notes_coeur = product.metafields.custom.notes_coeur
+  assign notes_fond = product.metafields.custom.notes_fond
+  assign conseils = product.metafields.custom.conseils_utilisation
+  assign ingredients = product.metafields.custom.ingredients
+  assign contenance = product.metafields.custom.contenance
+-%}
+
+<article class="product container" data-product-form>
+  <div class="product__gallery">
+    <div class="product__main-image">
+      {%- if product.featured_image -%}
+        <img
+          data-main-image
+          src="{{ product.featured_image | image_url: width: 1200 }}"
+          srcset="{{ product.featured_image | image_url: width: 900 }} 900w, {{ product.featured_image | image_url: width: 1200 }} 1200w, {{ product.featured_image | image_url: width: 1600 }} 1600w"
+          sizes="(min-width: 900px) 50vw, 100vw"
+          width="{{ product.featured_image.width }}"
+          height="{{ product.featured_image.height }}"
+          alt="{{ product.featured_image.alt | default: product.title | escape }}"
+          loading="eager"
+        >
+      {%- else -%}
+        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      {%- endif -%}
+    </div>
+
+    {%- if product.images.size > 1 -%}
+      <div class="product__thumbnails">
+        {%- for image in product.images -%}
+          <img
+            class="product__thumb{% if forloop.first %} is-active{% endif %}"
+            src="{{ image | image_url: width: 160 }}"
+            data-full-src="{{ image | image_url: width: 1200 }}"
+            data-thumbnail
+            width="72"
+            height="90"
+            alt="{{ image.alt | default: product.title | escape }}"
+            loading="lazy"
+          >
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+
+  <div class="product__info">
+    {%- if vendor != blank -%}
+      <span class="section-eyebrow">{{ vendor }}</span>
+    {%- endif -%}
+    <h1 class="product__title">{{ product.title }}</h1>
+
+    <div class="product__price">
+      {%- render 'price', target: product.selected_or_first_available_variant -%}
+      {%- if contenance != blank -%}
+        <span class="product-card__vendor" style="margin-left: 0.6rem;">· {{ contenance }}</span>
+      {%- endif -%}
+    </div>
+
+    {%- if product.description != blank -%}
+      <div class="product__description">{{ product.description }}</div>
+    {%- endif -%}
+
+    {%- render 'product-form', product: product -%}
+
+    {%- if notes_tete != blank or notes_coeur != blank or notes_fond != blank -%}
+      <div class="notes">
+        <span class="notes__heading">{{ 'product.notes' | t }}</span>
+        {%- if notes_tete != blank -%}
+          <div class="notes__row">
+            <span class="notes__key">{{ 'product.notes_top' | t }}</span>
+            <span class="notes__value">{{ notes_tete }}</span>
+          </div>
+        {%- endif -%}
+        {%- if notes_coeur != blank -%}
+          <div class="notes__row">
+            <span class="notes__key">{{ 'product.notes_heart' | t }}</span>
+            <span class="notes__value">{{ notes_coeur }}</span>
+          </div>
+        {%- endif -%}
+        {%- if notes_fond != blank -%}
+          <div class="notes__row">
+            <span class="notes__key">{{ 'product.notes_base' | t }}</span>
+            <span class="notes__value">{{ notes_fond }}</span>
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <div class="accordion">
+      {%- if conseils != blank -%}
+        <div class="accordion__item">
+          <button type="button" class="accordion__trigger" aria-expanded="false">
+            {{ 'product.usage' | t }}
+            <span class="accordion__icon">{%- render 'icon-plus' -%}</span>
+          </button>
+          <div class="accordion__panel">
+            <div class="accordion__content">{{ conseils | metafield_tag }}</div>
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- if ingredients != blank -%}
+        <div class="accordion__item">
+          <button type="button" class="accordion__trigger" aria-expanded="false">
+            {{ 'product.ingredients' | t }}
+            <span class="accordion__icon">{%- render 'icon-plus' -%}</span>
+          </button>
+          <div class="accordion__panel">
+            <div class="accordion__content">{{ ingredients | metafield_tag }}</div>
+          </div>
+        </div>
+      {%- endif -%}
+
+      <div class="accordion__item">
+        <button type="button" class="accordion__trigger" aria-expanded="false">
+          {{ 'product.delivery' | t }}
+          <span class="accordion__icon">{%- render 'icon-plus' -%}</span>
+        </button>
+        <div class="accordion__panel">
+          <div class="accordion__content">{{ 'product.delivery_text' | t }}</div>
+        </div>
+      </div>
+    </div>
+
+    {%- comment -%}
+      Avis clients — intégrer Judge.me ici (widget review) une fois l'app installée.
+      {{ product.metafields.judgeme.badge }} ou widget dédié.
+    {%- endcomment -%}
+    <div class="notes" style="margin-top: 1.5rem;">
+      <span class="notes__heading">{{ 'product.reviews' | t }}</span>
+      <p style="margin:0; font-weight:300; letter-spacing:.04em; color: var(--brown-light); font-size:.9rem;">
+        ★★★★★ — Les avis de nos clientes arrivent bientôt.
+      </p>
+    </div>
+  </div>
+</article>
+
+{%- comment -%} Produits complémentaires {%- endcomment -%}
+{%- if section.settings.complementary_collection != blank -%}
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">{{ 'product.complementary' | t }}</span>
+        <h2 class="section-heading">{{ section.settings.complementary_collection.title }}</h2>
+      </div>
+      <div class="product-grid">
+        {%- for item in section.settings.complementary_collection.products limit: 4 -%}
+          {%- unless item.id == product.id -%}
+            {%- render 'product-card', product: item -%}
+          {%- endunless -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+{%- endif -%}
+
+{%- comment -%} Ajout au panier sticky (mobile) {%- endcomment -%}
+<div class="sticky-atc" data-sticky-atc>
+  <div class="sticky-atc__inner">
+    <span class="sticky-atc__title">{{ product.title }}</span>
+    <button type="button" class="btn btn--primary" data-scroll-to-form>{{ 'product.add_to_cart' | t }}</button>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Page produit",
+  "settings": [
+    {
+      "type": "collection",
+      "id": "complementary_collection",
+      "label": "Collection complémentaire (produits recommandés)"
+    }
+  ]
+}
+{% endschema %}

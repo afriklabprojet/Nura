@@ -1,0 +1,30 @@
+{%- comment -%}
+  Annonce promotionnelle en haut du site.
+{%- endcomment -%}
+{%- if section.settings.text != blank -%}
+  <div class="announcement-bar" data-announcement>
+    <span>{{ section.settings.text }}</span>
+    <button
+      type="button"
+      class="announcement-bar__close"
+      data-announcement-close
+      aria-label="{{ 'announcement.close' | t }}"
+    >
+      {%- render 'icon-close' -%}
+    </button>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Barre d'annonce",
+  "settings": [
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Texte",
+      "default": "Livraison offerte dès 49 € — Nura, votre aura commence ici."
+    }
+  ]
+}
+{% endschema %}

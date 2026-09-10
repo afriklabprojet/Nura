@@ -1,0 +1,34 @@
+{%- paginate collections by 12 -%}
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Collections</span>
+        <h1 class="section-heading">Nos collections</h1>
+      </div>
+
+      <div class="categories">
+        {%- for collection in collections -%}
+          <a class="category-card" href="{{ collection.url }}">
+            {%- if collection.featured_image -%}
+              {{ collection.featured_image | image_url: width: 900 | image_tag: class: 'category-card__image', loading: 'lazy', sizes: '(min-width: 768px) 33vw, 100vw', widths: '500, 750, 900' }}
+            {%- else -%}
+              {{ 'collection-1' | placeholder_svg_tag: 'category-card__image placeholder-svg' }}
+            {%- endif -%}
+            <span class="category-card__content">
+              <span class="category-card__title">{{ collection.title }}</span>
+              <span class="category-card__cta">{{ 'products.product_count' | t: count: collection.products_count }}</span>
+            </span>
+          </a>
+        {%- endfor -%}
+      </div>
+
+      {%- render 'pagination', paginate: paginate -%}
+    </div>
+  </section>
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "Page collections"
+}
+{% endschema %}

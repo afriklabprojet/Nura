@@ -1,0 +1,65 @@
+<section class="section">
+  <div class="container" style="max-width: 900px;">
+    <div class="section-header">
+      <span class="section-eyebrow">{{ shop.name }}</span>
+      <h1 class="section-heading">{{ 'cart.title' | t }}</h1>
+    </div>
+
+    {%- if cart.item_count > 0 -%}
+      <form action="{{ routes.cart_url }}" method="post">
+        <div>
+          {%- for item in cart.items -%}
+            <div class="cart-item">
+              <a href="{{ item.url }}">
+                {%- if item.image -%}
+                  <img
+                    class="cart-item__image"
+                    src="{{ item.image | image_url: width: 160 }}"
+                    width="76"
+                    height="96"
+                    alt="{{ item.image.alt | default: item.product.title | escape }}"
+                    loading="lazy"
+                  >
+                {%- endif -%}
+              </a>
+              <div class="cart-item__info">
+                <h3 class="cart-item__title">
+                  <a href="{{ item.url }}">{{ item.product.title }}</a>
+                </h3>
+                {%- unless item.product.has_only_default_variant -%}
+                  <span class="cart-item__variant">{{ item.variant.title }}</span>
+                {%- endunless -%}
+                <div class="cart-item__price">{{ item.final_line_price | money }}</div>
+              </div>
+              <div class="quantity-field">
+                <input type="number" name="updates[]" value="{{ item.quantity }}" min="0" aria-label="{{ 'cart.quantity' | t }}">
+              </div>
+              <a class="cart-item__remove" href="{{ item.url_to_remove }}">{{ 'cart.remove' | t }}</a>
+            </div>
+          {%- endfor -%}
+        </div>
+
+        <div class="cart-drawer__footer" style="padding-inline: 0;">
+          <div class="cart-drawer__subtotal">
+            <span>{{ 'cart.subtotal' | t }}</span>
+            <span>{{ cart.total_price | money }}</span>
+          </div>
+          <p class="cart-drawer__note">{{ settings.cart_note }}</p>
+          <button type="submit" name="update" class="btn btn--outline">{{ 'cart.update' | t }}</button>
+          <a class="btn btn--primary" href="/checkout" style="margin-top: 0.75rem;">{{ 'cart.checkout' | t }}</a>
+        </div>
+      </form>
+    {%- else -%}
+      <p class="text-center" style="color: var(--brown-light);">{{ 'cart.empty' | t }}</p>
+      <div class="text-center" style="margin-top: 1.5rem;">
+        <a class="btn btn--primary" href="{{ routes.all_products_collection_url }}">{{ 'cart.continue' | t }}</a>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Page panier"
+}
+{% endschema %}

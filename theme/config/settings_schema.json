@@ -1,0 +1,235 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Nura",
+    "theme_version": "1.0.0",
+    "theme_author": "Nura",
+    "theme_documentation_url": "https://nura.example.com",
+    "theme_support_url": "https://nura.example.com/contact"
+  },
+  {
+    "name": "Couleurs",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Palette Nura"
+      },
+      {
+        "type": "color",
+        "id": "color_background",
+        "label": "Fond principal (beige crème)",
+        "default": "#F7F1E8"
+      },
+      {
+        "type": "color",
+        "id": "color_background_alt",
+        "label": "Fond secondaire (blanc cassé)",
+        "default": "#FBF8F3"
+      },
+      {
+        "type": "color",
+        "id": "color_text",
+        "label": "Texte principal",
+        "default": "#2F231B"
+      },
+      {
+        "type": "color",
+        "id": "color_brown",
+        "label": "Brun profond (chocolat)",
+        "default": "#3A2A20"
+      },
+      {
+        "type": "color",
+        "id": "color_nude",
+        "label": "Nude chaud",
+        "default": "#E7D3C0"
+      },
+      {
+        "type": "color",
+        "id": "color_gold",
+        "label": "Doré (accents discrets)",
+        "default": "#B79B6E"
+      },
+      {
+        "type": "color",
+        "id": "color_button",
+        "label": "Boutons principaux",
+        "default": "#3A2A20"
+      },
+      {
+        "type": "color",
+        "id": "color_button_text",
+        "label": "Texte des boutons",
+        "default": "#FBF8F3"
+      }
+    ]
+  },
+  {
+    "name": "En-tête",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Header Nura"
+      },
+      {
+        "type": "select",
+        "id": "logo_position",
+        "label": "Position du logo",
+        "options": [
+          { "value": "left", "label": "À gauche" },
+          { "value": "center", "label": "Au centre" }
+        ],
+        "default": "center"
+      },
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo (image)"
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon"
+      },
+      {
+        "type": "range",
+        "id": "logo_width",
+        "label": "Largeur du logo",
+        "min": 60,
+        "max": 260,
+        "step": 5,
+        "unit": "px",
+        "default": 140
+      },
+      {
+        "type": "checkbox",
+        "id": "sticky_header",
+        "label": "Header fixe (sticky)",
+        "default": true
+      },
+      {
+        "type": "link_list",
+        "id": "menu",
+        "label": "Menu principal",
+        "default": "main-menu"
+      }
+    ]
+  },
+  {
+    "name": "Pied de page",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Footer Nura"
+      },
+      {
+        "type": "image_picker",
+        "id": "footer_logo",
+        "label": "Logo footer (image)"
+      },
+      {
+        "type": "text",
+        "id": "footer_tagline",
+        "label": "Signature",
+        "default": "Votre aura commence ici."
+      },
+      {
+        "type": "textarea",
+        "id": "footer_text",
+        "label": "Texte d'introduction",
+        "default": "Nura imagine des parfums et des soins pensés pour accompagner chaque aura, chaque humeur et chaque moment."
+      },
+      {
+        "type": "text",
+        "id": "footer_instagram",
+        "label": "Lien Instagram",
+        "default": "https://instagram.com"
+      },
+      {
+        "type": "text",
+        "id": "footer_tiktok",
+        "label": "Lien TikTok",
+        "default": "https://tiktok.com"
+      },
+      {
+        "type": "text",
+        "id": "footer_email",
+        "label": "Email de contact",
+        "default": "contact@nura-paris.com"
+      },
+      {
+        "type": "link_list",
+        "id": "footer_menu",
+        "label": "Menu pied de page",
+        "default": "footer"
+      }
+    ]
+  },
+  {
+    "name": "Réseaux sociaux",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Liens sociaux"
+      },
+      {
+        "type": "text",
+        "id": "social_instagram",
+        "label": "Instagram",
+        "default": "https://instagram.com/nura"
+      },
+      {
+        "type": "text",
+        "id": "social_tiktok",
+        "label": "TikTok",
+        "default": "https://tiktok.com/@nura"
+      }
+    ]
+  },
+  {
+    "name": "Badges produits",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Badges sur les cartes produit"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_badges",
+        "label": "Afficher les badges (Best-seller, Nouveau, Édition limitée)",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "show_vendor",
+        "label": "Afficher le type de produit",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Panier",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Panier"
+      },
+      {
+        "type": "select",
+        "id": "cart_type",
+        "label": "Type de panier",
+        "options": [
+          { "value": "drawer", "label": "Panier coulissant (drawer)" },
+          { "value": "page", "label": "Page panier" }
+        ],
+        "default": "drawer"
+      },
+      {
+        "type": "text",
+        "id": "cart_note",
+        "label": "Note sous le panier",
+        "default": "Livraison offerte dès 49 € en France métropolitaine."
+      }
+    ]
+  }
+]

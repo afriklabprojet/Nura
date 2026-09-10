@@ -1,0 +1,16 @@
+<section class="section">
+  <div class="container" style="text-align: center;">
+    <span class="section-eyebrow">404</span>
+    <h1 class="section-heading">{{ 'general.404.title' | t }}</h1>
+    <p class="section-description" style="margin-inline: auto;">{{ 'general.404.subtext' | t }}</p>
+    <a class="btn btn--primary" href="{{ routes.root_url }}" style="margin-top: 1.5rem;">
+      {{ 'general.404.back' | t }}
+    </a>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Page 404"
+}
+{% endschema %}

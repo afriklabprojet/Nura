@@ -1,0 +1,115 @@
+{%- liquid
+  assign footer_menu = linklists[settings.footer_menu]
+  assign legal_menu = linklists[section.settings.legal_menu]
+-%}
+
+<footer class="footer">
+  <div class="container footer__top">
+    <div class="footer__grid">
+      <div>
+        {%- if settings.footer_logo != blank -%}
+          <img
+            class="footer__logo-img"
+            src="{{ settings.footer_logo | image_url: width: 220 }}"
+            width="140"
+            height="{{ 140 | divided_by: settings.footer_logo.aspect_ratio | round }}"
+            alt="{{ shop.name }}"
+            style="margin-bottom: 1rem;"
+          >
+        {%- else -%}
+          <div class="footer__logo">{{ shop.name }}</div>
+        {%- endif -%}
+        <p class="footer__tagline">{{ settings.footer_tagline }}</p>
+        <p class="footer__text">{{ settings.footer_text }}</p>
+
+        <div class="footer__socials">
+          {%- if settings.footer_instagram != blank -%}
+            <a class="footer__social" href="{{ settings.footer_instagram }}" target="_blank" rel="noopener" aria-label="Instagram">
+              {%- render 'icon-instagram' -%}
+            </a>
+          {%- endif -%}
+          {%- if settings.footer_tiktok != blank -%}
+            <a class="footer__social" href="{{ settings.footer_tiktok }}" target="_blank" rel="noopener" aria-label="TikTok">
+              {%- render 'icon-tiktok' -%}
+            </a>
+          {%- endif -%}
+        </div>
+      </div>
+
+      <div>
+        <h3 class="footer__heading">Navigation</h3>
+        <ul class="footer__menu">
+          {%- for link in footer_menu.links -%}
+            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+          {%- endfor -%}
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="footer__heading">{{ 'footer.legal' | t }}</h3>
+        <ul class="footer__menu">
+          {%- for link in legal_menu.links -%}
+            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+          {%- endfor -%}
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="footer__heading">{{ 'footer.newsletter_title' | t }}</h3>
+        <div class="newsletter footer__newsletter">
+          <p class="footer__text">{{ 'newsletter.subtext' | t }}</p>
+          {%- assign newsletter_form_id = 'NewsletterForm-' | append: section.id -%}
+          {%- form 'customer', id: newsletter_form_id, class: 'newsletter__form' -%}
+            {%- if form.posted_successfully? -%}
+              <p class="newsletter__success newsletter__success--visible" role="status">{{ 'newsletter.success' | t }}</p>
+            {%- else -%}
+              {%- if form.errors -%}
+                <div class="newsletter__error form-error" role="alert">{{ form.errors | default_errors }}</div>
+              {%- endif -%}
+              <input type="hidden" name="contact[tags]" value="newsletter">
+              <input
+                class="newsletter__input"
+                type="email"
+                name="contact[email]"
+                value="{{ form.email | escape }}"
+                placeholder="{{ 'general.newsletter.label' | t }}"
+                aria-label="{{ 'general.newsletter.label' | t }}"
+                autocomplete="email"
+                autocapitalize="off"
+                autocorrect="off"
+                required
+              >
+              <button type="submit" class="newsletter__submit">{{ 'newsletter.submit' | t }}</button>
+            {%- endif -%}
+          {%- endform -%}
+        </div>
+        {%- if settings.footer_email != blank -%}
+          <p class="footer__text" style="margin-top: 1rem;">
+            <a href="mailto:{{ settings.footer_email }}">{{ settings.footer_email }}</a>
+          </p>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+
+  <div class="footer__bottom">
+    <div class="container" style="display:flex; flex-wrap:wrap; gap:1rem; justify-content:space-between; align-items:center;">
+      <span>© {{ 'now' | date: '%Y' }} {{ shop.name }} — Tous droits réservés.</span>
+      <span>{{ settings.footer_tagline }}</span>
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Pied de page",
+  "settings": [
+    {
+      "type": "link_list",
+      "id": "legal_menu",
+      "label": "Menu liens utiles",
+      "default": "footer"
+    }
+  ]
+}
+{% endschema %}

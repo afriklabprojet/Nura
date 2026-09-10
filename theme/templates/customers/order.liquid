@@ -1,0 +1,45 @@
+<section class="account" style="max-width: 760px;">
+  <h1 class="account__title">{{ 'customer.order' | t }} #{{ order.name }}</h1>
+
+  <p class="text-center" style="color: var(--brown-light);">
+    {{ order.created_at | date: '%d.%m.%Y' }} — {{ order.financial_status_label }} — {{ order.fulfillment_status_label }}
+  </p>
+
+  <table class="account__table">
+    <thead>
+      <tr>
+        <th>Produit</th>
+        <th>Quantité</th>
+        <th>Prix</th>
+      </tr>
+    </thead>
+    <tbody>
+      {%- for line_item in order.line_items -%}
+        <tr>
+          <td>
+            {{ line_item.title }}
+            {%- unless line_item.product.has_only_default_variant -%}
+              <br><span style="opacity:.6; font-size:.8rem;">{{ line_item.variant.title }}</span>
+            {%- endunless -%}
+          </td>
+          <td>{{ line_item.quantity }}</td>
+          <td>{{ line_item.final_line_price | money }}</td>
+        </tr>
+      {%- endfor -%}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="2" style="text-align:right;">Sous-total</td>
+        <td>{{ order.line_items_subtotal_price | money }}</td>
+      </tr>
+      <tr>
+        <td colspan="2" style="text-align:right;">Total</td>
+        <td>{{ order.total_price | money }}</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div class="account__links">
+    <a href="{{ routes.account_url }}">← {{ 'customer.account' | t }}</a>
+  </div>
+</section>

@@ -290,6 +290,12 @@
     observer.observe(stickyTrigger);
   }
 
+  /* ---------- Country select default (customer addresses) ---------- */
+  document.querySelectorAll('select[data-default]').forEach(function (select) {
+    var def = select.getAttribute('data-default');
+    if (def) select.value = def;
+  });
+
   /* ---------- Init ---------- */
   refreshCartCount();
 })();

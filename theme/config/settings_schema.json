@@ -141,18 +141,6 @@
       },
       {
         "type": "text",
-        "id": "footer_instagram",
-        "label": "Lien Instagram",
-        "default": "https://instagram.com"
-      },
-      {
-        "type": "text",
-        "id": "footer_tiktok",
-        "label": "Lien TikTok",
-        "default": "https://tiktok.com"
-      },
-      {
-        "type": "text",
         "id": "footer_email",
         "label": "Email de contact",
         "default": "contact@nura-paris.com"

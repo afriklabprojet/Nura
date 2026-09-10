@@ -23,13 +23,13 @@
         <p class="footer__text">{{ settings.footer_text }}</p>
 
         <div class="footer__socials">
-          {%- if settings.footer_instagram != blank -%}
-            <a class="footer__social" href="{{ settings.footer_instagram }}" target="_blank" rel="noopener" aria-label="Instagram">
+          {%- if settings.social_instagram != blank -%}
+            <a class="footer__social" href="{{ settings.social_instagram }}" target="_blank" rel="noopener" aria-label="Instagram">
               {%- render 'icon-instagram' -%}
             </a>
           {%- endif -%}
-          {%- if settings.footer_tiktok != blank -%}
-            <a class="footer__social" href="{{ settings.footer_tiktok }}" target="_blank" rel="noopener" aria-label="TikTok">
+          {%- if settings.social_tiktok != blank -%}
+            <a class="footer__social" href="{{ settings.social_tiktok }}" target="_blank" rel="noopener" aria-label="TikTok">
               {%- render 'icon-tiktok' -%}
             </a>
           {%- endif -%}

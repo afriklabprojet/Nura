@@ -23,11 +23,17 @@
     <a href="#recover">Mot de passe oublié ?</a>
   </div>
 
-  {%- form 'recover_customer_password' -%}
-    <div class="account__field" style="margin-top: 2rem;">
-      <label class="account__label" for="recover-email">{{ 'customer.email' | t }}</label>
-      <input class="account__input" type="email" id="recover-email" name="email" autocomplete="email">
-    </div>
-    <button type="submit" class="btn btn--outline">Réinitialiser le mot de passe</button>
-  {%- endform -%}
+  <div id="recover">
+    {%- form 'recover_customer_password' -%}
+      {%- if form.posted_successfully? -%}
+        <p class="form-success" role="status">Si un compte existe pour cette adresse, vous recevrez un email de réinitialisation.</p>
+      {%- endif -%}
+      {{ form.errors | default_errors }}
+      <div class="account__field" style="margin-top: 2rem;">
+        <label class="account__label" for="recover-email">{{ 'customer.email' | t }}</label>
+        <input class="account__input" type="email" id="recover-email" name="email" autocomplete="email">
+      </div>
+      <button type="submit" class="btn btn--outline">Réinitialiser le mot de passe</button>
+    {%- endform -%}
+  </div>
 </section>

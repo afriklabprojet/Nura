@@ -15,29 +15,27 @@
         {%- endif -%}
 
         {%- if form.errors -%}
-          <div class="form-error" role="alert">
-            {{ form.errors.translated_fields['email'] | capitalize }} {{ form.errors.messages['email'] }}
-          </div>
+          <div class="form-error" role="alert">{{ form.errors | default_errors }}</div>
         {%- endif -%}
 
         <div class="contact-form__field">
           <label class="contact-form__label" for="contact-name">{{ 'contact.name' | t }}</label>
-          <input class="contact-form__input" type="text" id="contact-name" name="contact[name]" required>
+          <input class="contact-form__input" type="text" id="contact-name" name="contact[name]" value="{{ form.name }}" required>
         </div>
 
         <div class="contact-form__field">
           <label class="contact-form__label" for="contact-email">{{ 'contact.email' | t }}</label>
-          <input class="contact-form__input" type="email" id="contact-email" name="contact[email]" required>
+          <input class="contact-form__input" type="email" id="contact-email" name="contact[email]" value="{{ form.email }}" required>
         </div>
 
         <div class="contact-form__field">
           <label class="contact-form__label" for="contact-phone">{{ 'contact.phone' | t }}</label>
-          <input class="contact-form__input" type="tel" id="contact-phone" name="contact[phone]">
+          <input class="contact-form__input" type="tel" id="contact-phone" name="contact[phone]" value="{{ form.phone }}">
         </div>
 
         <div class="contact-form__field">
           <label class="contact-form__label" for="contact-message">{{ 'contact.message' | t }}</label>
-          <textarea class="contact-form__textarea" id="contact-message" name="contact[body]" required></textarea>
+          <textarea class="contact-form__textarea" id="contact-message" name="contact[body]" required>{{ form.body }}</textarea>
         </div>
 
         <button type="submit" class="btn btn--primary">{{ 'contact.submit' | t }}</button>

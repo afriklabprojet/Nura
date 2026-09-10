@@ -54,15 +54,23 @@ alors sur ton propre serveur : tu possèdes le code et les données.
    **Settings > API Key Management > Publishable Keys**, crée une clé, et
    colle-la dans `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` du fichier `.env`.
 
+   ⚠️ **Ne relance plus jamais cette commande `medusa user` après l'étape 7**
+   (une fois les rôles Admin/Manager seedés) — bug confirmé de cette version
+   de Medusa : la commande efface silencieusement toutes les politiques RBAC
+   personnalisées. Pour ajouter d'autres comptes admin ensuite, utilise
+   l'invitation depuis le dashboard (**Settings > Team > Invite**).
+
 6. **Construire et démarrer le storefront** (maintenant que la clé existe) :
    ```bash
    docker compose up -d --build storefront
    ```
 
-7. **Seeder le catalogue Nura** (une seule fois) :
+7. **Seeder le catalogue Nura et les rôles** (une seule fois, dans cet ordre —
+   fais-le juste après l'étape 5, avant de créer d'autres comptes admin) :
    ```bash
    docker compose exec backend npx medusa exec ./src/scripts/seed-nura.ts
    docker compose exec backend npx medusa exec ./src/scripts/add-nura-collection.ts
+   docker compose exec backend npx medusa exec ./src/scripts/seed-rbac-roles.ts
    ```
 
 Le site est alors accessible sur tes deux domaines, avec HTTPS automatique
@@ -85,13 +93,37 @@ Tant que `STRIPE_API_KEY` est vide, le paiement tourne en mode manuel/test
 5. Dans l'admin, **Settings > Regions > Europe**, active le mode de
    paiement Stripe.
 
-## Emails (formulaire de contact)
+## Rôles & permissions (Super Admin / Admin / Manager)
 
-Le formulaire `/contact` fonctionne déjà (validation + journal serveur),
-mais n'envoie pas encore de vrai email — aucun fournisseur transactionnel
-n'est configuré. Pour recevoir les messages par email, il faudra choisir un
-fournisseur (Resend, Postmark, SMTP...) et créer un compte chez eux, puis
-brancher leurs identifiants dans un module de notification Medusa.
+Trois profils existent dans le dashboard admin :
+
+- **Super Admin** — accès total (créé automatiquement pour le premier
+  compte admin).
+- **Admin** — gère tout l'opérationnel (produits, commandes, clients,
+  promotions, prix, inventaire, utilisateurs, réglages boutique), mais ne
+  peut pas créer/modifier de rôles.
+- **Manager** — peut consulter/créer/modifier produits, commandes, clients
+  et inventaire au quotidien, mais ne peut ni supprimer, ni toucher aux
+  utilisateurs, réglages boutique, clés API ou rôles.
+
+Pour ajouter un collègue : dashboard → **Settings > Team > Invite**, puis
+une fois le compte créé, assigne-lui un rôle via **Settings > Roles**.
+
+## Emails (formulaire de contact via Resend)
+
+Le formulaire `/contact` fonctionne déjà (validation + journal serveur) et
+envoie un vrai email dès que Resend est configuré :
+
+1. Crée un compte sur [resend.com](https://resend.com) et vérifies-y ton
+   domaine d'envoi (ex. `nura-paris.com`).
+2. Récupère une clé API (`resend.com/api-keys`), mets-la dans `.env`
+   (`RESEND_API_KEY`) avec une adresse `RESEND_FROM_EMAIL` sur ce domaine
+   vérifié (ex. `contact@nura-paris.com`).
+3. Redéploie : `docker compose up -d --build backend`.
+
+Tant que ces variables sont vides, les messages restent journalisés côté
+serveur uniquement (`docker compose logs backend`), sans erreur pour le
+visiteur.
 
 ## Mises à jour
 

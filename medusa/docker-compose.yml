@@ -45,6 +45,10 @@ services:
       AUTH_CORS: ${AUTH_CORS:?set AUTH_CORS in .env, combine STORE_CORS and ADMIN_CORS}
       STRIPE_API_KEY: ${STRIPE_API_KEY:-}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      MEDUSA_FF_RBAC: "true"
+      MEDUSA_FF_RBAC_FILTER_FIELDS: "true"
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
     expose:
       - "9000"
 

@@ -1,6 +1,11 @@
 # syntax=docker/dockerfile:1
 
-FROM node:22-alpine AS build
+# node:22-alpine (musl libc) can hang during Medusa's full module bootstrap —
+# musl's getaddrinfo has known issues with the concurrent DNS lookups Medusa
+# does while loading ~20+ modules, observed as `medusa db:migrate` never
+# reaching the database no matter how long the connection timeout is set.
+# node:22-bookworm-slim (glibc) does not have this problem.
+FROM node:22-bookworm-slim AS build
 WORKDIR /app
 
 # Install the whole workspace so the backend's local deps resolve, then
@@ -18,11 +23,11 @@ RUN npm run build
 WORKDIR /app/apps/backend/.medusa/server
 RUN npm install --omit=dev
 
-FROM node:22-alpine AS runtime
+FROM node:22-bookworm-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 
-RUN addgroup -S medusa && adduser -S medusa -G medusa
+RUN groupadd -r medusa && useradd -r -g medusa medusa
 COPY --from=build --chown=medusa:medusa /app/apps/backend/.medusa/server /app
 
 USER medusa

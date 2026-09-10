@@ -1,3 +1,4 @@
 node_modules/
 .shopify/
 .DS_Store
+.claude/

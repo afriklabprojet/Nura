@@ -115,6 +115,11 @@ export default async function Footer() {
               <span className="txt-small-plus txt-ui-fg-base">Nura</span>
               <ul className="grid grid-cols-1 gap-y-2 text-ui-fg-subtle txt-small">
                 <li>
+                  <LocalizedClientLink href="/contact" className="hover:text-gold">
+                    Contact
+                  </LocalizedClientLink>
+                </li>
+                <li>
                   <a
                     href="mailto:contact@nura-paris.com"
                     className="hover:text-gold"

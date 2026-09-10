@@ -1,81 +1,77 @@
-# NURA — Thème Shopify sur-mesure
+# NURA — e-commerce sur-mesure, auto-hébergé
 
-Thème e-commerce premium pour la marque **Nura** (parfumerie & bodycare).
+Boutique e-commerce premium pour la marque **Nura** (parfumerie & bodycare).
 Direction artistique : minimaliste, féminin, premium, sensoriel.
 
 « Votre aura commence ici. »
 
 ---
 
-## Structure du thème
+## Stack active : `medusa/`
+
+Backend [Medusa](https://medusajs.com) (open-source, self-hosted) + storefront
+Next.js, en monorepo npm workspaces. Choisi pour un contrôle total du code et
+des données — pas de plateforme tierce, hébergement sur ton propre serveur.
+
+```
+medusa/
+├── apps/
+│   ├── backend/     Medusa (API, admin, catalogue, commandes, paiements)
+│   │   └── src/scripts/seed-nura.ts   Catalogue Nura (parfums, bodycare, coffrets)
+│   └── storefront/  Next.js (boutique publique, charte Nura)
+├── docker-compose.yml, Caddyfile, DEPLOYMENT.md   Déploiement production
+```
+
+### Démarrage local
+
+```bash
+cd medusa
+npm run dev              # backend :9000 (admin sur /app) + storefront :8000
+```
+
+Prérequis locaux : PostgreSQL et Redis qui tournent (`brew services start
+postgresql@16 redis`), variables d'environnement dans
+`apps/backend/.env` / `apps/storefront/.env.local`. Voir `medusa/AGENTS.md`
+pour les commandes détaillées (migrations, seed, lint, tests).
+
+### Déploiement en production
+
+Voir [`medusa/DEPLOYMENT.md`](medusa/DEPLOYMENT.md) — Docker + Caddy (HTTPS
+automatique), sur n'importe quel VPS (Hetzner, DigitalOcean, OVH…).
+
+### Palette & typographie
+
+- **Couleurs** : beige crème `#F7F1E8`, blanc cassé `#FBF8F3`, nude `#E7D3C0`,
+  brun profond `#3A2A20`, doré discret `#B79B6E`.
+- **Typographie** : Cormorant Garamond (serif, titres) + Jost (sans-serif, UI).
+
+### Reste à faire
+
+- Photos produits réelles (actuellement placeholders).
+- Paiement réel : Stripe est câblé dans le code mais désactivé tant
+  qu'aucune clé n'est renseignée (voir DEPLOYMENT.md).
+- Email transactionnel pour le formulaire `/contact` (actuellement journalisé
+  côté serveur, pas encore envoyé par email).
+- Pages À propos / FAQ (contenu à rédiger).
+
+---
+
+## Référence historique : `theme/` (thème Shopify)
+
+Un thème Shopify Liquid complet a été construit avant de basculer vers la
+stack auto-hébergée ci-dessus (Shopify héberge toujours les données même en
+mode headless, ce qui ne correspondait pas à l'objectif de contrôle total).
+Conservé ici à titre de référence — non maintenu activement.
 
 ```
 theme/
 ├── layout/theme.liquid          Squelette global (head, fonts, CSS/JS, JSON-LD)
-├── config/
-│   ├── settings_schema.json     Réglages thème (couleurs, typo, header, footer…)
-│   └── settings_data.json       Valeurs par défaut
-├── locales/fr.json              Chaînes UI en français
-├── sections/                    Sections (header, footer, hero, collections…)
-├── snippets/                    Composants réutilisables (carte produit, prix…)
-├── templates/
-│   ├── *.json                   Templates JSON (index, product, collection…)
-│   └── customers/*.liquid       Compte client (connexion, adresses, commandes)
-└── assets/
-    ├── theme.css                Design system + composants
-    └── theme.js                 Drawer panier, AJAX add-to-cart, accordéons…
+├── config/                      Réglages thème (couleurs, typo, header, footer…)
+├── locales/fr.default.json      Chaînes UI en français
+├── sections/, snippets/         Sections et composants réutilisables
+├── templates/                   Templates JSON + compte client
+└── assets/                      theme.css (design system) + theme.js
 ```
 
-## Palette & typographie
-
-- **Couleurs** : beige crème `#F7F1E8`, blanc cassé `#FBF8F3`, nude `#E7D3C0`,
-  brun profond `#3A2A20`, doré discret `#B79B6E`.
-- **Typographie** : Cormorant Garamond (serif, titres/éditorial) + Jost (sans-serif, UI).
-  Chargées via Google Fonts dans `layout/theme.liquid`.
-
-## Démarrage (développement local)
-
-1. Créer un compte [Shopify Partners](https://www.shopify.com/partners) puis une **boutique de développement**.
-2. Installer Shopify CLI : `npm install -g @shopify/cli@latest`.
-3. Se connecter : `shopify login --store votre-boutique.myshopify.com`.
-4. Depuis le dossier du thème, lancer l'aperçu local :
-
-   ```bash
-   cd theme
-   shopify theme dev
-   ```
-
-   Le thème est alors visible sur `http://localhost:9292` (hot-reload).
-5. Pousser en production : `shopify theme push --unpublished` (boutique de dev).
-
-## Données à configurer dans l'admin Shopify
-
-- **Menus** : créer les menus `main-menu` (Accueil, Parfums, Bodycare, Collections,
-  À propos, Contact) et `footer` (liens légaux + navigation).
-- **Metafields produits** (namespace `custom`) utilisés par le thème :
-  - `custom.type_produit` (Parfum / Bodycare / Coffret)
-  - `custom.contenance` (ex. « 50 ml »)
-  - `custom.notes_tete`, `custom.notes_coeur`, `custom.notes_fond` (profil olfactif)
-  - `custom.conseils_utilisation` (rich text)
-  - `custom.ingredients` (rich text)
-  - `custom.badge` (Best-seller / Nouveau / Édition limitée)
-- **Filtres collection** : activer l'app gratuite *Shopify Search & Discovery*
-  pour les filtres de prix/disponibilité.
-- **Avis clients** : installer **Judge.me** puis insérer son widget dans
-  `sections/main-product.liquid` (emplacement marqué par un commentaire).
-- **Newsletter** : le formulaire utilise la collection de contacts Shopify
-  (`form 'customer'`) — compatible Shopify Email / Klaviyo.
-
-## Pages à créer dans l'admin
-
-- `À propos` (template `page.about`), `FAQ` (`page.faq`), `Contact` (`page.contact`)
-- Pages légales : CGV, Politique de confidentialité, Mentions légales,
-  Livraison & retours (template `page`).
-
-## Évolutivité
-
-- **Nouvelles collections/catégories** : sections `shop-by-category` et
-  `featured-collection` extensibles depuis l'éditeur de thème.
-- **International** : locales prêtes, activer Shopify Markets (FR/EN) plus tard.
-- **Fidélité/coffrets/collaborations** : s'appuient sur les collections et
-  metafields existants, sans refonte.
+Pour le faire tourner : `cd theme && shopify theme dev` (nécessite le
+Shopify CLI et une boutique de développement Shopify Partners).

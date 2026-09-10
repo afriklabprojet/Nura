@@ -1,0 +1,10 @@
+# Replace these with your real domains before deploying, then Caddy
+# handles HTTPS (Let's Encrypt) automatically — no manual certs needed.
+
+nura-paris.com {
+	reverse_proxy storefront:8000
+}
+
+api.nura-paris.com {
+	reverse_proxy backend:9000
+}

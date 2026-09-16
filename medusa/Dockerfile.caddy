@@ -1,0 +1,12 @@
+# syntax=docker/dockerfile:1
+
+# Stock Caddy doesn't include the MaxMind GeoIP matcher used by the
+# Caddyfile for market detection (Côte d'Ivoire → XOF/Jèko) — Caddy plugins
+# are compiled in, not loaded at runtime, so this builds a custom binary.
+FROM caddy:2-builder-alpine AS builder
+
+RUN xcaddy build --with github.com/porech/caddy-maxmind-geolocation
+
+FROM caddy:2-alpine
+
+COPY --from=builder /usr/bin/caddy /usr/bin/caddy

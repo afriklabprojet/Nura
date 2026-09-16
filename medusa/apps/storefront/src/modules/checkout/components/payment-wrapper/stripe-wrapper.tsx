@@ -22,6 +22,11 @@ const StripeWrapper: React.FC<StripeWrapperProps> = ({
 }) => {
   const options: StripeElementsOptions = {
     clientSecret: paymentSession!.data?.client_secret as string | undefined,
+    // Without this, Stripe's Payment Element defaults to "auto", which
+    // renders in the visitor's browser language rather than the site's —
+    // an English-browser visitor would see English card fields on an
+    // otherwise all-French checkout page.
+    locale: "fr",
   }
 
   if (!stripeKey) {

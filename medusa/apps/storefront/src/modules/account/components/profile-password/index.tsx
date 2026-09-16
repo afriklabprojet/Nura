@@ -1,51 +1,56 @@
 "use client"
 
-import React from "react"
+import React, { useActionState, useEffect } from "react"
 import Input from "@modules/common/components/input"
 import AccountInfo from "../account-info"
 import { HttpTypes } from "@medusajs/types"
-// TODO: Re-add toast notifications when Toaster component is implemented
+import { updatePassword } from "@lib/data/customer"
 
 type MyInformationProps = {
   customer: HttpTypes.StoreCustomer
 }
 
-const ProfilePassword: React.FC<MyInformationProps> = ({ customer: _customer }) => {
+const ProfilePassword: React.FC<MyInformationProps> = ({
+  customer: _customer,
+}) => {
   const [successState, setSuccessState] = React.useState(false)
 
-  // TODO: Add support for password updates
-  const updatePassword = async () => {
-    // TODO: Re-add toast notification when Toaster component is implemented
-    console.info("Password update is not implemented")
-  }
+  const [state, formAction] = useActionState(updatePassword, {
+    error: null as string | null,
+    success: false,
+  })
 
   const clearState = () => {
     setSuccessState(false)
   }
 
+  useEffect(() => {
+    setSuccessState(state.success)
+  }, [state])
+
   return (
-    <form
-      action={updatePassword}
-      onReset={() => clearState()}
-      className="w-full"
-    >
+    <form action={formAction} className="w-full">
       <AccountInfo
         label="Mot de passe"
         currentInfo={
-          <span>Le mot de passe n&apos;est pas affiché pour des raisons de sécurité</span>
+          <span>
+            Le mot de passe n&apos;est pas affiché pour des raisons de
+            sécurité
+          </span>
         }
         isSuccess={successState}
-        isError={false}
-        errorMessage={undefined}
+        isError={!!state.error}
+        errorMessage={state.error || undefined}
         clearState={clearState}
         data-testid="account-password-editor"
       >
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 small:grid-cols-3 gap-4">
           <Input
-            label="Ancien mot de passe"
+            label="Mot de passe actuel"
             name="old_password"
             required
             type="password"
+            autoComplete="current-password"
             data-testid="old-password-input"
           />
           <Input
@@ -53,6 +58,7 @@ const ProfilePassword: React.FC<MyInformationProps> = ({ customer: _customer }) 
             type="password"
             name="new_password"
             required
+            autoComplete="new-password"
             data-testid="new-password-input"
           />
           <Input
@@ -60,6 +66,7 @@ const ProfilePassword: React.FC<MyInformationProps> = ({ customer: _customer }) 
             type="password"
             name="confirm_password"
             required
+            autoComplete="new-password"
             data-testid="confirm-password-input"
           />
         </div>

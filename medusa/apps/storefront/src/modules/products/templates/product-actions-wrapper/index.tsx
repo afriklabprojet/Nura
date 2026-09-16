@@ -1,4 +1,6 @@
 import { listProducts } from "@lib/data/products"
+import { retrieveCustomer } from "@lib/data/customer"
+import { listWishlist } from "@lib/data/wishlist"
 import { HttpTypes } from "@medusajs/types"
 import ProductActions from "@modules/products/components/product-actions"
 
@@ -21,5 +23,16 @@ export default async function ProductActionsWrapper({
     return null
   }
 
-  return <ProductActions product={product} region={region} />
+  const customer = await retrieveCustomer()
+  const wishlist = customer ? await listWishlist() : []
+  const isInWishlist = wishlist.some((item) => item.product_id === id)
+
+  return (
+    <ProductActions
+      product={product}
+      region={region}
+      isLoggedIn={!!customer}
+      isInWishlist={isInWishlist}
+    />
+  )
 }

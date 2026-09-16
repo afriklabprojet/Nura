@@ -8,10 +8,20 @@
 FROM node:22-bookworm-slim AS build
 WORKDIR /app
 
+# node:22-bookworm-slim bundles an older npm (10.x) than what generated
+# package-lock.json (see "packageManager" below) — npm 10's `npm ci
+# --workspace` has a bug where it misreads the lockfile against the root
+# "overrides" field and wrongly demands packages the override replaced.
+RUN npm install -g npm@11.17.0
+
 # Install the whole workspace so the backend's local deps resolve, then
-# build only the backend.
+# build only the backend. package-lock.json was generated against all
+# workspaces' package.json files (root overrides react/react-dom to 19.0.5
+# repo-wide, so storefront's package.json must stay visible here too, or
+# `npm ci` sees an inconsistent lockfile and refuses to install).
 COPY package.json package-lock.json ./
 COPY apps/backend/package.json apps/backend/package.json
+COPY apps/storefront/package.json apps/storefront/package.json
 RUN npm ci --workspace=@dtc/backend --include-workspace-root
 
 COPY apps/backend apps/backend
@@ -27,7 +37,7 @@ FROM node:22-bookworm-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 
-RUN groupadd -r medusa && useradd -r -g medusa medusa
+RUN groupadd -r medusa && useradd -r -m -d /home/medusa -g medusa medusa
 COPY --from=build --chown=medusa:medusa /app/apps/backend/.medusa/server /app
 
 USER medusa

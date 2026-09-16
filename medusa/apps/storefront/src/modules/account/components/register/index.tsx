@@ -82,18 +82,12 @@ const Register = ({ setCurrentView }: Props) => {
         />
         <span className="text-center text-ui-fg-base text-small-regular mt-6">
           En créant un compte, vous acceptez la{" "}
-          <LocalizedClientLink
-            href="/content/privacy-policy"
-            className="underline"
-          >
+          <LocalizedClientLink href="/confidentialite" className="underline">
             politique de confidentialité
           </LocalizedClientLink>{" "}
           et les{" "}
-          <LocalizedClientLink
-            href="/content/terms-of-use"
-            className="underline"
-          >
-            conditions d&apos;utilisation
+          <LocalizedClientLink href="/cgv" className="underline">
+            conditions générales de vente
           </LocalizedClientLink>{" "}
           de Nura.
         </span>

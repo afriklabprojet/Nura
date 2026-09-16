@@ -34,7 +34,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
         )}
         <Heading
           level="h2"
-          className="text-3xl leading-10"
+          className="text-3xl small:text-4xl leading-tight"
           data-testid="product-title"
         >
           {product.title}

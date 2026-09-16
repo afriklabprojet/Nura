@@ -1,5 +1,6 @@
 import "server-only"
 import { cookies as nextCookies } from "next/headers"
+import { MARKET_PREF_COOKIE, REFERRAL_CODE_COOKIE } from "@lib/constants"
 
 export const getAuthHeaders = async (): Promise<
   { authorization: string } | Record<string, never>
@@ -113,6 +114,27 @@ export const removePendingCustomer = async () => {
   cookies.set("_medusa_pending_customer", "", {
     maxAge: -1,
   })
+}
+
+// Set when the customer explicitly picks a country (CountrySelect →
+// updateRegion). The storefront middleware checks this before any
+// GeoIP/locale-based detection, so an explicit choice always wins and
+// survives a future visit with no country in the URL yet.
+export const setMarketPreference = async (countryCode: string) => {
+  const cookies = await nextCookies()
+  cookies.set(MARKET_PREF_COOKIE, countryCode, {
+    maxAge: 60 * 60 * 24 * 365,
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  })
+}
+
+// Set by the middleware when a visitor arrives via `?ref=CODE`. Read once,
+// at signup, to attribute the new account to whoever referred them.
+export const getReferralCode = async () => {
+  const cookies = await nextCookies()
+  return cookies.get(REFERRAL_CODE_COOKIE)?.value
 }
 
 export const getCartId = async () => {

@@ -31,10 +31,12 @@
     "@medusajs/framework": "2.20.1",
     "@medusajs/medusa": "2.20.1",
     "@medusajs/ui": "4.2.3",
+    "@rokmohar/medusa-plugin-meilisearch": "2.1.0",
     "@tanstack/react-query": "5.64.2",
     "react-i18next": "13.5.0",
     "react-router-dom": "7.18.2",
     "resend": "^6.27.0",
+    "rxjs": "^7.8.2",
     "zod": "4.2.0"
   },
   "devDependencies": {

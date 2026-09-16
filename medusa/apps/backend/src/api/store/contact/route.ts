@@ -1,6 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
-import type { INotificationModuleService } from "@medusajs/framework/types"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { sendEmailNotificationWorkflow } from "../../../workflows/send-email-notification"
+import { escapeHtml } from "../../../lib/escape-html"
 
 type ContactRequestBody = {
   name?: string
@@ -10,15 +11,6 @@ type ContactRequestBody = {
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;")
-}
 
 export async function POST(
   req: MedusaRequest<ContactRequestBody>,
@@ -52,13 +44,10 @@ export async function POST(
   const storeEmail = process.env.RESEND_FROM_EMAIL
   if (process.env.RESEND_API_KEY && storeEmail) {
     try {
-      const notificationModuleService: INotificationModuleService =
-        req.scope.resolve(Modules.NOTIFICATION)
-
-      await notificationModuleService.createNotifications({
-        to: storeEmail,
-        channel: "email",
-        content: {
+      await sendEmailNotificationWorkflow(req.scope).run({
+        input: {
+          to: storeEmail,
+          trigger_type: "contact_form",
           subject: `Nouveau message de contact — ${name.trim()}`,
           html: `
             <p><strong>Nom :</strong> ${escapeHtml(name.trim())}</p>

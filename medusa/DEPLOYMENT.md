@@ -76,14 +76,23 @@ alors sur ton propre serveur : tu possèdes le code et les données.
 Le site est alors accessible sur tes deux domaines, avec HTTPS automatique
 (Caddy gère les certificats Let's Encrypt tout seul).
 
-## Paiement réel (Stripe)
+## Paiement réel
 
-Tant que `STRIPE_API_KEY` est vide, le paiement tourne en mode manuel/test
-(aucune vraie carte n'est débitée). Pour activer les vrais paiements :
+Deux régions, deux moyens de paiement. Tant que les clés ci-dessous sont
+vides, le paiement tourne en mode manuel/test (aucun argent réel ne bouge) —
+le site reste utilisable pour tout tester avant d'activer les vrais comptes.
 
-1. Crée un compte sur [stripe.com](https://stripe.com) (nécessite tes
-   informations d'entreprise/bancaires — c'est une démarche que toi seul
-   peux faire).
+**Important : la création et la vérification des comptes Stripe et Jèko ne
+peuvent être faites que par toi.** Ces plateformes exigent tes documents
+d'entreprise (immatriculation, pièce d'identité du représentant légal,
+coordonnées bancaires) pour vérifier l'identité de l'entreprise — aucune IA
+ne peut se substituer à cette vérification. Une fois les comptes créés et
+validés, connecte-les au site avec les étapes ci-dessous.
+
+### Stripe (Europe — cartes bancaires)
+
+1. Crée un compte sur [stripe.com](https://stripe.com) et complète la
+   vérification (documents d'entreprise, coordonnées bancaires).
 2. Récupère tes clés API (`dashboard.stripe.com/apikeys`), mets-les dans
    `.env` (`STRIPE_API_KEY`, `NEXT_PUBLIC_STRIPE_KEY`).
 3. Crée un webhook Stripe pointant vers
@@ -92,6 +101,28 @@ Tant que `STRIPE_API_KEY` est vide, le paiement tourne en mode manuel/test
 4. Redéploie : `docker compose up -d --build backend storefront`.
 5. Dans l'admin, **Settings > Regions > Europe**, active le mode de
    paiement Stripe.
+
+### Jèko (Côte d'Ivoire — Wave, Orange Money, MTN, Moov, Djamo)
+
+1. Crée un compte sur [jeko.africa](https://jeko.africa) et complète la
+   vérification (documents d'entreprise).
+2. Dans le Dashboard Business (`cockpit.jeko.africa`), va dans
+   **Paramètres > API & Webhooks** pour récupérer ta clé API et son
+   identifiant, mets-les dans `.env` (`JEKO_API_KEY`, `JEKO_API_KEY_ID`).
+3. Récupère l'identifiant de ta boutique via
+   `GET https://api.jeko.africa/partner_api/stores` (avec les headers
+   `X-API-KEY` / `X-API-KEY-ID`), mets-le dans `.env` (`JEKO_STORE_ID`).
+4. Configure l'URL de webhook `https://api.nura-paris.com/hooks/payment/jeko_jeko`
+   dans le même écran, copie le secret webhook affiché dans `.env`
+   (`JEKO_WEBHOOK_SECRET`).
+5. Redéploie : `docker compose up -d --build backend`.
+6. Dans l'admin, **Settings > Regions > Côte d'Ivoire**, active le mode de
+   paiement Jèko.
+
+⚠️ Jèko ne propose pas de remboursement via son API : un remboursement doit
+être fait manuellement (transfert mobile money direct) et noté à part —
+tenter un remboursement pour Jèko dans le dashboard Medusa affichera une
+erreur explicite plutôt que de faire semblant de réussir.
 
 ## Rôles & permissions (Super Admin / Admin / Manager)
 
@@ -109,10 +140,14 @@ Trois profils existent dans le dashboard admin :
 Pour ajouter un collègue : dashboard → **Settings > Team > Invite**, puis
 une fois le compte créé, assigne-lui un rôle via **Settings > Roles**.
 
-## Emails (formulaire de contact via Resend)
+## Emails (Resend)
 
-Le formulaire `/contact` fonctionne déjà (validation + journal serveur) et
-envoie un vrai email dès que Resend est configuré :
+Une fois Resend configuré, le site envoie automatiquement :
+- le message du formulaire `/contact` (à toi, `RESEND_FROM_EMAIL`),
+- la confirmation de commande (au client, après paiement),
+- le lien de réinitialisation de mot de passe,
+- le lien de vérification d'email,
+- la notification de nouvel inscrit à la newsletter (à toi).
 
 1. Crée un compte sur [resend.com](https://resend.com) et vérifies-y ton
    domaine d'envoi (ex. `nura-paris.com`).
@@ -124,6 +159,82 @@ envoie un vrai email dès que Resend est configuré :
 Tant que ces variables sont vides, les messages restent journalisés côté
 serveur uniquement (`docker compose logs backend`), sans erreur pour le
 visiteur.
+
+## Recherche produit (Meilisearch)
+
+Auto-hébergée, aucun compte tiers requis :
+
+1. Génère une clé et mets-la dans `.env` (`MEILISEARCH_API_KEY`) :
+   ```bash
+   openssl rand -hex 16
+   ```
+2. Démarre Meilisearch, puis crée l'index des produits avec sa clé primaire
+   (sans cela, la graine échoue : Meilisearch ne peut pas inférer la clé
+   primaire quand plusieurs champs se terminent par `id`) :
+   ```bash
+   docker compose up -d meilisearch
+   curl -X POST http://localhost:7700/indexes \
+     -H "Authorization: Bearer $MEILISEARCH_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"uid":"products","primaryKey":"id"}'
+   ```
+   Ensuite démarre tout :
+   ```bash
+   docker compose up -d --build
+   ```
+   Au démarrage, le backend remplit automatiquement l'index des produits et
+   le maintient à jour à chaque création/modification de produit.
+3. Crée une clé « search-only » (celle-ci est exposée au navigateur, elle
+   ne doit jamais être la clé maître ci-dessus) :
+   ```bash
+   docker compose exec meilisearch curl -s -X POST http://localhost:7700/keys \
+     -H "Authorization: Bearer $MEILISEARCH_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"description":"Storefront search-only key","actions":["search"],"indexes":["products"],"expiresAt":null}'
+   ```
+   Copie le `key` retourné dans `.env` (`NEXT_PUBLIC_MEILISEARCH_API_KEY`),
+   mets `NEXT_PUBLIC_MEILISEARCH_HOST` sur l'URL publique de Meilisearch
+   (ex. `https://api.nura-paris.com:7700` — pense à l'exposer dans ton
+   `Caddyfile` si tu veux l'atteindre depuis l'extérieur), puis :
+   ```bash
+   docker compose up -d --build storefront
+   ```
+
+Tant que `MEILISEARCH_API_KEY` est vide, le site fonctionne normalement,
+simplement sans barre de recherche (navigation par catégories/collections
+uniquement).
+
+## Détection automatique du marché
+
+Un visiteur en Côte d'Ivoire arrive automatiquement en XOF/Jèko, un visiteur
+ailleurs reste sur le marché par défaut (EUR/Stripe) — sans que le client
+choisisse quoi que ce soit. Ça se fait via une détection GeoIP faite par
+Caddy lui-même (auto-hébergée, aucun service tiers appelé à chaque visite) :
+
+1. Crée un compte gratuit sur
+   [maxmind.com/en/geolite2/signup](https://www.maxmind.com/en/geolite2/signup),
+   génère une clé de licence (`Manage License Keys`).
+2. Mets ton `Account ID` et ta clé dans `.env`
+   (`GEOIPUPDATE_ACCOUNT_ID`, `GEOIPUPDATE_LICENSE_KEY`).
+3. Premier démarrage uniquement — démarre `geoipupdate` seul et laisse-le
+   terminer le premier téléchargement de la base (quelques secondes) avant
+   de démarrer Caddy, sinon Caddy n'a pas encore de base à lire :
+   ```bash
+   docker compose up -d geoipupdate
+   sleep 15
+   docker compose up -d --build
+   ```
+   Les démarrages suivants n'ont pas besoin de cette étape séparée — la
+   base reste sur le volume `geoip_data` et se rafraîchit automatiquement
+   toutes les 72 h.
+
+Si un client choisit manuellement un autre pays dans le sélecteur du site,
+ce choix est mémorisé (cookie, 1 an) et prime toujours sur la détection
+GeoIP au prochain passage.
+
+Pour affiner la détection par pays plutôt que par grand marché (Europe vs
+Côte d'Ivoire), ajoute d'autres blocs `@geo_*` dans le `Caddyfile` — voir le
+commentaire au-dessus du bloc `@geo_ci` existant.
 
 ## Mises à jour
 

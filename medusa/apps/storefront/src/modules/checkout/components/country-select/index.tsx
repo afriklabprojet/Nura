@@ -3,6 +3,7 @@ import { forwardRef, useImperativeHandle, useMemo, useRef } from "react"
 import NativeSelect, {
   NativeSelectProps,
 } from "@modules/common/components/native-select"
+import { getCountryName } from "@lib/util/country-names"
 import { HttpTypes } from "@medusajs/types"
 
 const CountrySelect = forwardRef<
@@ -25,7 +26,7 @@ const CountrySelect = forwardRef<
 
     return region.countries?.map((country) => ({
       value: country.iso_2,
-      label: country.display_name,
+      label: getCountryName(country.iso_2, country.display_name),
     }))
   }, [region])
 

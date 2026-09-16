@@ -12,6 +12,7 @@ import {
   getCacheTag,
   getCartId,
   getPendingCustomer,
+  getReferralCode,
   removeAuthToken,
   removeCartId,
   removePendingCustomer,
@@ -24,6 +25,20 @@ export type CustomerAuthState =
   | { state: "verification_required"; email: string }
   | { state: "success" }
   | null
+
+const getLoginErrorMessage = (error: unknown) => {
+  const fetchError = error as FetchError
+
+  if (
+    fetchError.status === 401 ||
+    fetchError.statusText === "Unauthorized" ||
+    fetchError.message?.includes("Invalid email or password")
+  ) {
+    return "Email ou mot de passe incorrect."
+  }
+
+  return "Impossible de vous connecter pour le moment. Réessayez."
+}
 
 // Requests a verification email for the given customer. The request must be
 // authenticated with a token tied to the auth identity (the token returned by
@@ -110,7 +125,10 @@ export async function signup(
       fetchError.statusText !== "Unauthorized" ||
       fetchError.message !== "Identity with email already exists"
     ) {
-      return { state: "error", error: String(error) }
+      return {
+        state: "error",
+        error: "Impossible de créer votre compte pour le moment. Réessayez.",
+      }
     }
   }
 
@@ -146,7 +164,7 @@ async function completeLogin(
   try {
     result = await sdk.auth.login("customer", "emailpass", { email, password })
   } catch (error) {
-    return { state: "error", error: String(error) }
+    return { state: "error", error: getLoginErrorMessage(error) }
   }
 
   // A `location` is returned by third-party auth providers, which this flow
@@ -154,7 +172,7 @@ async function completeLogin(
   if (typeof result === "object" && "location" in result) {
     return {
       state: "error",
-      error: "This login method isn't supported by the storefront.",
+      error: "Cette méthode de connexion n’est pas prise en charge.",
     }
   }
 
@@ -176,7 +194,7 @@ async function completeLogin(
   if (typeof result !== "string") {
     return {
       state: "error",
-      error: "Authentication requires additional steps that aren't supported.",
+      error: "La connexion nécessite une étape supplémentaire non prise en charge.",
     }
   }
 
@@ -194,6 +212,7 @@ async function completeLogin(
 
   if (!customerExists) {
     const pending = await getPendingCustomer()
+    const referredBy = await getReferralCode()
 
     try {
       await sdk.store.customer.create(
@@ -202,6 +221,7 @@ async function completeLogin(
           first_name: pending?.first_name,
           last_name: pending?.last_name,
           phone: pending?.phone,
+          ...(referredBy ? { metadata: { referred_by: referredBy } } : {}),
         },
         {},
         { authorization: `Bearer ${token}` }
@@ -211,8 +231,11 @@ async function completeLogin(
         email,
         password,
       })) as string
-    } catch (error) {
-      return { state: "error", error: String(error) }
+    } catch {
+      return {
+        state: "error",
+        error: "Impossible de finaliser la création de votre compte. Réessayez.",
+      }
     }
 
     await removePendingCustomer()
@@ -225,8 +248,11 @@ async function completeLogin(
 
   try {
     await transferCart()
-  } catch (error) {
-    return { state: "error", error: String(error) }
+  } catch {
+    return {
+      state: "error",
+      error: "Connexion réussie, mais votre panier n’a pas pu être récupéré. Rechargez la page.",
+    }
   }
 
   return { state: "success" }
@@ -242,9 +268,125 @@ export async function confirmEmailVerification(
   try {
     await sdk.auth.verification.confirm({ code: token })
     return { success: true }
-  } catch (error) {
-    return { success: false, error: String(error) }
+  } catch {
+    return {
+      success: false,
+      error: "Impossible de vérifier votre adresse email. Le lien a peut-être expiré.",
+    }
   }
+}
+
+// Requests a password reset email for the given customer. Always resolves
+// successfully client-side (even for an unknown email) so the UI can't be
+// used to enumerate registered accounts.
+export async function requestPasswordReset(
+  _currentState: unknown,
+  formData: FormData
+): Promise<{ state: "success" | "error"; error?: string }> {
+  const email = formData.get("email") as string
+
+  try {
+    await sdk.auth.resetPassword("customer", "emailpass", {
+      identifier: email,
+    })
+  } catch {
+    return {
+      state: "error",
+      error: "Impossible d’envoyer le lien pour le moment. Réessayez.",
+    }
+  }
+
+  return { state: "success" }
+}
+
+// Completes a password reset using the token from the reset-password email.
+export async function resetPassword(
+  _currentState: unknown,
+  formData: FormData
+): Promise<{ state: "success" | "error"; error?: string }> {
+  const token = formData.get("token") as string
+  const password = formData.get("password") as string
+
+  if (!token) {
+    return { state: "error", error: "Lien de réinitialisation invalide." }
+  }
+
+  try {
+    await sdk.auth.updateProvider(
+      "customer",
+      "emailpass",
+      { password },
+      token
+    )
+  } catch {
+    return {
+      state: "error",
+      error: "Impossible de réinitialiser votre mot de passe. Demandez un nouveau lien.",
+    }
+  }
+
+  return { state: "success" }
+}
+
+// Changes the password of the currently logged-in customer. Medusa's own
+// password-update endpoint only requires a valid bearer token (not the
+// current password), so the current-password check below is enforced here,
+// by attempting a fresh login with it before proceeding.
+export async function updatePassword(
+  _currentState: Record<string, unknown>,
+  formData: FormData
+): Promise<{ success: boolean; error: string | null }> {
+  const oldPassword = formData.get("old_password") as string
+  const newPassword = formData.get("new_password") as string
+  const confirmPassword = formData.get("confirm_password") as string
+
+  if (newPassword !== confirmPassword) {
+    return {
+      success: false,
+      error: "Les nouveaux mots de passe ne correspondent pas.",
+    }
+  }
+
+  const customer = await retrieveCustomer()
+  if (!customer?.email) {
+    return { success: false, error: "Impossible de vérifier votre compte." }
+  }
+
+  let token: string
+  try {
+    const result = await sdk.auth.login("customer", "emailpass", {
+      email: customer.email,
+      password: oldPassword,
+    })
+
+    if (typeof result !== "string") {
+      return { success: false, error: "Mot de passe actuel incorrect." }
+    }
+
+    token = result
+  } catch {
+    return { success: false, error: "Mot de passe actuel incorrect." }
+  }
+
+  try {
+    await sdk.auth.updateProvider(
+      "customer",
+      "emailpass",
+      { password: newPassword },
+      token
+    )
+  } catch {
+    return {
+      success: false,
+      error: "Impossible de modifier votre mot de passe pour le moment. Réessayez.",
+    }
+  }
+
+  // The login above may have issued a new token — keep the customer's
+  // actual session cookie in sync with it.
+  await setAuthToken(token)
+
+  return { success: true, error: null }
 }
 
 export async function signout(countryCode: string) {

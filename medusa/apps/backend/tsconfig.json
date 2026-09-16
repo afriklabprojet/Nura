@@ -32,5 +32,10 @@
     ".medusa/admin",
     ".cache",
     "eslint.config.*",
+    // The admin dashboard extension source has its own tsconfig (a
+    // different `module` target, built separately by Vite) — type-checking
+    // it again here under Node16 module resolution rejects valid ESM-only
+    // syntax (e.g. JSON import attributes) that Vite handles fine.
+    "src/admin",
   ]
 }

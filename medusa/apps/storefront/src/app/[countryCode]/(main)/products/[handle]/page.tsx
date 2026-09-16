@@ -1,7 +1,9 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { listProducts } from "@lib/data/products"
+import { listProductReviews } from "@lib/data/reviews"
 import { getRegion, listRegions } from "@lib/data/regions"
+import { getBaseURL } from "@lib/util/env"
 import ProductTemplate from "@modules/products/templates"
 import { HttpTypes } from "@medusajs/types"
 
@@ -87,15 +89,80 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     notFound()
   }
 
+  const description = product.description || product.title
+
   return {
-    title: `${product.title} | Nura`,
-    description: `${product.title}`,
+    title: product.title,
+    description,
     openGraph: {
-      title: `${product.title} | Nura`,
-      description: `${product.title}`,
+      title: product.title,
+      description,
       images: product.thumbnail ? [product.thumbnail] : [],
     },
   }
+}
+
+function ProductJsonLd({
+  product,
+  countryCode,
+  reviews,
+}: {
+  product: HttpTypes.StoreProduct
+  countryCode: string
+  reviews: Awaited<ReturnType<typeof listProductReviews>>
+}) {
+  const url = `${getBaseURL()}/${countryCode}/products/${product.handle}`
+  const variantsWithPrice = (product.variants || []).filter(
+    (v) => v.calculated_price?.calculated_amount != null
+  )
+  const currencyCode = variantsWithPrice[0]?.calculated_price?.currency_code
+  const prices = variantsWithPrice.map(
+    (v) => v.calculated_price!.calculated_amount!
+  )
+
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    description: product.description || product.title,
+    image: product.images?.map((i) => i.url) || product.thumbnail || [],
+    url,
+    ...(variantsWithPrice[0]?.sku ? { sku: variantsWithPrice[0].sku } : {}),
+    brand: { "@type": "Brand", name: "Nura" },
+    ...(currencyCode && prices.length > 0
+      ? {
+          offers: {
+            "@type": prices.length > 1 ? "AggregateOffer" : "Offer",
+            url,
+            priceCurrency: currencyCode.toUpperCase(),
+            ...(prices.length > 1
+              ? { lowPrice: Math.min(...prices), highPrice: Math.max(...prices) }
+              : { price: prices[0] }),
+            availability:
+              product.status === "published"
+                ? "https://schema.org/InStock"
+                : "https://schema.org/OutOfStock",
+          },
+        }
+      : {}),
+    ...(reviews.count > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: reviews.average_rating,
+            reviewCount: reviews.count,
+          },
+        }
+      : {}),
+  }
+
+  return (
+    <script
+      type="application/ld+json"
+      // eslint-disable-next-line react/no-danger
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  )
 }
 
 export default async function ProductPage(props: Props) {
@@ -119,13 +186,21 @@ export default async function ProductPage(props: Props) {
   }
 
   const images = getImagesForVariant(pricedProduct, selectedVariantId)
+  const reviews = await listProductReviews(pricedProduct.id)
 
   return (
-    <ProductTemplate
-      product={pricedProduct}
-      region={region}
-      countryCode={params.countryCode}
-      images={images ?? []}
-    />
+    <>
+      <ProductJsonLd
+        product={pricedProduct}
+        countryCode={params.countryCode}
+        reviews={reviews}
+      />
+      <ProductTemplate
+        product={pricedProduct}
+        region={region}
+        countryCode={params.countryCode}
+        images={images ?? []}
+      />
+    </>
   )
 }

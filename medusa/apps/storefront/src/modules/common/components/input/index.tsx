@@ -1,5 +1,5 @@
 import { Label } from "@modules/common/components/ui"
-import React, { useEffect, useImperativeHandle, useState } from "react"
+import React, { useEffect, useId, useImperativeHandle, useState } from "react"
 
 import Eye from "@modules/common/icons/eye"
 import EyeOff from "@modules/common/icons/eye-off"
@@ -16,8 +16,13 @@ type InputProps = Omit<
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ type, name, label, touched: _touched, required, topLabel, ...props }, ref) => {
+  (
+    { type, name, label, touched: _touched, required, topLabel, id, ...props },
+    ref
+  ) => {
     const inputRef = React.useRef<HTMLInputElement>(null)
+    const generatedId = useId()
+    const inputId = id ?? generatedId
     const [showPassword, setShowPassword] = useState(false)
     const [inputType, setInputType] = useState(type)
 
@@ -36,10 +41,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="flex flex-col w-full">
         {topLabel && (
-          <Label className="mb-2 txt-compact-medium-plus">{topLabel}</Label>
+          <Label htmlFor={inputId} className="mb-2 txt-compact-medium-plus">
+            {topLabel}
+          </Label>
         )}
         <div className="flex relative z-0 w-full txt-compact-medium">
           <input
+            id={inputId}
             type={inputType}
             name={name}
             placeholder=" "
@@ -49,8 +57,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={inputRef}
           />
           <label
-            htmlFor={name}
-            onClick={() => inputRef.current?.focus()}
+            htmlFor={inputId}
             className="flex items-center justify-center mx-3 px-1 transition-all absolute duration-300 top-3 -z-1 origin-0 text-ui-fg-subtle"
           >
             {label}
@@ -60,7 +67,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="text-ui-fg-subtle px-4 focus:outline-none transition-all duration-150 outline-none focus:text-ui-fg-base absolute right-0 top-3"
+              aria-label={
+                showPassword
+                  ? "Masquer le mot de passe"
+                  : "Afficher le mot de passe"
+              }
+              aria-pressed={showPassword}
+              className="text-ui-fg-subtle px-4 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-inset focus:text-ui-fg-base absolute inset-y-0 right-0 flex items-center"
             >
               {showPassword ? <Eye /> : <EyeOff />}
             </button>

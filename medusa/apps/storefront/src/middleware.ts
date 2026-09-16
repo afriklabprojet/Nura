@@ -1,5 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { NextRequest, NextResponse } from "next/server"
+import { MARKET_PREF_COOKIE, REFERRAL_CODE_COOKIE } from "@lib/constants"
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
 const PUBLISHABLE_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
@@ -62,39 +63,73 @@ async function getRegionMap(cacheId: string) {
 }
 
 /**
- * Fetches regions from Medusa and sets the region cookie.
- * @param request
- * @param response
+ * Resolves which country/market to serve a request for, in priority order:
+ *
+ *  1. The URL itself already has a (valid) country segment — once a visitor
+ *     is on a given country's pages, stay there for the rest of that visit.
+ *  2. `_nura_market_pref` — a country the customer explicitly picked before
+ *     (CountrySelect → updateRegion), so it isn't silently overridden by
+ *     GeoIP/locale detection on a later visit with no URL segment yet.
+ *  3. GeoIP, from whichever signal this deployment actually has:
+ *     - Caddy's `X-Geoip-Country` header (self-hosted — see Caddyfile /
+ *       DEPLOYMENT.md), or
+ *     - `request.cf.country` (Cloudflare), or
+ *     - `x-vercel-ip-country` (Vercel).
+ *     Only one of these is ever populated for a given deployment; trying
+ *     all three keeps this portable across hosting setups without config.
+ *  4. `NEXT_PUBLIC_DEFAULT_REGION`.
+ *  5. Whatever region Medusa returns first.
  */
-async function getCountryCode(
+function resolveCountry(
   request: NextRequest,
   regionMap: Map<string, HttpTypes.StoreRegion | number>
 ) {
-  let countryCode
-
   const urlCountryCode = request.nextUrl.pathname.split("/")[1]?.toLowerCase()
+  if (urlCountryCode && regionMap.has(urlCountryCode)) {
+    return urlCountryCode
+  }
 
+  const marketPrefCountryCode = request.cookies
+    .get(MARKET_PREF_COOKIE)
+    ?.value?.toLowerCase()
+  if (marketPrefCountryCode && regionMap.has(marketPrefCountryCode)) {
+    return marketPrefCountryCode
+  }
+
+  const caddyCountryCode = request.headers
+    .get("x-geoip-country")
+    ?.toLowerCase()
   // Cloudflare Workers provides country via request.cf.country
   const cloudflareCountryCode = (request as { cf?: { country?: string } }).cf?.country?.toLowerCase()
-
   // Vercel provides x-vercel-ip-country header
   const vercelCountryCode = request.headers
     .get("x-vercel-ip-country")
     ?.toLowerCase()
-
-  if (urlCountryCode && regionMap.has(urlCountryCode)) {
-    countryCode = urlCountryCode
-  } else if (cloudflareCountryCode && regionMap.has(cloudflareCountryCode)) {
-    countryCode = cloudflareCountryCode
-  } else if (vercelCountryCode && regionMap.has(vercelCountryCode)) {
-    countryCode = vercelCountryCode
-  } else if (regionMap.has(DEFAULT_REGION)) {
-    countryCode = DEFAULT_REGION
-  } else if (regionMap.keys().next().value) {
-    countryCode = regionMap.keys().next().value
+  const geoipCountryCode =
+    caddyCountryCode ?? cloudflareCountryCode ?? vercelCountryCode
+  if (geoipCountryCode && regionMap.has(geoipCountryCode)) {
+    return geoipCountryCode
   }
 
-  return countryCode
+  if (regionMap.has(DEFAULT_REGION)) {
+    return DEFAULT_REGION
+  }
+
+  return regionMap.keys().next().value
+}
+
+// Captures `?ref=CODE` (a customer's referral link) into a cookie so it's
+// still available at signup time, even if the visitor lands on a product
+// page and only creates an account several pages/clicks later.
+function withReferralCookie(response: NextResponse, request: NextRequest) {
+  const refCode = request.nextUrl.searchParams.get("ref")
+  if (refCode) {
+    response.cookies.set(REFERRAL_CODE_COOKIE, refCode, {
+      maxAge: 60 * 60 * 24 * 30,
+      sameSite: "lax",
+    })
+  }
+  return response
 }
 
 /**
@@ -109,7 +144,7 @@ export async function middleware(request: NextRequest) {
   const cacheId = cacheIdCookie?.value || crypto.randomUUID()
 
   const regionMap = await getRegionMap(cacheId)
-  const countryCode = await getCountryCode(request, regionMap)
+  const countryCode = resolveCountry(request, regionMap)
 
   // if the country code is available, use it, otherwise use the default region
   const country = countryCode || DEFAULT_REGION
@@ -122,9 +157,9 @@ export async function middleware(request: NextRequest) {
       response.cookies.set("_medusa_cache_id", cacheId, {
         maxAge: 60 * 60 * 24,
       })
-      return response
+      return withReferralCookie(response, request)
     }
-    return NextResponse.next()
+    return withReferralCookie(NextResponse.next(), request)
   }
 
   // if the url doesn't have the country, redirect to it
@@ -133,7 +168,7 @@ export async function middleware(request: NextRequest) {
   const queryString = request.nextUrl.search || ""
   const redirectUrl = `${request.nextUrl.origin}/${country}${redirectPath}${queryString}`
 
-  return NextResponse.redirect(redirectUrl, 307)
+  return withReferralCookie(NextResponse.redirect(redirectUrl, 307), request)
 }
 
 export const config = {

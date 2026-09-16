@@ -6,6 +6,7 @@ import Input from "@modules/common/components/input"
 import NativeSelect from "@modules/common/components/native-select"
 
 import { addCustomerAddress, updateCustomerAddress } from "@lib/data/customer"
+import { getCountryName } from "@lib/util/country-names"
 import { HttpTypes } from "@medusajs/types"
 import AccountInfo from "../account-info"
 
@@ -24,7 +25,7 @@ const ProfileBillingAddress: React.FC<MyInformationProps> = ({
         ?.map((region) => {
           return region.countries?.map((country) => ({
             value: country.iso_2,
-            label: country.display_name,
+            label: getCountryName(country.iso_2, country.display_name),
           }))
         })
         .flat() || []

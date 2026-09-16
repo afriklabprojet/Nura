@@ -7,10 +7,9 @@ import {
   LabelHTMLAttributes,
   TableHTMLAttributes,
   TdHTMLAttributes,
+  TextareaHTMLAttributes,
   ThHTMLAttributes,
 } from "react"
-
-// TODO: Add Toaster component back when needed for notifications
 
 // Re-export clsx as clx for compatibility
 export { clsx as clx }
@@ -94,7 +93,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         {...props}
       >
-        {isLoading ? "Loading..." : children}
+        {isLoading ? "Chargement..." : children}
       </button>
     )
   }
@@ -234,6 +233,30 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
   }
 )
 Input.displayName = "Input"
+
+// Textarea Component
+type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  label?: string
+}
+
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className, label, ...props }, ref) => {
+    return (
+      <div className="flex flex-col gap-1">
+        {label && <Label>{label}</Label>}
+        <textarea
+          ref={ref}
+          className={clsx(
+            "flex w-full rounded-sm border border-nude bg-bg-alt px-3 py-2 text-sm text-ink placeholder:text-brown/40 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+            className
+          )}
+          {...props}
+        />
+      </div>
+    )
+  }
+)
+Textarea.displayName = "Textarea"
 
 // Table Components
 type TableProps = TableHTMLAttributes<HTMLTableElement>

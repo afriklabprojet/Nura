@@ -11,12 +11,15 @@ import { useParams, usePathname, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ProductPrice from "../product-price"
 import MobileActions from "./mobile-actions"
+import WishlistButton from "@modules/products/components/wishlist-button"
 import { useRouter } from "next/navigation"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
   region: HttpTypes.StoreRegion
   disabled?: boolean
+  isLoggedIn?: boolean
+  isInWishlist?: boolean
 }
 
 const optionsAsKeymap = (
@@ -31,6 +34,8 @@ const optionsAsKeymap = (
 export default function ProductActions({
   product,
   disabled,
+  isLoggedIn = false,
+  isInWishlist = false,
 }: ProductActionsProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -90,6 +95,12 @@ export default function ProductActions({
     }
 
     router.replace(pathname + "?" + params.toString())
+    // router/pathname/searchParams are intentionally excluded: this only
+    // needs to run when the selected variant changes, and the `v_id`
+    // equality check above already no-ops the router.replace() call once the
+    // URL reflects the new selection, so including searchParams here would
+    // just make the effect re-run without doing anything extra.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedVariant, isValidVariant])
 
   // check if the selected variant is in stock
@@ -162,26 +173,44 @@ export default function ProductActions({
 
         <ProductPrice product={product} variant={selectedVariant} />
 
-        <Button
-          onClick={handleAddToCart}
-          disabled={
-            !inStock ||
-            !selectedVariant ||
-            !!disabled ||
-            isAdding ||
-            !isValidVariant
-          }
-          variant="primary"
-          className="w-full h-10"
-          isLoading={isAdding}
-          data-testid="add-product-button"
-        >
-          {!selectedVariant
-            ? "Sélectionner une variante"
-            : !inStock || !isValidVariant
-            ? "Épuisé"
-            : "Ajouter au panier"}
-        </Button>
+        {inStock &&
+          selectedVariant?.manage_inventory &&
+          !selectedVariant?.allow_backorder &&
+          typeof selectedVariant.inventory_quantity === "number" &&
+          selectedVariant.inventory_quantity > 0 &&
+          selectedVariant.inventory_quantity <= 5 && (
+            <p className="txt-small text-rose-600" data-testid="low-stock-message">
+              Plus que {selectedVariant.inventory_quantity} en stock
+            </p>
+          )}
+
+        <div className="flex gap-x-2">
+          <Button
+            onClick={handleAddToCart}
+            disabled={
+              !inStock ||
+              !selectedVariant ||
+              !!disabled ||
+              isAdding ||
+              !isValidVariant
+            }
+            variant="primary"
+            className="w-full h-10"
+            isLoading={isAdding}
+            data-testid="add-product-button"
+          >
+            {!selectedVariant
+              ? "Sélectionner une variante"
+              : !inStock || !isValidVariant
+              ? "Épuisé"
+              : "Ajouter au panier"}
+          </Button>
+          <WishlistButton
+            productId={product.id!}
+            isLoggedIn={isLoggedIn}
+            isInWishlist={isInWishlist}
+          />
+        </div>
         <MobileActions
           product={product}
           variant={selectedVariant}

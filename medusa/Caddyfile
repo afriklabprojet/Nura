@@ -2,6 +2,25 @@
 # handles HTTPS (Let's Encrypt) automatically — no manual certs needed.
 
 nura-paris.com {
+	# GeoIP-based market detection (Côte d'Ivoire → XOF/Jèko, everything
+	# else keeps the default Europe/EUR/Stripe market). See DEPLOYMENT.md
+	# ("Détection automatique du marché") for the MaxMind database setup
+	# this depends on. Add more `@geo_*` matchers here if finer-grained
+	# per-country detection is ever needed — the storefront middleware
+	# already reads any country code, not just "ci".
+	@geo_ci {
+		maxmind_geolocation {
+			db_path /etc/caddy/geoip/GeoLite2-Country.mmdb
+			allow_countries CI
+		}
+	}
+
+	# Always strip any client-supplied value first — this header must only
+	# ever reflect Caddy's own GeoIP lookup, never something a visitor can
+	# forge in their own request.
+	request_header -X-Geoip-Country
+	request_header @geo_ci X-Geoip-Country "ci"
+
 	reverse_proxy storefront:8000
 }
 

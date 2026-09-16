@@ -3,7 +3,7 @@ import { Metadata } from "next"
 import LoginTemplate from "@modules/account/templates/login-template"
 
 export const metadata: Metadata = {
-  title: "Connexion",
+  title: { absolute: "Connexion | Nura" },
   description: "Connectez-vous à votre compte Nura.",
 }
 

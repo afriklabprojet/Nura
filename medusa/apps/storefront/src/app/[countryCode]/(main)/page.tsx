@@ -10,6 +10,7 @@ import Hero from "@modules/home/components/hero"
 import HomeReviews from "@modules/home/components/reviews"
 import RitualBand from "@modules/home/components/ritual-band"
 import { listCategories } from "@lib/data/categories"
+import { getHomeContent } from "@lib/data/home-content"
 import { getRegion } from "@lib/data/regions"
 
 export const metadata: Metadata = {
@@ -27,19 +28,27 @@ export default async function Home(props: {
 
   const { countryCode } = params
 
-  const region = await getRegion(countryCode)
-
-  const categories = await listCategories()
+  const [region, categories, { blocks, hidden }] = await Promise.all([
+    getRegion(countryCode),
+    listCategories(),
+    getHomeContent(),
+  ])
 
   return (
     <>
-      <Hero />
-      {region && <FeaturedProducts region={region} />}
+      <Hero block={blocks.hero} />
+      {region && (
+        <FeaturedProducts
+          region={region}
+          block={blocks.essentials}
+          hidden={hidden.includes("essentials")}
+        />
+      )}
       <Editorial />
       {region && <CategoriesSection categories={categories} region={region} />}
       {region && <BestSellers region={region} />}
       <RitualBand />
-      <Campaign />
+      <Campaign block={blocks.campaign} hidden={hidden.includes("campaign")} />
       <HomeReviews />
       <Gallery />
     </>

@@ -1,40 +1,50 @@
+import { CampaignBlock } from "@lib/data/home-content"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Image from "next/image"
 
-/**
- * Editorial slot for whatever the house is pushing right now — a launch, a
- * limited edition, a seasonal campaign. Until it is editable from the admin,
- * change the copy, artwork and destination here.
- */
-const CAMPAIGN = {
-  active: true,
+const DEFAULTS = {
   eyebrow: "Nouvelle collection",
   title: "Une nouvelle aura",
   text: "Découvrez notre nouvelle collection.",
-  cta: "Découvrir",
-  href: "/collections",
+  cta_label: "Découvrir",
+  cta_href: "/collections",
   image: "/images/campaign.webp",
-  imageMobile: "/images/campaign-mobile.webp",
-  alt: "Nouvelle collection Nura",
+  image_mobile: "/images/campaign-mobile.webp",
 }
 
-const Campaign = () => {
-  if (!CAMPAIGN.active) {
+/**
+ * Editorial slot for whatever the house is pushing right now. Everything
+ * here — copy, artwork, link, scheduling — is set in the admin under
+ * "Page d'accueil"; the block is absent from the API when switched off or
+ * outside its dates, and the section then disappears.
+ */
+const Campaign = ({
+  block,
+  hidden,
+}: {
+  block?: CampaignBlock
+  hidden?: boolean
+}) => {
+  if (hidden) {
     return null
   }
+
+  const content = { ...DEFAULTS, ...(block || {}) }
+  const image = content.image || DEFAULTS.image
+  const imageMobile = content.image_mobile || image
 
   return (
     <section className="relative h-[75vh] min-h-[460px] w-full overflow-hidden">
       <Image
-        src={CAMPAIGN.image}
-        alt={CAMPAIGN.alt}
+        src={image}
+        alt={content.title}
         fill
         sizes="100vw"
         className="hidden object-cover object-center small:block"
       />
       <Image
-        src={CAMPAIGN.imageMobile}
-        alt={CAMPAIGN.alt}
+        src={imageMobile}
+        alt={content.title}
         fill
         sizes="100vw"
         className="object-cover object-center small:hidden"
@@ -43,21 +53,27 @@ const Campaign = () => {
 
       <div className="content-container relative z-10 flex h-full items-end pb-14 small:items-center small:pb-0">
         <div className="flex max-w-lg flex-col items-start gap-6">
-          <span className="text-[11px] uppercase tracking-[0.35em] text-bg-alt/80">
-            {CAMPAIGN.eyebrow}
-          </span>
+          {content.eyebrow && (
+            <span className="text-[11px] uppercase tracking-[0.35em] text-bg-alt/80">
+              {content.eyebrow}
+            </span>
+          )}
           <h2 className="font-serif text-4xl leading-tight text-bg-alt small:text-6xl">
-            {CAMPAIGN.title}
+            {content.title}
           </h2>
-          <p className="max-w-md text-sm font-light leading-relaxed text-bg-alt/85">
-            {CAMPAIGN.text}
-          </p>
-          <LocalizedClientLink
-            href={CAMPAIGN.href}
-            className="inline-flex h-12 items-center justify-center border border-bg-alt/70 px-10 text-[11px] uppercase tracking-[0.2em] text-bg-alt transition-colors hover:bg-bg-alt hover:text-brown"
-          >
-            {CAMPAIGN.cta}
-          </LocalizedClientLink>
+          {content.text && (
+            <p className="max-w-md text-sm font-light leading-relaxed text-bg-alt/85">
+              {content.text}
+            </p>
+          )}
+          {content.cta_label && (
+            <LocalizedClientLink
+              href={content.cta_href || "/collections"}
+              className="inline-flex h-12 items-center justify-center border border-bg-alt/70 px-10 text-[11px] uppercase tracking-[0.2em] text-bg-alt transition-colors hover:bg-bg-alt hover:text-brown"
+            >
+              {content.cta_label}
+            </LocalizedClientLink>
+          )}
         </div>
       </div>
     </section>

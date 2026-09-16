@@ -15,6 +15,7 @@ import { Locale } from "@lib/data/locales"
 
 const SECONDARY_LINKS = {
   "À propos": "/a-propos",
+  Journal: "/journal",
   FAQ: "/faq",
   Contact: "/contact",
   Compte: "/account",

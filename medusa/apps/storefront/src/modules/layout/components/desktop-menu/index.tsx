@@ -65,6 +65,10 @@ const DesktopMenu = ({ categories }: { categories: MenuCategory[] }) => {
         Collections
       </LocalizedClientLink>
 
+      <LocalizedClientLink href="/journal" className="nav-link link-underline">
+        Journal
+      </LocalizedClientLink>
+
       {active && (
         <div className="absolute left-0 right-0 top-full bg-bg-alt border-t border-b border-nude shadow-[0_24px_40px_-32px_rgba(58,42,32,0.45)] animate-fade-in-top">
           <div className="content-container grid grid-cols-[1fr_320px] gap-16 py-12">

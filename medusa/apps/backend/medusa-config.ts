@@ -91,6 +91,10 @@ modules.push({ resolve: './src/modules/wishlist' })
 // simple internal data module, no third-party provider involved.
 modules.push({ resolve: './src/modules/review' })
 
+// Editorial content: the Journal and the editable blocks of the storefront
+// home page (hero, campaign, curated products). Always registered.
+modules.push({ resolve: './src/modules/content' })
+
 // Product search (storefront search bar). Optional: only registered once
 // MEILISEARCH_HOST is set, so the backend keeps booting normally without a
 // Meilisearch instance running. Self-hosted — see docker-compose.yml.

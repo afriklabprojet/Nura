@@ -3,10 +3,27 @@ import { listProducts } from "@lib/data/products"
 import { HttpTypes } from "@medusajs/types"
 import Image from "next/image"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import Reveal from "@modules/common/components/reveal"
+
+// The brief's three doors into the shop. Anything else the catalogue holds
+// stays reachable from the navigation and the store page.
+const DOORS = [
+  {
+    handle: "parfums",
+    title: "Parfums",
+    description: "Trouvez le parfum qui vous ressemble.",
+  },
+  {
+    handle: "bodycare",
+    title: "Bodycare",
+    description: "Des essentiels pour prendre soin de votre peau.",
+  },
+]
 
 type Tile = {
   id: string
-  name: string
+  title: string
+  description: string
   href: string
   image: string
 }
@@ -18,29 +35,36 @@ const CategoriesSection = async ({
   categories: HttpTypes.StoreProductCategory[]
   region: HttpTypes.StoreRegion
 }) => {
-  const topLevel = categories.filter((category) => !category.parent_category)
-
   const categoryTiles: Tile[] = await Promise.all(
-    topLevel.map(async (category) => {
-      const { response } = await listProducts({
-        regionId: region.id,
-        queryParams: {
-          category_id: [category.id],
-          limit: 1,
-          fields: "thumbnail",
-        },
-      })
+    DOORS.map(async (door) => {
+      const category = categories.find((c) => c.handle === door.handle)
+
+      let packshot: string | undefined
+
+      if (category) {
+        const { response } = await listProducts({
+          regionId: region.id,
+          queryParams: {
+            category_id: [category.id],
+            limit: 1,
+            fields: "thumbnail",
+          },
+        })
+
+        packshot = response.products?.[0]?.thumbnail ?? undefined
+      }
 
       return {
-        id: category.id,
-        name: category.name,
-        href: `/categories/${category.handle}`,
+        id: door.handle,
+        title: category?.name || door.title,
+        description: door.description,
+        href: category ? `/categories/${category.handle}` : "/store",
         // The curated artwork wins over a packshot so the tiles don't repeat
         // the product rows further down the page.
         image:
-          findCategoryImage(category.handle) ||
-          response.products?.[0]?.thumbnail ||
-          getCategoryImage(category.handle),
+          findCategoryImage(door.handle) ||
+          packshot ||
+          getCategoryImage(door.handle),
       }
     })
   )
@@ -49,52 +73,43 @@ const CategoriesSection = async ({
     ...categoryTiles,
     {
       id: "collections",
-      name: "Collections",
+      title: "Collections",
+      description: "Découvrez les univers imaginés par Nura.",
       href: "/collections",
-      image: "/images/category-collections.jpg",
+      image: "/images/category-collections.webp",
     },
   ]
 
   return (
     <section className="content-container section-y">
-      <div className="mb-10 flex flex-col gap-4 small:mb-14 small:flex-row small:items-end small:justify-between">
-        <div className="flex flex-col gap-3">
-          <span className="eyebrow">Nos univers</span>
-          <h2 className="font-serif text-4xl text-brown small:text-5xl">
-            Découvrir par catégorie
-          </h2>
-        </div>
-        <LocalizedClientLink
-          href="/store"
-          className="link-underline self-start text-[11px] uppercase tracking-[0.2em] text-brown/70 hover:text-brown"
-        >
-          Voir toute la boutique
-        </LocalizedClientLink>
-      </div>
-
-      <ul className="grid grid-cols-1 gap-5 xsmall:grid-cols-2 small:grid-cols-4 small:gap-6">
-        {tiles.map((tile) => (
+      <ul className="grid grid-cols-1 gap-6 small:grid-cols-3 small:gap-8">
+        {tiles.map((tile, index) => (
           <li key={tile.id}>
-            <LocalizedClientLink href={tile.href} className="group flex flex-col gap-5">
-              <div className="relative aspect-[4/5] w-full overflow-hidden bg-nude/30">
-                <Image
-                  src={tile.image}
-                  alt={tile.name}
-                  fill
-                  sizes="(max-width: 512px) 100vw, (max-width: 900px) 50vw, 25vw"
-                  className="object-cover object-center transition-transform duration-[900ms] ease-out group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-              </div>
-              <div className="flex items-baseline justify-between">
-                <span className="font-serif text-2xl text-brown">
-                  {tile.name}
-                </span>
-                <span className="text-[11px] uppercase tracking-[0.2em] text-gold">
-                  Découvrir
-                </span>
-              </div>
-            </LocalizedClientLink>
+            <Reveal delay={index * 80}>
+              <LocalizedClientLink href={tile.href} className="group flex flex-col gap-5">
+                <div className="relative aspect-[3/4] w-full overflow-hidden bg-nude/30">
+                  <Image
+                    src={tile.image}
+                    alt={tile.title}
+                    fill
+                    sizes="(max-width: 900px) 100vw, 33vw"
+                    className="object-cover object-center transition-transform duration-[900ms] ease-out group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <h2 className="font-serif text-3xl text-brown">
+                    {tile.title}
+                  </h2>
+                  <p className="text-sm leading-relaxed text-ui-fg-subtle">
+                    {tile.description}
+                  </p>
+                  <span className="link-underline mt-1 self-start text-[11px] uppercase tracking-[0.2em] text-gold">
+                    Explorer
+                  </span>
+                </div>
+              </LocalizedClientLink>
+            </Reveal>
           </li>
         ))}
       </ul>

@@ -4,9 +4,9 @@ import {
   SOCIAL_LINKS,
 } from "@lib/constants"
 import { listCategories } from "@lib/data/categories"
-import { listCollections } from "@lib/data/collections"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import NewsletterForm from "@modules/layout/components/newsletter-form"
 
 // Mirrors what the FAQ states: card payments in Europe, mobile money in
 // Côte d'Ivoire through Jèko.
@@ -19,18 +19,23 @@ const PAYMENT_METHODS = [
   "Djamo",
 ]
 
-export default async function Footer() {
-  const { collections } = await listCollections({
-    fields: "*products",
-  })
-  const productCategories = await listCategories()
+const HELP_LINKS = [
+  { label: "FAQ", href: "/faq" },
+  { label: "Livraison & retours", href: "/livraison-retours" },
+  { label: "Suivi de commande", href: "/account/orders" },
+  { label: "Conditions générales", href: "/cgv" },
+  { label: "Politique de confidentialité", href: "/confidentialite" },
+  { label: "Mentions légales", href: "/mentions-legales" },
+]
 
+export default async function Footer() {
+  const productCategories = await listCategories()
   const topLevel = productCategories?.filter((c) => !c.parent_category) || []
 
   return (
     <footer className="w-full border-t border-nude bg-bg-alt">
       <div className="content-container flex flex-col">
-        <div className="grid grid-cols-1 gap-12 py-16 small:grid-cols-[1.4fr_1fr_1fr_1.2fr] small:py-20">
+        <div className="grid grid-cols-1 gap-12 py-16 xsmall:grid-cols-2 small:grid-cols-[1.3fr_1fr_1fr_1.2fr] small:py-20">
           <div className="flex max-w-xs flex-col gap-4">
             <LocalizedClientLink
               href="/"
@@ -38,9 +43,12 @@ export default async function Footer() {
             >
               Nura
             </LocalizedClientLink>
+            <p className="font-serif text-lg text-brown/70">
+              Votre aura commence ici.
+            </p>
             <p className="text-sm leading-relaxed text-ui-fg-subtle">
-              Votre aura commence ici. Parfums et soins pensés pour accompagner
-              chaque aura, chaque humeur et chaque moment.
+              Parfums et soins pensés pour accompagner chaque aura, chaque
+              humeur et chaque moment.
             </p>
             <div className="flex gap-x-5 pt-2">
               <a
@@ -65,12 +73,7 @@ export default async function Footer() {
           <div className="flex flex-col gap-4">
             <span className="eyebrow">Boutique</span>
             <ul className="flex flex-col gap-y-2 text-sm text-ui-fg-subtle">
-              <li>
-                <LocalizedClientLink href="/store" className="hover:text-gold">
-                  Tous les produits
-                </LocalizedClientLink>
-              </li>
-              {topLevel.slice(0, 5).map((category) => (
+              {topLevel.slice(0, 4).map((category) => (
                 <li key={category.id}>
                   <LocalizedClientLink
                     href={`/categories/${category.handle}`}
@@ -89,38 +92,17 @@ export default async function Footer() {
                   Collections
                 </LocalizedClientLink>
               </li>
-              {collections?.slice(0, 3).map((c) => (
-                <li key={c.id}>
-                  <LocalizedClientLink
-                    href={`/collections/${c.handle}`}
-                    className="hover:text-gold"
-                  >
-                    {c.title}
-                  </LocalizedClientLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <span className="eyebrow">La maison</span>
-            <ul className="flex flex-col gap-y-2 text-sm text-ui-fg-subtle">
               <li>
-                <LocalizedClientLink href="/a-propos" className="hover:text-gold">
-                  À propos
-                </LocalizedClientLink>
-              </li>
-              <li>
-                <LocalizedClientLink href="/faq" className="hover:text-gold">
-                  FAQ
+                <LocalizedClientLink href="/store" className="hover:text-gold">
+                  Tous les produits
                 </LocalizedClientLink>
               </li>
               <li>
                 <LocalizedClientLink
-                  href="/livraison-retours"
+                  href="/a-propos"
                   className="hover:text-gold"
                 >
-                  Livraison &amp; retours
+                  À propos
                 </LocalizedClientLink>
               </li>
               <li>
@@ -128,86 +110,73 @@ export default async function Footer() {
                   Contact
                 </LocalizedClientLink>
               </li>
-              <li>
-                <LocalizedClientLink href="/account" className="hover:text-gold">
-                  Mon compte
-                </LocalizedClientLink>
-              </li>
             </ul>
           </div>
 
           <div className="flex flex-col gap-4">
-            <span className="eyebrow">Service client</span>
+            <span className="eyebrow">Aide</span>
             <ul className="flex flex-col gap-y-2 text-sm text-ui-fg-subtle">
-              {SERVICE_CLIENT_CONTACTS.map((contact) => (
-                <li key={contact.tel}>
-                  <a href={`tel:${contact.tel}`} className="hover:text-gold">
-                    {contact.label} — {contact.display}
-                  </a>
+              {HELP_LINKS.map((link) => (
+                <li key={link.href}>
+                  <LocalizedClientLink
+                    href={link.href}
+                    className="hover:text-gold"
+                  >
+                    {link.label}
+                  </LocalizedClientLink>
                 </li>
               ))}
-              <li>
-                <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-gold">
-                  {CONTACT_EMAIL}
-                </a>
-              </li>
-              <li className="pt-2 text-xs leading-relaxed text-ui-fg-muted">
-                Du lundi au vendredi, 9h — 18h
-              </li>
             </ul>
+          </div>
 
-            <div className="flex flex-col gap-3 pt-4">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-ui-fg-muted">
-                Paiements acceptés
-              </span>
-              <ul className="flex flex-wrap gap-2">
-                {PAYMENT_METHODS.map((method) => (
-                  <li
-                    key={method}
-                    className="border border-nude px-2.5 py-1 text-[10px] uppercase tracking-[0.1em] text-ui-fg-subtle"
-                  >
-                    {method}
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-3">
+              <span className="eyebrow">Newsletter</span>
+              <p className="text-sm leading-relaxed text-ui-fg-subtle">
+                Nouveautés, lancements et accès exclusifs.
+              </p>
+              <NewsletterForm />
+            </div>
+
+            <div className="flex flex-col gap-2 border-t border-nude pt-5">
+              <span className="eyebrow">Service client</span>
+              <ul className="flex flex-col gap-y-2 text-sm text-ui-fg-subtle">
+                {SERVICE_CLIENT_CONTACTS.map((contact) => (
+                  <li key={contact.tel}>
+                    <a href={`tel:${contact.tel}`} className="hover:text-gold">
+                      {contact.label} — {contact.display}
+                    </a>
                   </li>
                 ))}
+                <li>
+                  <a
+                    href={`mailto:${CONTACT_EMAIL}`}
+                    className="hover:text-gold"
+                  >
+                    {CONTACT_EMAIL}
+                  </a>
+                </li>
+                <li className="text-xs text-ui-fg-muted">
+                  Du lundi au vendredi, 9h — 18h
+                </li>
               </ul>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col gap-y-4 border-t border-nude py-8 text-ui-fg-muted small:flex-row small:items-center small:justify-between">
+        <div className="flex flex-col gap-y-5 border-t border-nude py-8 text-ui-fg-muted small:flex-row small:items-center small:justify-between">
           <p className="text-xs">
             © {new Date().getFullYear()} Nura — Tous droits réservés.
           </p>
-          <ul className="flex flex-wrap gap-x-6 gap-y-2 text-xs">
-            <li>
-              <LocalizedClientLink
-                href="/mentions-legales"
-                className="hover:text-gold"
+          <ul className="flex flex-wrap gap-2">
+            {PAYMENT_METHODS.map((method) => (
+              <li
+                key={method}
+                className="border border-nude px-2.5 py-1 text-[10px] uppercase tracking-[0.1em]"
               >
-                Mentions légales
-              </LocalizedClientLink>
-            </li>
-            <li>
-              <LocalizedClientLink href="/cgv" className="hover:text-gold">
-                CGV
-              </LocalizedClientLink>
-            </li>
-            <li>
-              <LocalizedClientLink
-                href="/confidentialite"
-                className="hover:text-gold"
-              >
-                Confidentialité
-              </LocalizedClientLink>
-            </li>
-            <li>
-              <LocalizedClientLink
-                href="/politique-cookies"
-                className="hover:text-gold"
-              >
-                Cookies
-              </LocalizedClientLink>
-            </li>
+                {method}
+              </li>
+            ))}
           </ul>
           <p className="text-xs">Votre aura commence ici.</p>
         </div>

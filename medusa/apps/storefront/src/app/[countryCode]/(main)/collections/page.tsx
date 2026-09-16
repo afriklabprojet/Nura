@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     "Les collections Nura : des ensembles de parfums et de soins pensés pour se répondre.",
 }
 
-const FALLBACK_IMAGE = "/images/category-collections.jpg"
+const FALLBACK_IMAGE = "/images/category-collections.webp"
 
 export default async function CollectionsPage(props: {
   params: Promise<{ countryCode: string }>

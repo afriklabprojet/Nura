@@ -7,7 +7,7 @@ const Hero = () => {
       {/* Both crops keep a clean field of backdrop for the wording, so no
           scrim is needed over the photograph. */}
       <Image
-        src="/images/hero.jpg"
+        src="/images/hero.webp"
         alt="Campagne Nura"
         fill
         priority
@@ -15,7 +15,7 @@ const Hero = () => {
         className="hidden small:block object-cover object-center animate-slow-zoom"
       />
       <Image
-        src="/images/hero-mobile.jpg"
+        src="/images/hero-mobile.webp"
         alt="Campagne Nura"
         fill
         priority
@@ -24,25 +24,35 @@ const Hero = () => {
       />
 
       <div className="content-container relative z-10 flex h-full flex-col justify-end pb-14 small:justify-center small:pb-0">
-        <div className="flex max-w-xl animate-fade-up flex-col items-start gap-5 small:gap-8">
-          <span className="font-serif text-2xl uppercase tracking-[0.45em] text-brown small:text-3xl">
-            Nura
-          </span>
-          <h1 className="font-serif text-[2.75rem] leading-[1.05] text-brown small:text-7xl">
-            Votre aura
-            <br />
-            commence ici.
+        <div className="flex max-w-xl animate-fade-up flex-col items-start gap-5 small:gap-7">
+          <h1 className="flex flex-col gap-5 small:gap-7">
+            <span className="font-serif text-2xl uppercase tracking-[0.45em] text-brown small:text-3xl">
+              Nura
+            </span>
+            <span className="font-serif text-[2.75rem] leading-[1.05] text-brown small:text-7xl">
+              Votre aura
+              <br />
+              commence ici.
+            </span>
           </h1>
           <p className="max-w-sm text-sm font-light leading-relaxed text-brown/75">
             Parfumerie et bodycare premium, pensés pour accompagner chaque
             aura, chaque humeur et chaque moment.
           </p>
-          <LocalizedClientLink
-            href="/store"
-            className="inline-flex h-12 items-center justify-center bg-brown px-10 text-[11px] uppercase tracking-[0.2em] text-bg-alt transition-colors hover:bg-ink"
-          >
-            Découvrir la collection
-          </LocalizedClientLink>
+          <div className="flex flex-col gap-3 pt-1 xsmall:flex-row xsmall:items-center">
+            <LocalizedClientLink
+              href="/store"
+              className="inline-flex h-12 items-center justify-center bg-brown px-10 text-[11px] uppercase tracking-[0.2em] text-bg-alt transition-colors hover:bg-ink"
+            >
+              Découvrir la collection
+            </LocalizedClientLink>
+            <LocalizedClientLink
+              href="/categories/parfums"
+              className="inline-flex h-12 items-center justify-center border border-brown/30 px-10 text-[11px] uppercase tracking-[0.2em] text-brown transition-colors hover:border-brown"
+            >
+              Explorer les parfums
+            </LocalizedClientLink>
+          </div>
         </div>
       </div>
     </section>

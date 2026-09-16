@@ -117,9 +117,9 @@ export const SOCIAL_LINKS = {
 
 // Editorial artwork used when a category has no product image of its own.
 const CATEGORY_IMAGES: Record<string, string> = {
-  parfums: "/images/category-parfums.jpg",
-  bodycare: "/images/category-bodycare.jpg",
-  coffrets: "/images/category-coffrets.jpg",
+  parfums: "/images/category-parfums.webp",
+  bodycare: "/images/category-bodycare.webp",
+  coffrets: "/images/category-coffrets.webp",
 }
 
 /** The curated artwork for a category, or undefined if it has none. */
@@ -127,13 +127,13 @@ export const findCategoryImage = (handle?: string | null) =>
   (handle && CATEGORY_IMAGES[handle]) || undefined
 
 export const getCategoryImage = (handle?: string | null) =>
-  findCategoryImage(handle) || "/images/editorial.jpg"
+  findCategoryImage(handle) || "/images/editorial.webp"
 
 const CATEGORY_BANNERS: Record<string, string> = {
-  parfums: "/images/banner-parfums.jpg",
-  bodycare: "/images/banner-bodycare.jpg",
-  coffrets: "/images/banner-coffrets.jpg",
+  parfums: "/images/banner-parfums.webp",
+  bodycare: "/images/banner-bodycare.webp",
+  coffrets: "/images/banner-coffrets.webp",
 }
 
 export const getCategoryBanner = (handle?: string | null) =>
-  (handle && CATEGORY_BANNERS[handle]) || "/images/banner-default.jpg"
+  (handle && CATEGORY_BANNERS[handle]) || "/images/banner-default.webp"

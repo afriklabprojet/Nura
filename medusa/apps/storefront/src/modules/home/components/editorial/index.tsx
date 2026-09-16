@@ -22,7 +22,7 @@ const Editorial = () => {
       <div className="content-container section-y grid grid-cols-1 items-center gap-12 small:grid-cols-2 small:gap-20">
         <div className="relative order-2 aspect-[4/5] w-full overflow-hidden small:order-1">
           <Image
-            src="/images/editorial.jpg"
+            src="/images/editorial.webp"
             alt="La maison Nura"
             fill
             sizes="(max-width: 900px) 100vw, 50vw"
@@ -56,9 +56,9 @@ const Editorial = () => {
 
           <LocalizedClientLink
             href="/a-propos"
-            className="link-underline self-start text-[11px] uppercase tracking-[0.2em] text-gold hover:text-brown"
+            className="inline-flex h-12 items-center justify-center self-start border border-brown/30 px-8 text-[11px] uppercase tracking-[0.2em] text-brown transition-colors hover:border-brown"
           >
-            Notre histoire
+            Découvrir Nura
           </LocalizedClientLink>
         </div>
       </div>

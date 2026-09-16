@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 
 import BestSellers from "@modules/home/components/best-sellers"
+import Campaign from "@modules/home/components/campaign"
 import CategoriesSection from "@modules/home/components/categories"
 import Editorial from "@modules/home/components/editorial"
 import FeaturedProducts from "@modules/home/components/featured-products"
@@ -8,14 +9,15 @@ import Gallery from "@modules/home/components/gallery"
 import Hero from "@modules/home/components/hero"
 import HomeReviews from "@modules/home/components/reviews"
 import RitualBand from "@modules/home/components/ritual-band"
-import TrustBand from "@modules/home/components/trust-band"
 import { listCategories } from "@lib/data/categories"
 import { getRegion } from "@lib/data/regions"
 
 export const metadata: Metadata = {
-  title: "Parfumerie & bodycare premium",
+  title: {
+    absolute: "Nura — Parfums & Bodycare | Votre aura commence ici",
+  },
   description:
-    "Nura imagine des parfums et des soins pensés pour accompagner chaque aura, chaque humeur et chaque moment. Votre aura commence ici.",
+    "Nura imagine des parfums et des soins premium, entre Paris et Abidjan, pensés pour accompagner chaque aura, chaque humeur et chaque moment.",
 }
 
 export default async function Home(props: {
@@ -32,12 +34,12 @@ export default async function Home(props: {
   return (
     <>
       <Hero />
-      <TrustBand />
       {region && <FeaturedProducts region={region} />}
       <Editorial />
       {region && <CategoriesSection categories={categories} region={region} />}
       {region && <BestSellers region={region} />}
       <RitualBand />
+      <Campaign />
       <HomeReviews />
       <Gallery />
     </>

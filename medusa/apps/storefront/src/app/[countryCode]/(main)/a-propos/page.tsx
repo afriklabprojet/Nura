@@ -19,7 +19,7 @@ export default function AProposPage() {
     <>
       <section className="relative h-[52vh] min-h-[380px] w-full overflow-hidden">
         <Image
-          src="/images/about-values.jpg"
+          src="/images/about-values.webp"
           alt="La maison Nura"
           fill
           priority
@@ -44,7 +44,7 @@ export default function AProposPage() {
       <section className="content-container section-y grid grid-cols-1 items-center gap-12 small:grid-cols-2 small:gap-20">
         <div className="relative aspect-[4/5] w-full overflow-hidden">
           <Image
-            src="/images/about-story.jpg"
+            src="/images/about-story.webp"
             alt="Notre histoire"
             fill
             sizes="(max-width: 900px) 100vw, 50vw"

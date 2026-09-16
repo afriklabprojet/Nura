@@ -38,7 +38,6 @@ const ImageField = ({ label, value, onChange, hint }: ImageFieldProps) => {
       </Label>
       <div className="flex items-start gap-x-3">
         {value && /^https?:\/\//.test(value) ? (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={value}
             alt=""

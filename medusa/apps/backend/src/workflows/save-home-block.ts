@@ -5,9 +5,13 @@ import {
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
 import { MedusaError } from "@medusajs/framework/utils"
+import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { CONTENT_MODULE } from "../modules/content"
 import type ContentModuleService from "../modules/content/service"
 import { isHomeBlockKey } from "../lib/content"
+
+/** Fired whenever a home page block changes. */
+export const HOME_CONTENT_CHANGED_EVENT = "content.home.changed"
 
 export type SaveHomeBlockInput = {
   key: string
@@ -79,5 +83,9 @@ const saveHomeBlockStep = createStep(
 
 export const saveHomeBlockWorkflow = createWorkflow(
   "save-home-block",
-  (input: SaveHomeBlockInput) => new WorkflowResponse(saveHomeBlockStep(input))
+  (input: SaveHomeBlockInput) => {
+    const block = saveHomeBlockStep(input)
+    emitEventStep({ eventName: HOME_CONTENT_CHANGED_EVENT, data: {} })
+    return new WorkflowResponse(block)
+  }
 )

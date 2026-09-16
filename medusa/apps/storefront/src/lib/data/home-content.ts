@@ -1,7 +1,6 @@
 "use server"
 
 import { sdk } from "@lib/config"
-import { getCacheOptions } from "./cookies"
 
 export type HeroBlock = {
   eyebrow?: string
@@ -47,16 +46,16 @@ export type HomeContent = {
 /**
  * What the admin has configured for the home page. Absent or switched-off
  * blocks come back empty and each section falls back to its own defaults.
+ *
+ * The cache is dropped by the backend the moment an editor saves (see the
+ * content-revalidate subscriber); the hour-long window is only a safety net
+ * for when that call cannot get through.
  */
 export const getHomeContent = async (): Promise<HomeContent> => {
-  const next = { ...(await getCacheOptions("home-content")) }
-
   return sdk.client
     .fetch<HomeContent>("/store/home-content", {
       method: "GET",
-      // Short TTL rather than a tag: an edit made in the admin shows up on
-      // the storefront within the minute, without a deploy.
-      next: { ...next, revalidate: 60 },
+      next: { tags: ["home-content"], revalidate: 3600 },
       cache: "force-cache",
     })
     .then((content) => ({

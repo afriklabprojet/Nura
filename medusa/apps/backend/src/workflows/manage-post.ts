@@ -5,9 +5,13 @@ import {
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
 import { MedusaError } from "@medusajs/framework/utils"
+import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { CONTENT_MODULE } from "../modules/content"
 import type ContentModuleService from "../modules/content/service"
 import { slugify } from "../lib/content"
+
+/** Fired whenever the Journal changes, so the storefront can drop its cache. */
+export const JOURNAL_CHANGED_EVENT = "content.journal.changed"
 
 export type PostInput = {
   title: string
@@ -94,7 +98,11 @@ const createPostStep = createStep(
 
 export const createPostWorkflow = createWorkflow(
   "create-post",
-  (input: PostInput) => new WorkflowResponse(createPostStep(input))
+  (input: PostInput) => {
+    const post = createPostStep(input)
+    emitEventStep({ eventName: JOURNAL_CHANGED_EVENT, data: {} })
+    return new WorkflowResponse(post)
+  }
 )
 
 export type UpdatePostInput = PostInput & { id: string }
@@ -149,7 +157,11 @@ const updatePostStep = createStep(
 
 export const updatePostWorkflow = createWorkflow(
   "update-post",
-  (input: UpdatePostInput) => new WorkflowResponse(updatePostStep(input))
+  (input: UpdatePostInput) => {
+    const post = updatePostStep(input)
+    emitEventStep({ eventName: JOURNAL_CHANGED_EVENT, data: {} })
+    return new WorkflowResponse(post)
+  }
 )
 
 const deletePostStep = createStep(
@@ -163,5 +175,9 @@ const deletePostStep = createStep(
 
 export const deletePostWorkflow = createWorkflow(
   "delete-post",
-  (input: { id: string }) => new WorkflowResponse(deletePostStep(input))
+  (input: { id: string }) => {
+    const deleted = deletePostStep(input)
+    emitEventStep({ eventName: JOURNAL_CHANGED_EVENT, data: {} })
+    return new WorkflowResponse(deleted)
+  }
 )

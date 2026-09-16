@@ -1,7 +1,7 @@
-import { Text } from "@modules/common/components/ui"
 import { getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import QuickAdd, { QuickAddVariant } from "../quick-add"
 import Thumbnail from "../thumbnail"
 import PreviewPrice from "./price"
 
@@ -14,37 +14,76 @@ export default async function ProductPreview({
   isFeatured?: boolean
   region: HttpTypes.StoreRegion
 }) {
-  // const pricedProduct = await listProducts({
-  //   regionId: region.id,
-  //   queryParams: { id: [product.id!] },
-  // }).then(({ response }) => response.products[0])
-
-  // if (!pricedProduct) {
-  //   return null
-  // }
-
   const { cheapestPrice } = getProductPrice({
     product,
   })
 
+  const badge =
+    typeof product.metadata?.badge === "string"
+      ? product.metadata.badge
+      : undefined
+
+  const hoverImage = product.images?.find(
+    (image) => image.url && image.url !== product.thumbnail
+  )?.url
+
+  const quickAddVariants: QuickAddVariant[] = (product.variants || []).map(
+    (variant) => ({
+      id: variant.id!,
+      title: variant.title || "Ajouter",
+      available:
+        !variant.manage_inventory ||
+        variant.allow_backorder ||
+        (variant.inventory_quantity ?? 0) > 0,
+    })
+  )
+
   return (
-    <LocalizedClientLink href={`/products/${product.handle}`} className="group">
-      <div data-testid="product-wrapper">
-        <Thumbnail
-          thumbnail={product.thumbnail}
-          images={product.images}
-          size="full"
-          isFeatured={isFeatured}
-        />
-        <div className="flex txt-compact-medium mt-4 justify-between">
-          <Text className="text-ui-fg-subtle" data-testid="product-title">
-            {product.title}
-          </Text>
-          <div className="flex items-center gap-x-2">
-            {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
+    <div className="group flex flex-col" data-testid="product-wrapper">
+      <div className="relative">
+        <LocalizedClientLink
+          href={`/products/${product.handle}`}
+          className="block"
+          tabIndex={-1}
+          aria-hidden="true"
+        >
+          <Thumbnail
+            thumbnail={product.thumbnail}
+            images={product.images}
+            hoverImage={hoverImage}
+            title={product.title}
+            size="full"
+            isFeatured={isFeatured}
+          />
+        </LocalizedClientLink>
+
+        {badge && (
+          <span className="pointer-events-none absolute left-3 top-3 bg-bg-alt/90 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-brown">
+            {badge}
+          </span>
+        )}
+
+        {quickAddVariants.length > 0 && (
+          <div className="absolute inset-x-0 bottom-0 opacity-0 transition-opacity duration-300 focus-within:opacity-100 group-hover:opacity-100">
+            <QuickAdd variants={quickAddVariants} />
           </div>
-        </div>
+        )}
       </div>
-    </LocalizedClientLink>
+
+      <LocalizedClientLink
+        href={`/products/${product.handle}`}
+        className="mt-4 flex flex-col items-center gap-y-1 text-center"
+      >
+        <span
+          className="text-xs uppercase tracking-[0.12em] text-brown"
+          data-testid="product-title"
+        >
+          {product.title}
+        </span>
+        <div className="flex items-center gap-x-2 text-sm text-ui-fg-subtle">
+          {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
+        </div>
+      </LocalizedClientLink>
+    </div>
   )
 }

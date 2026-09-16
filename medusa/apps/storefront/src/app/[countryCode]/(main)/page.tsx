@@ -1,8 +1,14 @@
 import { Metadata } from "next"
 
+import CategoriesSection from "@modules/home/components/categories"
+import Editorial from "@modules/home/components/editorial"
 import FeaturedProducts from "@modules/home/components/featured-products"
+import Gallery from "@modules/home/components/gallery"
 import Hero from "@modules/home/components/hero"
-import { listCollections } from "@lib/data/collections"
+import HomeReviews from "@modules/home/components/reviews"
+import RitualBand from "@modules/home/components/ritual-band"
+import TrustBand from "@modules/home/components/trust-band"
+import { listCategories } from "@lib/data/categories"
 import { getRegion } from "@lib/data/regions"
 
 export const metadata: Metadata = {
@@ -20,22 +26,18 @@ export default async function Home(props: {
 
   const region = await getRegion(countryCode)
 
-  const { collections } = await listCollections({
-    fields: "id, handle, title",
-  })
-
-  if (!collections || !region) {
-    return null
-  }
+  const categories = await listCategories()
 
   return (
     <>
       <Hero />
-      <div className="py-12">
-        <ul className="flex flex-col gap-x-6">
-          <FeaturedProducts collections={collections} region={region} />
-        </ul>
-      </div>
+      <TrustBand />
+      {region && <CategoriesSection categories={categories} region={region} />}
+      {region && <FeaturedProducts region={region} />}
+      <RitualBand />
+      <HomeReviews />
+      <Editorial />
+      <Gallery />
     </>
   )
 }

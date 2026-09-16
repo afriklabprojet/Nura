@@ -13,6 +13,14 @@ const S3_PATHNAME = process.env.MEDUSA_CLOUD_S3_PATHNAME
  */
 const nextConfig = {
   output: "standalone",
+  // Explicitly empty: Next's automatic barrel-file optimization otherwise
+  // rewrites @headlessui/react's imports into a virtual __barrel_optimize__
+  // module that fails to statically resolve named exports (useFocusRing,
+  // useHover) re-exported through @react-aria/focus/interactions' Parcel
+  // bundled output, breaking `next build`.
+  experimental: {
+    optimizePackageImports: [],
+  },
   reactStrictMode: true,
   logging: {
     fetches: {
@@ -20,10 +28,10 @@ const nextConfig = {
     },
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   images: {
     unoptimized: true,
@@ -39,6 +47,10 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "*.s3.amazonaws.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
       },
       ...(S3_HOSTNAME && S3_PATHNAME
         ? [

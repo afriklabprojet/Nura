@@ -1,10 +1,14 @@
 import React, { Suspense } from "react"
 
+import Breadcrumbs from "@modules/common/components/breadcrumbs"
 import ImageGallery from "@modules/products/components/image-gallery"
 import ProductActions from "@modules/products/components/product-actions"
-import ProductOnboardingCta from "@modules/products/components/product-onboarding-cta"
+import ProductReassurance from "@modules/products/components/product-reassurance"
+import ProductReviews from "@modules/products/components/product-reviews"
 import ProductTabs from "@modules/products/components/product-tabs"
+import RecentlyViewed from "@modules/products/components/recently-viewed"
 import RelatedProducts from "@modules/products/components/related-products"
+import TrackRecentlyViewed from "@modules/products/components/track-recently-viewed"
 import ProductInfo from "@modules/products/templates/product-info"
 import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-related-products"
 import { notFound } from "next/navigation"
@@ -31,19 +35,25 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
   return (
     <>
+      <TrackRecentlyViewed handle={product.handle!} />
+      <div className="content-container pt-6">
+        <Breadcrumbs
+          countryCode={countryCode}
+          crumbs={[
+            { label: "Boutique", href: "/store" },
+            { label: product.title },
+          ]}
+        />
+      </div>
       <div
-        className="content-container  flex flex-col small:flex-row small:items-start py-6 relative"
+        className="content-container flex flex-col small:flex-row small:items-start py-6 gap-x-12 small:gap-x-16 medium:gap-x-24 relative"
         data-testid="product-container"
       >
-        <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-6">
+        <div className="w-full small:w-3/5">
+          <ImageGallery images={images} productTitle={product.title} />
+        </div>
+        <div className="w-full small:w-2/5 flex flex-col gap-y-8 py-8 small:py-2 small:sticky small:top-24">
           <ProductInfo product={product} />
-          <ProductTabs product={product} />
-        </div>
-        <div className="block w-full relative">
-          <ImageGallery images={images} />
-        </div>
-        <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-12">
-          <ProductOnboardingCta />
           <Suspense
             fallback={
               <ProductActions
@@ -55,7 +65,12 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
           >
             <ProductActionsWrapper id={product.id} region={region} />
           </Suspense>
+          <ProductTabs product={product} />
+          <ProductReassurance />
         </div>
+      </div>
+      <div className="content-container my-16 small:my-32">
+        <ProductReviews productId={product.id} />
       </div>
       <div
         className="content-container my-16 small:my-32"
@@ -65,6 +80,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
           <RelatedProducts product={product} countryCode={countryCode} />
         </Suspense>
       </div>
+      <RecentlyViewed region={region} excludeHandle={product.handle} />
     </>
   )
 }

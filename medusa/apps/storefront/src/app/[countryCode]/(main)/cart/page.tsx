@@ -1,12 +1,13 @@
-import { retrieveCart } from "@lib/data/cart"
+import { listCartOptions, retrieveCart } from "@lib/data/cart"
 import { retrieveCustomer } from "@lib/data/customer"
+import { StoreCartShippingOption } from "@medusajs/types"
 import CartTemplate from "@modules/cart/templates"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 export const metadata: Metadata = {
-  title: "Cart",
-  description: "View your cart",
+  title: "Panier",
+  description: "Consultez votre panier.",
 }
 
 export default async function Cart() {
@@ -17,5 +18,18 @@ export default async function Cart() {
 
   const customer = await retrieveCustomer()
 
-  return <CartTemplate cart={cart} customer={customer} />
+  let shippingOptions: StoreCartShippingOption[] = []
+
+  if (cart) {
+    const { shipping_options } = await listCartOptions()
+    shippingOptions = shipping_options
+  }
+
+  return (
+    <CartTemplate
+      cart={cart}
+      customer={customer}
+      shippingOptions={shippingOptions}
+    />
+  )
 }

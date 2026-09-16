@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation"
+import Image from "next/image"
 import { Suspense } from "react"
 
-import InteractiveLink from "@modules/common/components/interactive-link"
+import { getCategoryBanner } from "@lib/constants"
+import Breadcrumbs from "@modules/common/components/breadcrumbs"
 import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-grid"
 import RefinementList from "@modules/store/components/refinement-list"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
@@ -40,50 +42,71 @@ export default function CategoryTemplate({
   getParents(category)
 
   return (
-    <div
-      className="flex flex-col small:flex-row small:items-start py-6 content-container"
-      data-testid="category-container"
-    >
-      <RefinementList
-        sortBy={sort}
-        data-testid="sort-by-container"
-        hideOptionsPicker
-      />
-      <div className="w-full">
-        <div className="flex flex-row mb-8 text-2xl-semi gap-4">
-          {parents &&
-            parents.map((parent) => (
-              <span key={parent.id} className="text-ui-fg-subtle">
-                <LocalizedClientLink
-                  className="mr-4 hover:text-black"
-                  href={`/categories/${parent.handle}`}
-                  data-testid="sort-by-link"
-                >
-                  {parent.name}
-                </LocalizedClientLink>
-                /
-              </span>
-            ))}
-          <h1 data-testid="category-page-title">{category.name}</h1>
+    <div data-testid="category-container">
+      <div className="relative h-[280px] w-full overflow-hidden small:h-[360px]">
+        <Image
+          src={getCategoryBanner(category.handle)}
+          alt={category.name}
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-ink/40" />
+        <div className="content-container relative z-10 flex h-full flex-col items-center justify-center gap-3 text-center">
+          <span className="text-[11px] uppercase tracking-[0.35em] text-bg-alt/80">
+            {parents.length ? parents[0].name : "Nos univers"}
+          </span>
+          <h1
+            className="font-serif text-4xl text-bg-alt small:text-6xl"
+            data-testid="category-page-title"
+          >
+            {category.name}
+          </h1>
+          {category.description && (
+            <p className="max-w-lg text-sm leading-relaxed text-bg-alt/85">
+              {category.description}
+            </p>
+          )}
         </div>
-        {category.description && (
-          <div className="mb-8 text-base-regular">
-            <p>{category.description}</p>
-          </div>
+      </div>
+
+      <div className="content-container py-8 small:py-12">
+        <div className="mb-6">
+          <Breadcrumbs
+            countryCode={countryCode}
+            crumbs={[
+              { label: "Boutique", href: "/store" },
+              ...[...parents].reverse().map((parent) => ({
+                label: parent.name,
+                href: `/categories/${parent.handle}`,
+              })),
+              { label: category.name },
+            ]}
+          />
+        </div>
+
+        {!!category.category_children?.length && (
+          <ul className="mb-8 flex flex-wrap gap-2">
+            {category.category_children.map((child) => (
+              <li key={child.id}>
+                <LocalizedClientLink
+                  href={`/categories/${category.handle}/${child.handle}`}
+                  className="inline-flex h-9 items-center border border-nude px-4 text-[11px] uppercase tracking-[0.15em] text-brown transition-colors hover:border-gold hover:text-gold"
+                >
+                  {child.name}
+                </LocalizedClientLink>
+              </li>
+            ))}
+          </ul>
         )}
-        {category.category_children && (
-          <div className="mb-8 text-base-large">
-            <ul className="grid grid-cols-1 gap-2">
-              {category.category_children?.map((c) => (
-                <li key={c.id}>
-                  <InteractiveLink href={`/categories/${c.handle}`}>
-                    {c.name}
-                  </InteractiveLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+
+        <RefinementList
+          sortBy={sort}
+          data-testid="sort-by-container"
+          hideOptionsPicker
+        />
+
         <Suspense
           fallback={
             <SkeletonProductGrid

@@ -13,6 +13,7 @@ import ReactCountryFlag from "react-country-flag"
 import { StateType } from "@lib/hooks/use-toggle-state"
 import { useParams, usePathname } from "next/navigation"
 import { updateRegion } from "@lib/data/cart"
+import { getCountryName } from "@lib/util/country-names"
 import { HttpTypes } from "@medusajs/types"
 
 type CountryOption = {
@@ -40,7 +41,7 @@ const CountrySelect = ({ toggleState, regions }: CountrySelectProps) => {
         return r.countries?.map((c) => ({
           country: c.iso_2 ?? "",
           region: r.id,
-          label: c.display_name ?? "",
+          label: getCountryName(c.iso_2, c.display_name),
         }))
       })
       .flat()
@@ -98,7 +99,7 @@ const CountrySelect = ({ toggleState, regions }: CountrySelectProps) => {
             leaveTo="opacity-0"
           >
             <ListboxOptions
-              className="absolute -bottom-[calc(100%-36px)] left-0 xsmall:left-auto xsmall:right-0 max-h-[442px] overflow-y-scroll z-[900] bg-white drop-shadow-md text-small-regular uppercase text-black no-scrollbar rounded-rounded w-full"
+              className="absolute -bottom-[calc(100%-36px)] left-0 xsmall:left-auto xsmall:right-0 max-h-[442px] overflow-y-scroll z-[900] bg-bg-alt border border-nude drop-shadow-md text-small-regular uppercase text-brown no-scrollbar w-full"
               static
             >
               {options?.map((o, index) => {
@@ -106,7 +107,7 @@ const CountrySelect = ({ toggleState, regions }: CountrySelectProps) => {
                   <ListboxOption
                     key={index}
                     value={o}
-                    className="py-2 hover:bg-gray-200 px-3 cursor-pointer flex items-center gap-x-2"
+                    className="py-2 hover:bg-nude/40 px-3 cursor-pointer flex items-center gap-x-2"
                   >
                     <ReactCountryFlag
                       svg

@@ -142,46 +142,34 @@ function FreeShippingInline({
   }
 }) {
   return (
-    <div className="bg-neutral-100 p-2 rounded-lg border">
-      <div className="space-y-1.5">
-        <div className="flex justify-between text-xs text-neutral-600">
-          <div>
-            {price.target_reached ? (
-              <div className="flex items-center gap-1.5">
-                {" "}
-                <CheckCircleSolid className="text-green-500 inline-block" />{" "}
-                Livraison offerte débloquée !
-              </div>
-            ) : (
-              `Débloquez la livraison offerte`
-            )}
-          </div>
-
-          <div
-            className={clx("visible", {
-              "opacity-0 invisible": price.target_reached,
-            })}
-          >
-            Plus que{" "}
-            <span className="text-neutral-950">
-              {convertToLocale({
-                amount: price.target_remaining,
-                currency_code: cart.currency_code,
-              })}
+    <div className="border border-nude bg-bg-alt p-4">
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap justify-between gap-x-4 text-xs text-ui-fg-subtle">
+          <span className="uppercase tracking-[0.15em]">
+            {price.target_reached
+              ? "Livraison offerte débloquée"
+              : "Livraison offerte"}
+          </span>
+          {!price.target_reached && (
+            <span>
+              Plus que{" "}
+              <span className="text-brown">
+                {convertToLocale({
+                  amount: price.target_remaining,
+                  currency_code: cart.currency_code,
+                })}
+              </span>
             </span>
-          </div>
+          )}
         </div>
-        <div className="flex justify-between gap-1">
+        <div className="h-[3px] w-full bg-nude">
           <div
             className={clx(
-              "bg-gradient-to-r from-zinc-400 to-zinc-500 h-1 rounded-full max-w-full duration-500 ease-in-out",
-              {
-                "from-green-400 to-green-500": price.target_reached,
-              }
+              "h-full max-w-full bg-gold transition-[width] duration-500 ease-out",
+              { "bg-brown": price.target_reached }
             )}
-            style={{ width: `${price.remaining_percentage}%` }}
-          ></div>
-          <div className="bg-neutral-300 h-1 rounded-full w-fit flex-grow"></div>
+            style={{ width: `${Math.min(price.remaining_percentage, 100)}%` }}
+          />
         </div>
       </div>
     </div>
@@ -210,14 +198,14 @@ function FreeShippingPopup({
     >
       <div>
         <Button
-          className="rounded-full bg-neutral-900 shadow-none outline-none border-none text-[15px] p-2"
+          className="rounded-full bg-brown shadow-none outline-none border-none text-[15px] p-2"
           onClick={() => setIsClosed(true)}
         >
           <XMark />
         </Button>
       </div>
 
-      <div className="w-[400px] bg-black text-white p-6 rounded-lg ">
+      <div className="w-[360px] max-w-[calc(100vw-2rem)] bg-brown text-bg-alt p-6">
         <div className="pb-4">
           <div className="space-y-3">
             <div className="flex justify-between text-[15px] text-neutral-400">
@@ -263,14 +251,14 @@ function FreeShippingPopup({
 
         <div className="flex gap-3">
           <LocalizedClientLink
-            className="rounded-2xl bg-transparent shadow-none outline-none border-[1px] border-white text-[15px] py-2.5 px-4"
+            className="bg-transparent shadow-none outline-none border border-bg-alt/60 text-[13px] uppercase tracking-[0.15em] py-2.5 px-4"
             href="/cart"
           >
             Voir le panier
           </LocalizedClientLink>
 
           <LocalizedClientLink
-            className="flex-grow rounded-2xl bg-white text-neutral-950 shadow-none outline-none border-[1px] border-white text-[15px] py-2.5 px-4 text-center"
+            className="flex-grow bg-bg-alt text-brown shadow-none outline-none border border-bg-alt text-[13px] uppercase tracking-[0.15em] py-2.5 px-4 text-center"
             href="/store"
           >
             Voir les produits

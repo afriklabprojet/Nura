@@ -1,8 +1,6 @@
-import { Container, clx } from "@modules/common/components/ui"
+import { clx } from "@modules/common/components/ui"
 import Image from "next/image"
 import React from "react"
-
-import PlaceholderImage from "@modules/common/icons/placeholder-image"
 
 type ThumbnailProps = {
   thumbnail?: string | null
@@ -10,6 +8,10 @@ type ThumbnailProps = {
   size?: "small" | "medium" | "large" | "full" | "square"
   isFeatured?: boolean
   className?: string
+  /** Second image revealed when the surrounding `group` is hovered. */
+  hoverImage?: string | null
+  /** Product (or line item) title, used as the image's alt text. */
+  title?: string | null
   "data-testid"?: string
 }
 
@@ -19,17 +21,19 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
   size = "small",
   isFeatured,
   className,
+  hoverImage,
+  title,
   "data-testid": dataTestid,
 }) => {
   const initialImage = thumbnail || images?.[0]?.url
 
   return (
-    <Container
+    <div
       className={clx(
-        "relative w-full overflow-hidden p-4 bg-ui-bg-subtle shadow-elevation-card-rest rounded-large group-hover:shadow-elevation-card-hover transition-shadow ease-in-out duration-150",
+        "relative w-full overflow-hidden bg-nude/20",
         className,
         {
-          "aspect-[11/14]": isFeatured,
+          "aspect-[4/5]": isFeatured,
           "aspect-[9/16]": !isFeatured && size !== "square",
           "aspect-[1/1]": size === "square",
           "w-[180px]": size === "small",
@@ -40,28 +44,48 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
       )}
       data-testid={dataTestid}
     >
-      <ImageOrPlaceholder image={initialImage} size={size} />
-    </Container>
+      <ImageOrPlaceholder image={initialImage} title={title} size={size} />
+      {hoverImage && hoverImage !== initialImage && (
+        <Image
+          src={hoverImage}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 object-cover object-center opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          draggable={false}
+          quality={50}
+          sizes="(max-width: 512px) 50vw, (max-width: 900px) 33vw, 25vw"
+          fill
+        />
+      )}
+    </div>
   )
 }
 
 const ImageOrPlaceholder = ({
   image,
+  title,
   size,
-}: Pick<ThumbnailProps, "size"> & { image?: string }) => {
+}: Pick<ThumbnailProps, "size" | "title"> & { image?: string }) => {
   return image ? (
     <Image
       src={image}
-      alt="Thumbnail"
-      className="absolute inset-0 object-cover object-center"
+      alt={title || "Photo du produit"}
+      className="absolute inset-0 object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.03]"
       draggable={false}
-      quality={50}
-      sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
+      quality={60}
+      sizes="(max-width: 512px) 50vw, (max-width: 900px) 33vw, 25vw"
       fill
     />
   ) : (
-    <div className="w-full h-full absolute inset-0 flex items-center justify-center">
-      <PlaceholderImage size={size === "small" ? 16 : 24} />
+    <div className="w-full h-full absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#F3E8DA] via-[#EFE0CE] to-[#E7D3C0]">
+      <span
+        className={clx(
+          "font-serif text-brown/35 select-none leading-none",
+          size === "small" ? "text-3xl" : "text-6xl"
+        )}
+      >
+        N
+      </span>
     </div>
   )
 }

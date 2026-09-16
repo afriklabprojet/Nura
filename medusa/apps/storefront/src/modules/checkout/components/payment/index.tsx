@@ -1,10 +1,11 @@
 "use client"
 import { RadioGroup } from "@headlessui/react"
-import { isStripeLike, paymentInfoMap } from "@lib/constants"
+import { isJeko, isStripeLike, paymentInfoMap } from "@lib/constants"
 import { initiatePaymentSession } from "@lib/data/cart"
 import { CheckCircleSolid, CreditCard } from "@medusajs/icons"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import PaymentContainer, {
+  JekoPaymentContainer,
   StripePaymentContainer,
 } from "@modules/checkout/components/payment-container"
 import Divider from "@modules/common/components/divider"
@@ -116,7 +117,7 @@ const Payment = ({
         <Heading
           level="h2"
           className={clx(
-            "flex flex-row text-3xl-regular gap-x-2 items-baseline",
+            "flex flex-row font-serif text-2xl small:text-3xl gap-x-2 items-baseline",
             {
               "opacity-50 pointer-events-none select-none":
                 !isOpen && !paymentReady,
@@ -156,6 +157,14 @@ const Payment = ({
                         setError={setError}
                         setPaymentComplete={setPaymentComplete}
                       />
+                    ) : isJeko(paymentMethod.id) ? (
+                      <JekoPaymentContainer
+                        paymentProviderId={paymentMethod.id}
+                        selectedPaymentOptionId={selectedPaymentMethod}
+                        paymentInfoMap={paymentInfoMap}
+                        cart={cart}
+                        setError={setError}
+                      />
                     ) : (
                       <PaymentContainer
                         paymentInfoMap={paymentInfoMap}
@@ -188,21 +197,25 @@ const Payment = ({
             data-testid="payment-method-error-message"
           />
 
-          <Button
-            size="large"
-            className="mt-6"
-            onClick={handleSubmit}
-            isLoading={isLoading}
-            disabled={
-              (isStripeLike(selectedPaymentMethod) && !paymentComplete) ||
-              (!selectedPaymentMethod && !paidByGiftcard)
-            }
-            data-testid="submit-payment-button"
-          >
-            {!activeSession && isStripeLike(selectedPaymentMethod)
-              ? "Saisir les détails de paiement"
-              : "Continuer vers la récapitulation"}
-          </Button>
+          {/* Jèko has no separate "continue" step — choosing a wallet above
+              immediately redirects the customer to complete the payment. */}
+          {!isJeko(selectedPaymentMethod) && (
+            <Button
+              size="large"
+              className="mt-6"
+              onClick={handleSubmit}
+              isLoading={isLoading}
+              disabled={
+                (isStripeLike(selectedPaymentMethod) && !paymentComplete) ||
+                (!selectedPaymentMethod && !paidByGiftcard)
+              }
+              data-testid="submit-payment-button"
+            >
+              {!activeSession && isStripeLike(selectedPaymentMethod)
+                ? "Saisir les détails de paiement"
+                : "Continuer vers la récapitulation"}
+            </Button>
+          )}
         </div>
 
         <div className={isOpen ? "hidden" : "block"}>

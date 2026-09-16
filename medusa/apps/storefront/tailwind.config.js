@@ -54,7 +54,9 @@ module.exports = {
       screens: {
         "2xsmall": "320px",
         xsmall: "512px",
-        small: "1024px",
+        // Desktop layouts start at 900px: below this the nav, the PDP and the
+        // cart fall back to their single-column mobile versions.
+        small: "900px",
         medium: "1280px",
         large: "1440px",
         xlarge: "1680px",
@@ -64,8 +66,13 @@ module.exports = {
         "3xl": "2rem",
       },
       fontFamily: {
-        sans: ["Jost", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
-        serif: ["'Cormorant Garamond'", "serif"],
+        sans: [
+          "var(--font-jost)",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "sans-serif",
+        ],
+        serif: ["var(--font-cormorant)", "Georgia", "serif"],
       },
       keyframes: {
         ring: {
@@ -137,6 +144,18 @@ module.exports = {
           "0%": { transform: "translateY(-100%)" },
           "100%": { transform: "translateY(0)" },
         },
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+        "fade-up": {
+          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "slow-zoom": {
+          "0%": { transform: "scale(1.06)" },
+          "100%": { transform: "scale(1)" },
+        },
       },
       animation: {
         ring: "ring 2.2s cubic-bezier(0.5, 0, 0.5, 1) infinite",
@@ -151,6 +170,9 @@ module.exports = {
           "accordion-slide-up 300ms cubic-bezier(0.87, 0, 0.13, 1) forwards",
         enter: "enter 200ms ease-out",
         "slide-in": "slide-in 1.2s cubic-bezier(.41,.73,.51,1.02)",
+        marquee: "marquee 28s linear infinite",
+        "fade-up": "fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards",
+        "slow-zoom": "slow-zoom 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards",
         leave: "leave 150ms ease-in forwards",
       },
     },

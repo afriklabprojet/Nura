@@ -22,24 +22,30 @@ const StoreTemplate = ({
   const sort = sortBy || "created_at"
 
   return (
-    <div
-      className="flex flex-col small:flex-row small:items-start py-6 content-container"
-      data-testid="category-container"
-    >
-      <RefinementList sortBy={sort} />
-      <div className="w-full">
-        <div className="mb-8 text-2xl-semi">
-          <h1 data-testid="store-page-title">All products</h1>
-        </div>
-        <Suspense fallback={<SkeletonProductGrid />}>
-          <PaginatedProducts
-            sortBy={sort}
-            page={pageNumber}
-            countryCode={countryCode}
-            optionValueIds={optionValueIds}
-          />
-        </Suspense>
+    <div className="content-container py-10 small:py-16" data-testid="category-container">
+      <div className="mb-10 flex flex-col items-center gap-4 text-center small:mb-14">
+        <span className="eyebrow">La boutique</span>
+        <h1
+          className="font-serif text-4xl text-brown small:text-6xl"
+          data-testid="store-page-title"
+        >
+          Tous nos produits
+        </h1>
+        <p className="max-w-md text-sm leading-relaxed text-ui-fg-subtle">
+          Parfums, soins et coffrets : toute la maison Nura en un seul endroit.
+        </p>
       </div>
+
+      <RefinementList sortBy={sort} />
+
+      <Suspense fallback={<SkeletonProductGrid />}>
+        <PaginatedProducts
+          sortBy={sort}
+          page={pageNumber}
+          countryCode={countryCode}
+          optionValueIds={optionValueIds}
+        />
+      </Suspense>
     </div>
   )
 }

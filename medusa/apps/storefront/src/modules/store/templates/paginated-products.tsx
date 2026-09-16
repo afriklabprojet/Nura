@@ -70,10 +70,18 @@ export default async function PaginatedProducts({
 
   const totalPages = Math.ceil(count / PRODUCT_LIMIT)
 
+  if (products.length === 0) {
+    return (
+      <p className="txt-medium text-ui-fg-subtle py-12 text-center w-full">
+        Aucun produit ne correspond à ces critères.
+      </p>
+    )
+  }
+
   return (
     <>
       <ul
-        className="grid grid-cols-2 w-full small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8"
+        className="grid w-full grid-cols-2 gap-x-4 gap-y-10 small:grid-cols-3 small:gap-x-6 medium:grid-cols-4"
         data-testid="products-list"
       >
         {products.map((p) => {

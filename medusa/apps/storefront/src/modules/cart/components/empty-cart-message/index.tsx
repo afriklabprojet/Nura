@@ -1,23 +1,25 @@
-import { Heading, Text } from "@modules/common/components/ui"
-
-import InteractiveLink from "@modules/common/components/interactive-link"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 const EmptyCartMessage = () => {
   return (
-    <div className="py-48 px-2 flex flex-col justify-center items-start" data-testid="empty-cart-message">
-      <Heading
-        level="h1"
-        className="flex flex-row text-3xl-regular gap-x-2 items-baseline"
+    <div
+      className="flex flex-col items-center gap-5 py-28 text-center"
+      data-testid="empty-cart-message"
+    >
+      <span className="eyebrow">Votre panier</span>
+      <h1 className="font-serif text-4xl text-brown small:text-5xl">
+        Votre panier est vide
+      </h1>
+      <p className="max-w-md text-sm leading-relaxed text-ui-fg-subtle">
+        Parfums, soins et coffrets vous attendent — laissez-vous porter par
+        votre aura.
+      </p>
+      <LocalizedClientLink
+        href="/store"
+        className="mt-2 inline-flex h-12 items-center justify-center bg-brown px-8 text-[11px] uppercase tracking-[0.2em] text-bg-alt transition-colors hover:bg-ink"
       >
-        Panier
-      </Heading>
-      <Text className="text-base-regular mt-4 mb-6 max-w-[32rem]">
-        Votre panier est vide. Utilisez le lien ci-dessous pour découvrir
-        notre collection.
-      </Text>
-      <div>
-        <InteractiveLink href="/store">Découvrir les produits</InteractiveLink>
-      </div>
+        Découvrir la collection
+      </LocalizedClientLink>
     </div>
   )
 }

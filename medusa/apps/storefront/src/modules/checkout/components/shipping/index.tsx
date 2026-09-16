@@ -107,6 +107,12 @@ const Shipping: React.FC<ShippingProps> = ({
     if (_pickupMethods?.find((m) => m.id === shippingMethodId)) {
       setShowPickupOptions(PICKUP_OPTION_ON)
     }
+    // _shippingMethods/_pickupMethods are derived from availableShippingMethods
+    // every render, so they change exactly when it does. cart.id and
+    // shippingMethodId are intentionally excluded: this effect (re)computes
+    // shipping prices only when the set of available methods changes, not on
+    // every selection change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [availableShippingMethods])
 
   const handleEdit = () => {
@@ -157,7 +163,7 @@ const Shipping: React.FC<ShippingProps> = ({
         <Heading
           level="h2"
           className={clx(
-            "flex flex-row text-3xl-regular gap-x-2 items-baseline",
+            "flex flex-row font-serif text-2xl small:text-3xl gap-x-2 items-baseline",
             {
               "opacity-50 pointer-events-none select-none":
                 !isOpen && cart.shipping_methods?.length === 0,

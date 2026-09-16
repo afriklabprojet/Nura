@@ -1,48 +1,16 @@
-"use client"
-
-import FilterRadioGroup from "@modules/common/components/filter-radio-group"
-
 export type SortOptions = "price_asc" | "price_desc" | "created_at"
 
-type SortProductsProps = {
-  sortBy: SortOptions
-  setQueryParams: (name: string, value: string) => void
-  "data-testid"?: string
-}
-
-const sortOptions = [
+export const sortOptions: { value: SortOptions; label: string }[] = [
   {
     value: "created_at",
-    label: "Latest Arrivals",
+    label: "Nouveautés",
   },
   {
     value: "price_asc",
-    label: "Price: Low -> High",
+    label: "Prix : croissant",
   },
   {
     value: "price_desc",
-    label: "Price: High -> Low",
+    label: "Prix : décroissant",
   },
 ]
-
-const SortProducts = ({
-  "data-testid": dataTestId,
-  sortBy,
-  setQueryParams,
-}: SortProductsProps) => {
-  const handleChange = (value: string) => {
-    setQueryParams("sortBy", value as SortOptions)
-  }
-
-  return (
-    <FilterRadioGroup
-      title="Sort by"
-      items={sortOptions}
-      value={sortBy}
-      handleChange={handleChange}
-      data-testid={dataTestId}
-    />
-  )
-}
-
-export default SortProducts

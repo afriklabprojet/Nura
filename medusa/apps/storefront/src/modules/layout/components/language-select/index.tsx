@@ -49,7 +49,7 @@ type LanguageSelectProps = {
 const getLocalizedLanguageName = (
   code: string,
   fallbackName: string,
-  displayLocale: string = "en-US"
+  displayLocale: string = "fr"
 ): string => {
   try {
     const displayNames = new Intl.DisplayNames([displayLocale], {
@@ -63,8 +63,8 @@ const getLocalizedLanguageName = (
 
 const DEFAULT_OPTION: LanguageOption = {
   code: "",
-  name: "Default",
-  localizedName: "Default",
+  name: "Par défaut",
+  localizedName: "Par défaut",
   countryCode: "",
 }
 
@@ -86,7 +86,7 @@ const LanguageSelect = ({
       localizedName: getLocalizedLanguageName(
         locale.code,
         locale.name,
-        currentLocale ?? "en-US"
+        currentLocale ?? "fr"
       ),
       countryCode: getCountryCodeFromLocale(locale.code),
     }))
@@ -128,11 +128,10 @@ const LanguageSelect = ({
       >
         <ListboxButton className="py-1 w-full">
           <div className="txt-compact-small flex items-start gap-x-2">
-            <span>Language:</span>
+            <span>Langue :</span>
             {current && (
               <span className="txt-compact-small flex items-center gap-x-2">
                 {current.countryCode && (
-                  /* @ts-ignore */
                   <ReactCountryFlag
                     svg
                     style={{
@@ -156,17 +155,16 @@ const LanguageSelect = ({
             leaveTo="opacity-0"
           >
             <ListboxOptions
-              className="absolute -bottom-[calc(100%-36px)] left-0 xsmall:left-auto xsmall:right-0 max-h-[442px] overflow-y-scroll z-[900] bg-white drop-shadow-md text-small-regular uppercase text-black no-scrollbar rounded-rounded w-full"
+              className="absolute -bottom-[calc(100%-36px)] left-0 xsmall:left-auto xsmall:right-0 max-h-[442px] overflow-y-scroll z-[900] bg-bg-alt border border-nude drop-shadow-md text-small-regular uppercase text-brown no-scrollbar w-full"
               static
             >
               {options.map((o) => (
                 <ListboxOption
                   key={o.code || "default"}
                   value={o}
-                  className="py-2 hover:bg-gray-200 px-3 cursor-pointer flex items-center gap-x-2"
+                  className="py-2 hover:bg-nude/40 px-3 cursor-pointer flex items-center gap-x-2"
                 >
                   {o.countryCode ? (
-                    /* @ts-ignore */
                     <ReactCountryFlag
                       svg
                       style={{

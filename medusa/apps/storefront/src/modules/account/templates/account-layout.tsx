@@ -1,6 +1,7 @@
 import React from "react"
 
-import UnderlineLink from "@modules/common/components/interactive-link"
+import { SERVICE_CLIENT_CONTACTS } from "@lib/constants"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 import AccountNav from "../components/account-nav"
 import { HttpTypes } from "@medusajs/types"
@@ -15,26 +16,45 @@ const AccountLayout: React.FC<AccountLayoutProps> = ({
   children,
 }) => {
   return (
-    <div className="flex-1 small:py-12" data-testid="account-page">
-      <div className="flex-1 content-container h-full max-w-5xl mx-auto bg-white flex flex-col">
-        <div className="grid grid-cols-1  small:grid-cols-[240px_1fr] py-12">
-          <div>{customer && <AccountNav customer={customer} />}</div>
-          <div className="flex-1">{children}</div>
+    <div className="content-container py-10 small:py-16" data-testid="account-page">
+      {customer && (
+        <div className="mb-10 flex flex-col gap-3 small:mb-14">
+          <span className="eyebrow">Mon compte</span>
+          <h1 className="font-serif text-4xl text-brown small:text-5xl">
+            Bonjour {customer.first_name}
+          </h1>
         </div>
-        <div className="flex flex-col small:flex-row items-end justify-between small:border-t border-gray-200 py-12 gap-8">
-          <div>
-            <h3 className="text-xl-semi mb-4">Got questions?</h3>
-            <span className="txt-medium">
-              You can find frequently asked questions and answers on our
-              customer service page.
-            </span>
-          </div>
-          <div>
-            <UnderlineLink href="/customer-service">
-              Customer Service
-            </UnderlineLink>
+      )}
+
+      <div className="grid grid-cols-1 gap-10 small:grid-cols-[220px_1fr] small:gap-16">
+        <div>{customer && <AccountNav customer={customer} />}</div>
+        <div className="flex-1">{children}</div>
+      </div>
+
+      <div className="mt-16 flex flex-col gap-6 border-t border-nude pt-10 small:flex-row small:items-end small:justify-between">
+        <div className="flex flex-col gap-2">
+          <h3 className="font-serif text-2xl text-brown">Une question ?</h3>
+          <p className="text-sm text-ui-fg-subtle">
+            Notre équipe vous répond sous 24 à 48 h.
+          </p>
+          <div className="flex flex-wrap gap-x-4 text-sm">
+            {SERVICE_CLIENT_CONTACTS.map((contact) => (
+              <a
+                key={contact.tel}
+                href={`tel:${contact.tel}`}
+                className="text-gold hover:text-brown"
+              >
+                {contact.label} — {contact.display}
+              </a>
+            ))}
           </div>
         </div>
+        <LocalizedClientLink
+          href="/contact"
+          className="link-underline self-start text-[11px] uppercase tracking-[0.2em] text-brown/70 hover:text-brown"
+        >
+          Nous contacter
+        </LocalizedClientLink>
       </div>
     </div>
   )

@@ -4,6 +4,7 @@ import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-g
 import RefinementList from "@modules/store/components/refinement-list"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import PaginatedProducts from "@modules/store/templates/paginated-products"
+import Breadcrumbs from "@modules/common/components/breadcrumbs"
 import { HttpTypes } from "@medusajs/types"
 import { OptionValueIds } from "@lib/util/product-option-filters"
 
@@ -24,28 +25,39 @@ export default function CollectionTemplate({
   const sort = sortBy || "created_at"
 
   return (
-    <div className="flex flex-col small:flex-row small:items-start py-6 content-container">
-      <RefinementList sortBy={sort} hideOptionsPicker />
-      <div className="w-full">
-        <div className="mb-8 text-2xl-semi">
-          <h1>{collection.title}</h1>
-        </div>
-        <Suspense
-          fallback={
-            <SkeletonProductGrid
-              numberOfProducts={collection.products?.length}
-            />
-          }
-        >
-          <PaginatedProducts
-            sortBy={sort}
-            page={pageNumber}
-            collectionId={collection.id}
-            countryCode={countryCode}
-            optionValueIds={optionValueIds}
-          />
-        </Suspense>
+    <div className="content-container py-10 small:py-16">
+      <div className="mb-6">
+        <Breadcrumbs
+          countryCode={countryCode}
+          crumbs={[
+            { label: "Boutique", href: "/store" },
+            { label: collection.title },
+          ]}
+        />
       </div>
+
+      <div className="mb-10 flex flex-col items-center gap-3 text-center small:mb-14">
+        <span className="eyebrow">Collection</span>
+        <h1 className="font-serif text-4xl text-brown small:text-5xl">
+          {collection.title}
+        </h1>
+      </div>
+
+      <RefinementList sortBy={sort} hideOptionsPicker />
+
+      <Suspense
+        fallback={
+          <SkeletonProductGrid numberOfProducts={collection.products?.length} />
+        }
+      >
+        <PaginatedProducts
+          sortBy={sort}
+          page={pageNumber}
+          collectionId={collection.id}
+          countryCode={countryCode}
+          optionValueIds={optionValueIds}
+        />
+      </Suspense>
     </div>
   )
 }

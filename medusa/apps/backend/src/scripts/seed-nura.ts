@@ -10,6 +10,8 @@ import {
   updateStoresWorkflow,
 } from "@medusajs/medusa/core-flows"
 
+import { productMedia } from "./product-images"
+
 export default async function seedNura({
   container,
 }: {
@@ -81,10 +83,15 @@ export default async function seedNura({
           title: "Contenance",
           values: ["10 ml", "50 ml", "100 ml", "200 ml", "3 x 10 ml"],
         },
+        {
+          title: "Montant",
+          values: ["30 €", "50 €", "100 €"],
+        },
       ],
     },
   })
   const contenanceOption = optionsResult.find((o) => o.title === "Contenance")!
+  const montantOption = optionsResult.find((o) => o.title === "Montant")!
 
   const { data: salesChannels } = await query.graph({
     entity: "sales_channel",
@@ -98,6 +105,9 @@ export default async function seedNura({
   })
   const shippingProfile = shippingProfiles[0]
 
+  // XOF prices below are placeholders converted at the fixed CFA franc peg
+  // (1 EUR = 655.957 XOF), rounded to clean amounts — review and adjust to
+  // your actual Côte d'Ivoire pricing before launch.
   logger.info("Seeding Nura products...")
   await createProductsWorkflow(container).run({
     input: {
@@ -108,6 +118,7 @@ export default async function seedNura({
           description:
             "Un sillage ambré et boisé, porté par l'iris et le jasmin. Best-seller de la maison Nura, pour une aura chaleureuse et affirmée.",
           handle: "eau-de-parfum-aura-doree",
+          ...productMedia("eau-de-parfum-aura-doree"),
           status: ProductStatus.PUBLISHED,
           shipping_profile_id: shippingProfile.id,
           options: [{ id: contenanceOption.id }],
@@ -123,13 +134,19 @@ export default async function seedNura({
               title: "50 ml",
               sku: "EDP-AURA-50",
               options: { Contenance: "50 ml" },
-              prices: [{ amount: 58, currency_code: "eur" }],
+              prices: [
+                { amount: 58, currency_code: "eur" },
+                { amount: 38000, currency_code: "xof" },
+              ],
             },
             {
               title: "100 ml",
               sku: "EDP-AURA-100",
               options: { Contenance: "100 ml" },
-              prices: [{ amount: 89, currency_code: "eur" }],
+              prices: [
+                { amount: 89, currency_code: "eur" },
+                { amount: 58500, currency_code: "xof" },
+              ],
             },
           ],
           sales_channels: [{ id: defaultSalesChannel.id }],
@@ -140,6 +157,7 @@ export default async function seedNura({
           description:
             "Rose et fleur d'oranger sur un fond de vanille et fève tonka. Un parfum gourmand et sensuel, nouveauté de la collection Nura.",
           handle: "eau-de-parfum-nuit-de-nude",
+          ...productMedia("eau-de-parfum-nuit-de-nude"),
           status: ProductStatus.PUBLISHED,
           shipping_profile_id: shippingProfile.id,
           options: [{ id: contenanceOption.id }],
@@ -155,13 +173,19 @@ export default async function seedNura({
               title: "50 ml",
               sku: "EDP-NUIT-50",
               options: { Contenance: "50 ml" },
-              prices: [{ amount: 62, currency_code: "eur" }],
+              prices: [
+                { amount: 62, currency_code: "eur" },
+                { amount: 40500, currency_code: "xof" },
+              ],
             },
             {
               title: "100 ml",
               sku: "EDP-NUIT-100",
               options: { Contenance: "100 ml" },
-              prices: [{ amount: 94, currency_code: "eur" }],
+              prices: [
+                { amount: 94, currency_code: "eur" },
+                { amount: 61500, currency_code: "xof" },
+              ],
             },
           ],
           sales_channels: [{ id: defaultSalesChannel.id }],
@@ -172,6 +196,7 @@ export default async function seedNura({
           description:
             "Citron et freesia dans un sillage de cèdre et musc blanc. Frais, lumineux, pour une aura légère au quotidien.",
           handle: "eau-de-parfum-lumiere-nue",
+          ...productMedia("eau-de-parfum-lumiere-nue"),
           status: ProductStatus.PUBLISHED,
           shipping_profile_id: shippingProfile.id,
           options: [{ id: contenanceOption.id }],
@@ -186,13 +211,19 @@ export default async function seedNura({
               title: "50 ml",
               sku: "EDP-LUMIERE-50",
               options: { Contenance: "50 ml" },
-              prices: [{ amount: 55, currency_code: "eur" }],
+              prices: [
+                { amount: 55, currency_code: "eur" },
+                { amount: 36000, currency_code: "xof" },
+              ],
             },
             {
               title: "100 ml",
               sku: "EDP-LUMIERE-100",
               options: { Contenance: "100 ml" },
-              prices: [{ amount: 85, currency_code: "eur" }],
+              prices: [
+                { amount: 85, currency_code: "eur" },
+                { amount: 55500, currency_code: "xof" },
+              ],
             },
           ],
           sales_channels: [{ id: defaultSalesChannel.id }],
@@ -203,6 +234,7 @@ export default async function seedNura({
           description:
             "Une huile sèche à l'amande douce et au jojoba, parfumée à l'ambre. Nourrit et sublime la peau sans film gras.",
           handle: "huile-corps-fleur-dambre",
+          ...productMedia("huile-corps-fleur-dambre"),
           status: ProductStatus.PUBLISHED,
           shipping_profile_id: shippingProfile.id,
           options: [{ id: contenanceOption.id }],
@@ -217,7 +249,10 @@ export default async function seedNura({
               title: "200 ml",
               sku: "HUILE-AMBRE-200",
               options: { Contenance: "200 ml" },
-              prices: [{ amount: 34, currency_code: "eur" }],
+              prices: [
+                { amount: 34, currency_code: "eur" },
+                { amount: 22500, currency_code: "xof" },
+              ],
             },
           ],
           sales_channels: [{ id: defaultSalesChannel.id }],
@@ -228,6 +263,7 @@ export default async function seedNura({
           description:
             "Un baume onctueux au beurre de karité, à la texture fondante. Édition limitée, pour une peau veloutée et une aura enveloppante.",
           handle: "baume-corps-nude-velvet",
+          ...productMedia("baume-corps-nude-velvet"),
           status: ProductStatus.PUBLISHED,
           shipping_profile_id: shippingProfile.id,
           options: [{ id: contenanceOption.id }],
@@ -243,7 +279,10 @@ export default async function seedNura({
               title: "200 ml",
               sku: "BAUME-VELVET-200",
               options: { Contenance: "200 ml" },
-              prices: [{ amount: 36, currency_code: "eur" }],
+              prices: [
+                { amount: 36, currency_code: "eur" },
+                { amount: 23500, currency_code: "xof" },
+              ],
             },
           ],
           sales_channels: [{ id: defaultSalesChannel.id }],
@@ -254,6 +293,7 @@ export default async function seedNura({
           description:
             "Trois miniatures 10 ml pour découvrir l'univers olfactif Nura : Aura Dorée, Nuit de Nude et Lumière Nue.",
           handle: "coffret-decouverte-nura",
+          ...productMedia("coffret-decouverte-nura"),
           status: ProductStatus.PUBLISHED,
           shipping_profile_id: shippingProfile.id,
           options: [{ id: contenanceOption.id }],
@@ -266,7 +306,63 @@ export default async function seedNura({
               title: "3 x 10 ml",
               sku: "COFFRET-DECOUVERTE",
               options: { Contenance: "3 x 10 ml" },
-              prices: [{ amount: 45, currency_code: "eur" }],
+              prices: [
+                { amount: 45, currency_code: "eur" },
+                { amount: 29500, currency_code: "xof" },
+              ],
+            },
+          ],
+          sales_channels: [{ id: defaultSalesChannel.id }],
+        },
+        {
+          title: "Carte Cadeau Nura",
+          description:
+            "Offrez le choix. Une carte cadeau Nura, valable sur l'ensemble de la boutique, envoyée par email sous forme de code à utiliser au paiement.",
+          handle: "carte-cadeau-nura",
+          ...productMedia("carte-cadeau-nura"),
+          status: ProductStatus.PUBLISHED,
+          shipping_profile_id: shippingProfile.id,
+          options: [{ id: montantOption.id }],
+          // Medusa's native gift-card flag — also what the
+          // gift-card-issued subscriber watches for on order.placed to
+          // auto-generate + email a redeemable promo code per unit
+          // purchased, and what RelatedProducts already excludes via
+          // `is_giftcard: false` so it never gets suggested as a "related"
+          // perfume/bodycare item.
+          is_giftcard: true,
+          metadata: {
+            type_produit: "Carte cadeau",
+          },
+          variants: [
+            {
+              title: "30 €",
+              sku: "GIFTCARD-30",
+              options: { Montant: "30 €" },
+              manage_inventory: false,
+              prices: [
+                { amount: 30, currency_code: "eur" },
+                { amount: 20000, currency_code: "xof" },
+              ],
+            },
+            {
+              title: "50 €",
+              sku: "GIFTCARD-50",
+              options: { Montant: "50 €" },
+              manage_inventory: false,
+              prices: [
+                { amount: 50, currency_code: "eur" },
+                { amount: 33000, currency_code: "xof" },
+              ],
+            },
+            {
+              title: "100 €",
+              sku: "GIFTCARD-100",
+              options: { Montant: "100 €" },
+              manage_inventory: false,
+              prices: [
+                { amount: 100, currency_code: "eur" },
+                { amount: 66000, currency_code: "xof" },
+              ],
             },
           ],
           sales_channels: [{ id: defaultSalesChannel.id }],

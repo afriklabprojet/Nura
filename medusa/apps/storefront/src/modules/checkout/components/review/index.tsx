@@ -26,7 +26,7 @@ const Review = ({ cart }: { cart: HttpTypes.StoreCart }) => {
         <Heading
           level="h2"
           className={clx(
-            "flex flex-row text-3xl-regular gap-x-2 items-baseline",
+            "flex flex-row font-serif text-2xl small:text-3xl gap-x-2 items-baseline",
             {
               "opacity-50 pointer-events-none select-none": !isOpen,
             }

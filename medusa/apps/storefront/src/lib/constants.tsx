@@ -122,8 +122,12 @@ const CATEGORY_IMAGES: Record<string, string> = {
   coffrets: "/images/category-coffrets.jpg",
 }
 
+/** The curated artwork for a category, or undefined if it has none. */
+export const findCategoryImage = (handle?: string | null) =>
+  (handle && CATEGORY_IMAGES[handle]) || undefined
+
 export const getCategoryImage = (handle?: string | null) =>
-  (handle && CATEGORY_IMAGES[handle]) || "/images/editorial.jpg"
+  findCategoryImage(handle) || "/images/editorial.jpg"
 
 const CATEGORY_BANNERS: Record<string, string> = {
   parfums: "/images/banner-parfums.jpg",

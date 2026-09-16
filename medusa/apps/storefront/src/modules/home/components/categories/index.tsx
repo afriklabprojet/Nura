@@ -1,4 +1,4 @@
-import { getCategoryImage } from "@lib/constants"
+import { findCategoryImage, getCategoryImage } from "@lib/constants"
 import { listProducts } from "@lib/data/products"
 import { HttpTypes } from "@medusajs/types"
 import Image from "next/image"
@@ -32,10 +32,14 @@ const CategoriesSection = async ({
         },
       })
 
+      // The curated artwork wins over a packshot so the tiles don't repeat
+      // the product rows further down the page.
       return {
         ...category,
         image:
-          response.products?.[0]?.thumbnail || getCategoryImage(category.handle),
+          findCategoryImage(category.handle) ||
+          response.products?.[0]?.thumbnail ||
+          getCategoryImage(category.handle),
       }
     })
   )

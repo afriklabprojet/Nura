@@ -1,7 +1,6 @@
 "use client"
 
 import { Table, Text, clx } from "@modules/common/components/ui"
-import { updateLineItem } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import CartItemSelect from "@modules/cart/components/cart-item-select"
 import ErrorMessage from "@modules/checkout/components/error-message"
@@ -12,7 +11,8 @@ import LineItemUnitPrice from "@modules/common/components/line-item-unit-price"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Spinner from "@modules/common/icons/spinner"
 import Thumbnail from "@modules/products/components/thumbnail"
-import { useState } from "react"
+
+import { useLineItem } from "./use-line-item"
 
 type ItemProps = {
   item: HttpTypes.StoreCartLineItem
@@ -21,29 +21,7 @@ type ItemProps = {
 }
 
 const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
-  const [updating, setUpdating] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const changeQuantity = async (quantity: number) => {
-    setError(null)
-    setUpdating(true)
-
-    await updateLineItem({
-      lineId: item.id,
-      quantity,
-    })
-      .catch((err) => {
-        setError(err.message)
-      })
-      .finally(() => {
-        setUpdating(false)
-      })
-  }
-
-  const maxQuantity =
-    !item.variant?.manage_inventory || item.variant?.allow_backorder
-      ? 10
-      : Math.max(Math.min(item.variant?.inventory_quantity ?? 0, 10), 1)
+  const { updating, error, changeQuantity, maxQuantity } = useLineItem(item)
 
   return (
     <Table.Row className="w-full" data-testid="product-row">

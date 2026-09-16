@@ -55,7 +55,7 @@ const WhatsappButton = () => {
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`Discuter avec nous sur WhatsApp — ${contact.label}`}
-        className="fixed bottom-6 right-6 z-40 flex items-center justify-center w-14 h-14 rounded-full bg-[#25D366] shadow-lg hover:scale-105 transition-transform"
+        className="fixed bottom-6 right-6 z-40 flex items-center justify-center w-14 h-14 rounded-full bg-[#25D366] shadow-lg hover:scale-105 transition-transform [.has-cart-bar_&]:bottom-28 small:[.has-cart-bar_&]:bottom-6"
       >
         <WhatsAppGlyph className="w-7 h-7 text-white" />
       </a>
@@ -63,7 +63,7 @@ const WhatsappButton = () => {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
+    <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3 [.has-cart-bar_&]:bottom-28 small:[.has-cart-bar_&]:bottom-6">
       {open && (
         <ul className="flex flex-col gap-2">
           {CONTACTS.map((contact) => (

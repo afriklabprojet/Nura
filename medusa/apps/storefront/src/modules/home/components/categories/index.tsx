@@ -4,7 +4,10 @@ import { HttpTypes } from "@medusajs/types"
 import Image from "next/image"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
-type CategoryTile = HttpTypes.StoreProductCategory & {
+type Tile = {
+  id: string
+  name: string
+  href: string
   image: string
 }
 
@@ -17,11 +20,7 @@ const CategoriesSection = async ({
 }) => {
   const topLevel = categories.filter((category) => !category.parent_category)
 
-  if (topLevel.length === 0) {
-    return null
-  }
-
-  const tiles: CategoryTile[] = await Promise.all(
+  const categoryTiles: Tile[] = await Promise.all(
     topLevel.map(async (category) => {
       const { response } = await listProducts({
         regionId: region.id,
@@ -32,10 +31,12 @@ const CategoriesSection = async ({
         },
       })
 
-      // The curated artwork wins over a packshot so the tiles don't repeat
-      // the product rows further down the page.
       return {
-        ...category,
+        id: category.id,
+        name: category.name,
+        href: `/categories/${category.handle}`,
+        // The curated artwork wins over a packshot so the tiles don't repeat
+        // the product rows further down the page.
         image:
           findCategoryImage(category.handle) ||
           response.products?.[0]?.thumbnail ||
@@ -43,6 +44,16 @@ const CategoriesSection = async ({
       }
     })
   )
+
+  const tiles: Tile[] = [
+    ...categoryTiles,
+    {
+      id: "collections",
+      name: "Collections",
+      href: "/collections",
+      image: "/images/category-collections.jpg",
+    },
+  ]
 
   return (
     <section className="content-container section-y">
@@ -61,26 +72,23 @@ const CategoriesSection = async ({
         </LocalizedClientLink>
       </div>
 
-      <ul className="grid grid-cols-1 gap-5 xsmall:grid-cols-2 small:grid-cols-3 small:gap-8">
-        {tiles.map((category) => (
-          <li key={category.id}>
-            <LocalizedClientLink
-              href={`/categories/${category.handle}`}
-              className="group flex flex-col gap-5"
-            >
-              <div className="relative w-full aspect-[4/5] overflow-hidden bg-nude/30">
+      <ul className="grid grid-cols-1 gap-5 xsmall:grid-cols-2 small:grid-cols-4 small:gap-6">
+        {tiles.map((tile) => (
+          <li key={tile.id}>
+            <LocalizedClientLink href={tile.href} className="group flex flex-col gap-5">
+              <div className="relative aspect-[4/5] w-full overflow-hidden bg-nude/30">
                 <Image
-                  src={category.image}
-                  alt={category.name}
+                  src={tile.image}
+                  alt={tile.name}
                   fill
-                  sizes="(max-width: 512px) 100vw, (max-width: 900px) 50vw, 33vw"
+                  sizes="(max-width: 512px) 100vw, (max-width: 900px) 50vw, 25vw"
                   className="object-cover object-center transition-transform duration-[900ms] ease-out group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
               </div>
               <div className="flex items-baseline justify-between">
                 <span className="font-serif text-2xl text-brown">
-                  {category.name}
+                  {tile.name}
                 </span>
                 <span className="text-[11px] uppercase tracking-[0.2em] text-gold">
                   Découvrir

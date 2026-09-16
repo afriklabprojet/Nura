@@ -23,6 +23,11 @@ export default async function ProductPreview({
       ? product.metadata.badge
       : undefined
 
+  const productType =
+    typeof product.metadata?.type_produit === "string"
+      ? product.metadata.type_produit
+      : undefined
+
   const hoverImage = product.images?.find(
     (image) => image.url && image.url !== product.thumbnail
   )?.url
@@ -63,8 +68,9 @@ export default async function ProductPreview({
           </span>
         )}
 
+        {/* Always reachable on touch screens, revealed on hover from 900px up. */}
         {quickAddVariants.length > 0 && (
-          <div className="absolute inset-x-0 bottom-0 opacity-0 transition-opacity duration-300 focus-within:opacity-100 group-hover:opacity-100">
+          <div className="absolute inset-x-0 bottom-0 transition-opacity duration-300 small:opacity-0 small:focus-within:opacity-100 small:group-hover:opacity-100">
             <QuickAdd variants={quickAddVariants} />
           </div>
         )}
@@ -74,6 +80,11 @@ export default async function ProductPreview({
         href={`/products/${product.handle}`}
         className="mt-4 flex flex-col items-center gap-y-1 text-center"
       >
+        {productType && (
+          <span className="text-[10px] uppercase tracking-[0.2em] text-ui-fg-muted">
+            {productType}
+          </span>
+        )}
         <span
           className="text-xs uppercase tracking-[0.12em] text-brown"
           data-testid="product-title"

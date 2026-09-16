@@ -31,14 +31,14 @@ const Editorial = () => {
         </div>
 
         <div className="order-1 flex flex-col gap-7 small:order-2">
-          <span className="eyebrow">La maison</span>
+          <span className="eyebrow">L&apos;univers Nura</span>
           <h2 className="font-serif text-4xl leading-tight text-brown small:text-5xl">
-            Des soins pensés pour chaque aura
+            Votre aura commence ici.
           </h2>
           <p className="max-w-md leading-relaxed text-ui-fg-subtle">
-            Nura imagine des parfums et des soins composés pour accompagner
-            chaque aura, chaque humeur et chaque moment. Une intention simple :
-            révéler ce qui rend chacune unique.
+            Nura imagine des parfums et des soins pensés pour accompagner
+            chaque aura, chaque humeur et chaque moment. Une parfumerie
+            orientale revisitée avec la douceur du soin contemporain.
           </p>
 
           <ul className="flex flex-col divide-y divide-nude border-y border-nude">

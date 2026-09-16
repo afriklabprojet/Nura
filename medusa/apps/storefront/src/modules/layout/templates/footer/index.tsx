@@ -81,6 +81,14 @@ export default async function Footer() {
                   </LocalizedClientLink>
                 </li>
               ))}
+              <li>
+                <LocalizedClientLink
+                  href="/collections"
+                  className="hover:text-gold"
+                >
+                  Collections
+                </LocalizedClientLink>
+              </li>
               {collections?.slice(0, 3).map((c) => (
                 <li key={c.id}>
                   <LocalizedClientLink
@@ -105,6 +113,14 @@ export default async function Footer() {
               <li>
                 <LocalizedClientLink href="/faq" className="hover:text-gold">
                   FAQ
+                </LocalizedClientLink>
+              </li>
+              <li>
+                <LocalizedClientLink
+                  href="/livraison-retours"
+                  className="hover:text-gold"
+                >
+                  Livraison &amp; retours
                 </LocalizedClientLink>
               </li>
               <li>

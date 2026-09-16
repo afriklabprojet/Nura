@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 
+import BestSellers from "@modules/home/components/best-sellers"
 import CategoriesSection from "@modules/home/components/categories"
 import Editorial from "@modules/home/components/editorial"
 import FeaturedProducts from "@modules/home/components/featured-products"
@@ -32,11 +33,12 @@ export default async function Home(props: {
     <>
       <Hero />
       <TrustBand />
-      {region && <CategoriesSection categories={categories} region={region} />}
       {region && <FeaturedProducts region={region} />}
+      <Editorial />
+      {region && <CategoriesSection categories={categories} region={region} />}
+      {region && <BestSellers region={region} />}
       <RitualBand />
       <HomeReviews />
-      <Editorial />
       <Gallery />
     </>
   )

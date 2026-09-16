@@ -37,10 +37,6 @@ const DesktopMenu = ({ categories }: { categories: MenuCategory[] }) => {
       className="hidden small:flex items-center gap-x-8 h-full"
       onMouseLeave={() => setOpenId(null)}
     >
-      <LocalizedClientLink href="/store" className="nav-link link-underline">
-        Boutique
-      </LocalizedClientLink>
-
       {categories.map((category) => (
         <div
           key={category.id}
@@ -61,6 +57,13 @@ const DesktopMenu = ({ categories }: { categories: MenuCategory[] }) => {
           </LocalizedClientLink>
         </div>
       ))}
+
+      <LocalizedClientLink
+        href="/collections"
+        className="nav-link link-underline"
+      >
+        Collections
+      </LocalizedClientLink>
 
       {active && (
         <div className="absolute left-0 right-0 top-full bg-bg-alt border-t border-b border-nude shadow-[0_24px_40px_-32px_rgba(58,42,32,0.45)] animate-fade-in-top">

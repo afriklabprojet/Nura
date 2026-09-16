@@ -92,16 +92,6 @@ const SideMenu = ({
                       </div>
 
                       <ul className="flex flex-col gap-y-4">
-                        <li>
-                          <LocalizedClientLink
-                            href="/store"
-                            className="font-serif text-3xl text-brown hover:text-gold transition-colors"
-                            onClick={close}
-                            data-testid="boutique-link"
-                          >
-                            Boutique
-                          </LocalizedClientLink>
-                        </li>
                         {categories.map((category) => (
                           <li key={category.id}>
                             <LocalizedClientLink
@@ -128,6 +118,26 @@ const SideMenu = ({
                             )}
                           </li>
                         ))}
+                        <li>
+                          <LocalizedClientLink
+                            href="/collections"
+                            className="font-serif text-3xl text-brown hover:text-gold transition-colors"
+                            onClick={close}
+                            data-testid="collections-link"
+                          >
+                            Collections
+                          </LocalizedClientLink>
+                        </li>
+                        <li>
+                          <LocalizedClientLink
+                            href="/store"
+                            className="font-serif text-3xl text-brown hover:text-gold transition-colors"
+                            onClick={close}
+                            data-testid="boutique-link"
+                          >
+                            Tout voir
+                          </LocalizedClientLink>
+                        </li>
                       </ul>
 
                       <ul className="flex flex-col gap-y-3 border-t border-nude pt-6">

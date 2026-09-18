@@ -5,7 +5,13 @@ import { HttpTypes } from "@medusajs/types"
 import { Container, Heading, Text, Textarea } from "@modules/common/components/ui"
 import { useState, useTransition } from "react"
 
-const GiftOption = ({ cart }: { cart: HttpTypes.StoreCart }) => {
+const GiftOption = ({
+  cart,
+  text,
+}: {
+  cart: HttpTypes.StoreCart
+  text?: string
+}) => {
   const metadata = (cart.metadata || {}) as Record<string, unknown>
   const [wrapped, setWrapped] = useState(metadata.gift_wrap === true)
   const [message, setMessage] = useState(
@@ -45,8 +51,8 @@ const GiftOption = ({ cart }: { cart: HttpTypes.StoreCart }) => {
           className="mt-1 accent-gold"
         />
         <Text className="text-ui-fg-subtle">
-          Emballer ma commande dans un écrin Nura, offert — idéal pour un
-          cadeau.
+          {text ||
+            "Emballer ma commande dans un écrin Nura, offert — idéal pour un cadeau."}
         </Text>
       </label>
 

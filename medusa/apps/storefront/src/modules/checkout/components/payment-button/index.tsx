@@ -12,11 +12,13 @@ import ErrorMessage from "../error-message"
 type PaymentButtonProps = {
   cart: HttpTypes.StoreCart
   "data-testid": string
+  jekoErrorText?: string
 }
 
 const PaymentButton: React.FC<PaymentButtonProps> = ({
   cart,
   "data-testid": dataTestId,
+  jekoErrorText,
 }) => {
   const searchParams = useSearchParams()
   const notReady =
@@ -53,6 +55,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           wallet={searchParams.get("wallet") ?? ""}
           notReady={notReady}
           data-testid={dataTestId}
+          errorText={jekoErrorText}
         />
       )
     default:
@@ -66,12 +69,14 @@ const JekoPaymentButton = ({
   wallet,
   notReady,
   "data-testid": dataTestId,
+  errorText,
 }: {
   cart: HttpTypes.StoreCart
   providerId: string
   wallet: string
   notReady: boolean
   "data-testid"?: string
+  errorText?: string
 }) => {
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -96,7 +101,8 @@ const JekoPaymentButton = ({
 
       if (!redirectUrl) {
         throw new Error(
-          "Impossible d'initier le paiement Jèko. Réessayez ou choisissez un autre moyen de paiement."
+          errorText ||
+            "Impossible d'initier le paiement Jèko. Réessayez ou choisissez un autre moyen de paiement."
         )
       }
 
@@ -224,7 +230,7 @@ const StripePaymentButton = ({
         isLoading={submitting}
         data-testid={dataTestId}
       >
-        Commander
+        Commander et payer
       </Button>
       <ErrorMessage
         error={errorMessage}

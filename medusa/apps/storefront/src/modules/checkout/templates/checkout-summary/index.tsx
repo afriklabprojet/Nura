@@ -2,10 +2,17 @@ import ItemsPreviewTemplate from "@modules/cart/templates/preview"
 import DiscountCode from "@modules/checkout/components/discount-code"
 import CartTotals from "@modules/common/components/cart-totals"
 import Divider from "@modules/common/components/divider"
+import { CheckoutMessagesBlock } from "@lib/data/home-content"
 import { getSiteSettings } from "@lib/data/site-settings"
 import { HttpTypes } from "@medusajs/types"
 
-const CheckoutSummary = async ({ cart }: { cart: HttpTypes.StoreCart }) => {
+const CheckoutSummary = async ({
+  cart,
+  messages,
+}: {
+  cart: HttpTypes.StoreCart
+  messages?: CheckoutMessagesBlock
+}) => {
   const siteSettings = await getSiteSettings()
 
   return (
@@ -22,7 +29,7 @@ const CheckoutSummary = async ({ cart }: { cart: HttpTypes.StoreCart }) => {
       </div>
 
       <p className="px-1 text-xs leading-relaxed text-ui-fg-muted">
-        Une question sur votre commande ?{" "}
+        {messages?.summary_question || "Une question sur votre commande ?"}{" "}
         {siteSettings.phones.map((contact, index) => (
           <span key={contact.tel}>
             {index > 0 && " · "}

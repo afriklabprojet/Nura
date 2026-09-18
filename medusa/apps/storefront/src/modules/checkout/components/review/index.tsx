@@ -5,8 +5,20 @@ import { Heading, Text, clx } from "@modules/common/components/ui"
 import PaymentButton from "../payment-button"
 import { useSearchParams } from "next/navigation"
 import { HttpTypes } from "@medusajs/types"
+import InlineText from "@modules/common/components/inline-text"
 
-const Review = ({ cart }: { cart: HttpTypes.StoreCart }) => {
+const DEFAULT_CONSENT_TEXT =
+  "En cliquant sur le bouton de paiement, vous confirmez avoir lu et accepté nos [conditions générales de vente](/cgv), notre [politique de retours](/livraison-retours) et notre [politique de confidentialité](/confidentialite). Votre commande implique une obligation de paiement."
+
+const Review = ({
+  cart,
+  consentText,
+  jekoErrorText,
+}: {
+  cart: HttpTypes.StoreCart
+  consentText?: string
+  jekoErrorText?: string
+}) => {
   const searchParams = useSearchParams()
 
   const isOpen = searchParams.get("step") === "review"
@@ -39,16 +51,19 @@ const Review = ({ cart }: { cart: HttpTypes.StoreCart }) => {
         <>
           <div className="flex items-start gap-x-1 w-full mb-6">
             <div className="w-full">
-              <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                En cliquant sur le bouton Commander, vous confirmez avoir lu,
-                compris et accepté nos conditions d&apos;utilisation, nos
-                conditions de vente et notre politique de retours, et
-                reconnaissez avoir pris connaissance de la politique de
-                confidentialité de Nura.
+              <Text className="mb-1 txt-medium-plus text-ui-fg-base">
+                <InlineText
+                  text={consentText || DEFAULT_CONSENT_TEXT}
+                  className="underline underline-offset-4"
+                />
               </Text>
             </div>
           </div>
-          <PaymentButton cart={cart} data-testid="submit-order-button" />
+          <PaymentButton
+            cart={cart}
+            data-testid="submit-order-button"
+            jekoErrorText={jekoErrorText}
+          />
         </>
       )}
     </div>

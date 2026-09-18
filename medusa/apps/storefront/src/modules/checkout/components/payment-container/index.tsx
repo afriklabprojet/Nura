@@ -125,9 +125,11 @@ export const JekoPaymentContainer = ({
   disabled = false,
   selectedWallet,
   setSelectedWallet,
+  walletPromptText,
 }: Omit<PaymentContainerProps, "children"> & {
   selectedWallet: string
   setSelectedWallet: (wallet: string) => void
+  walletPromptText?: string
 }) => {
   return (
     <PaymentContainer
@@ -139,7 +141,7 @@ export const JekoPaymentContainer = ({
       {selectedPaymentOptionId === paymentProviderId && (
         <div className="my-4 flex flex-col gap-y-3">
           <Text className="txt-medium-plus text-ui-fg-base">
-            Choisissez votre moyen de paiement mobile :
+            {walletPromptText || "Choisissez votre moyen de paiement mobile :"}
           </Text>
           <div className="grid grid-cols-2 gap-2">
             {jekoWallets.map((wallet) => (

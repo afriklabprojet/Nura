@@ -2,6 +2,7 @@
 import { RadioGroup } from "@headlessui/react"
 import { isJeko, isStripeLike, paymentInfoMap } from "@lib/constants"
 import { initiatePaymentSession } from "@lib/data/cart"
+import { CheckoutMessagesBlock } from "@lib/data/home-content"
 import { CheckCircleSolid, CreditCard } from "@medusajs/icons"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import PaymentContainer, {
@@ -9,6 +10,7 @@ import PaymentContainer, {
   StripePaymentContainer,
 } from "@modules/checkout/components/payment-container"
 import Divider from "@modules/common/components/divider"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import {
   Button,
   Container,
@@ -23,9 +25,11 @@ import { useCallback, useEffect, useState } from "react"
 const Payment = ({
   cart,
   availablePaymentMethods,
+  messages,
 }: {
   cart: HttpTypes.StoreCart
   availablePaymentMethods: { id: string }[]
+  messages?: CheckoutMessagesBlock
 }) => {
   const activeSession = cart.payment_collection?.payment_sessions?.find(
     (paymentSession) => paymentSession.status === "pending"
@@ -50,10 +54,20 @@ const Payment = ({
   const setPaymentMethod = async (method: string) => {
     setError(null)
     setSelectedPaymentMethod(method)
-    if (isStripeLike(method)) {
-      await initiatePaymentSession(cart, {
-        provider_id: method,
-      })
+    try {
+      if (isStripeLike(method)) {
+        await initiatePaymentSession(cart, {
+          provider_id: method,
+        })
+      }
+    } catch (err) {
+      setSelectedPaymentMethod("")
+      setError(
+        err instanceof Error
+          ? err.message
+          : messages?.payment_error_generic ||
+              "Impossible de préparer ce moyen de paiement."
+      )
     }
   }
 
@@ -85,7 +99,10 @@ const Payment = ({
     try {
       if (isJeko(selectedPaymentMethod)) {
         if (!selectedJekoWallet) {
-          setError("Choisissez un portefeuille mobile pour continuer.")
+          setError(
+            messages?.mobile_wallet_prompt ||
+              "Choisissez un portefeuille mobile pour continuer."
+          )
           return
         }
 
@@ -157,7 +174,7 @@ const Payment = ({
       </div>
       <div>
         <div className={isOpen ? "block" : "hidden"}>
-          {!paidByGiftcard && availablePaymentMethods?.length && (
+          {!paidByGiftcard && availablePaymentMethods.length > 0 && (
             <>
               <RadioGroup
                 value={selectedPaymentMethod}
@@ -183,6 +200,7 @@ const Payment = ({
                           setError(null)
                           setSelectedJekoWallet(wallet)
                         }}
+                        walletPromptText={messages?.mobile_wallet_prompt}
                       />
                     ) : (
                       <PaymentContainer
@@ -195,6 +213,38 @@ const Payment = ({
                 ))}
               </RadioGroup>
             </>
+          )}
+
+          {!paidByGiftcard && availablePaymentMethods.length === 0 && (
+            <div
+              className="border border-nude bg-bg px-5 py-4"
+              role="status"
+              data-testid="payment-methods-unavailable"
+            >
+              <Text className="font-medium text-brown">
+                {messages?.payment_empty ||
+                  "Aucun moyen de paiement n'est disponible pour cette commande."}
+              </Text>
+              <Text className="mt-1 text-ui-fg-subtle">
+                {messages?.payment_empty_hint ||
+                  "Vérifiez votre adresse et votre mode de livraison, puis réessayez ou contactez notre équipe."}
+              </Text>
+              <div className="mt-4 flex flex-wrap gap-4 text-sm">
+                <button
+                  type="button"
+                  onClick={() => router.refresh()}
+                  className="min-h-11 underline underline-offset-4"
+                >
+                  Réessayer
+                </button>
+                <LocalizedClientLink
+                  href="/contact"
+                  className="inline-flex min-h-11 items-center underline underline-offset-4"
+                >
+                  Nous contacter
+                </LocalizedClientLink>
+              </div>
+            </div>
           )}
 
           {paidByGiftcard && (
@@ -218,7 +268,7 @@ const Payment = ({
 
           <Button
             size="large"
-            className="mt-6"
+            className="mt-6 w-full xsmall:w-auto"
             onClick={handleSubmit}
             isLoading={isLoading}
             disabled={

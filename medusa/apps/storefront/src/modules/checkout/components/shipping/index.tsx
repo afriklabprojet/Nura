@@ -2,6 +2,7 @@
 import { Radio, RadioGroup } from "@headlessui/react"
 import { setShippingMethod } from "@lib/data/cart"
 import { calculatePriceForShippingOption } from "@lib/data/fulfillment"
+import { CheckoutMessagesBlock } from "@lib/data/home-content"
 import { convertToLocale } from "@lib/util/money"
 import { CheckCircleSolid, Loader } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
@@ -18,6 +19,7 @@ const PICKUP_OPTION_OFF = "__PICKUP_OFF"
 type ShippingProps = {
   cart: HttpTypes.StoreCart
   availableShippingMethods: HttpTypes.StoreCartShippingOption[] | null
+  messages?: CheckoutMessagesBlock
 }
 
 function formatAddress(address: HttpTypes.StoreCartAddress) {
@@ -49,6 +51,7 @@ function formatAddress(address: HttpTypes.StoreCartAddress) {
 const Shipping: React.FC<ShippingProps> = ({
   cart,
   availableShippingMethods,
+  messages,
 }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingPrices, setIsLoadingPrices] = useState(true)
@@ -198,7 +201,8 @@ const Shipping: React.FC<ShippingProps> = ({
                 Mode de livraison
               </span>
               <span className="mb-4 text-ui-fg-muted txt-medium">
-                Comment souhaitez-vous être livré(e) ?
+                {messages?.shipping_question ||
+                  "Comment souhaitez-vous être livré(e) ?"}
               </span>
             </div>
             <div data-testid="delivery-options-container">
@@ -232,7 +236,8 @@ const Shipping: React.FC<ShippingProps> = ({
                           checked={showPickupOptions === PICKUP_OPTION_ON}
                         />
                         <span className="text-base-regular">
-                          Retirer ma commande en boutique
+                          {messages?.pickup_label ||
+                            "Retirer ma commande en boutique"}
                         </span>
                       </div>
                       <span className="justify-self-end text-ui-fg-base">
@@ -285,7 +290,7 @@ const Shipping: React.FC<ShippingProps> = ({
                               amount: option.amount!,
                               currency_code: cart?.currency_code,
                             })
-                          ) : calculatedPricesMap[option.id] ? (
+                          ) : calculatedPricesMap[option.id] !== undefined ? (
                             convertToLocale({
                               amount: calculatedPricesMap[option.id],
                               currency_code: cart?.currency_code,
@@ -311,7 +316,8 @@ const Shipping: React.FC<ShippingProps> = ({
                   Boutique
                 </span>
                 <span className="mb-4 text-ui-fg-muted txt-medium">
-                  Choisissez une boutique près de chez vous
+                  {messages?.pickup_choose ||
+                    "Choisissez une boutique près de chez vous"}
                 </span>
               </div>
               <div data-testid="delivery-options-container">

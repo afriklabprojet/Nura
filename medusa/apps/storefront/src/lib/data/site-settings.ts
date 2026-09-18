@@ -3,10 +3,12 @@
 import { CONTACT_EMAIL, SERVICE_CLIENT_CONTACTS, SOCIAL_LINKS } from "@lib/constants"
 import { getHomeContent } from "./home-content"
 
+export type SitePhone = { label: string; tel: string; display: string }
+
 export type SiteSettings = {
   email: string
   hours: string
-  phones: { label: string; tel: string; display: string }[]
+  phones: SitePhone[]
   social: { instagram: string; tiktok: string }
 }
 

@@ -1,9 +1,14 @@
+import { ReviewsHeadingBlock } from "@lib/data/home-content"
 import { listLatestReviews } from "@lib/data/reviews"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Reveal from "@modules/common/components/reveal"
 import StarRating from "@modules/products/components/star-rating"
 
-export default async function HomeReviews() {
+export default async function HomeReviews({
+  block,
+}: {
+  block?: ReviewsHeadingBlock
+}) {
   const reviews = await listLatestReviews(6)
 
   if (reviews.length === 0) {
@@ -14,9 +19,9 @@ export default async function HomeReviews() {
     <section className="border-t border-nude bg-bg">
       <div className="content-container section-y">
         <Reveal className="mb-10 flex flex-col items-center gap-3 text-center small:mb-14">
-          <span className="eyebrow">Avis clients</span>
+          <span className="eyebrow">{block?.eyebrow || "Avis clients"}</span>
           <h2 className="font-serif text-4xl text-brown small:text-5xl">
-            Ils parlent de Nura
+            {block?.title || "Ils parlent de Nura"}
           </h2>
         </Reveal>
 

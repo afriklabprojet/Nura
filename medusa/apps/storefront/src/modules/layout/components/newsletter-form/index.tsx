@@ -4,9 +4,18 @@ import { subscribeToNewsletter } from "@lib/data/newsletter"
 import { Text } from "@modules/common/components/ui"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
 import ErrorMessage from "@modules/checkout/components/error-message"
+import InlineText from "@modules/common/components/inline-text"
 import { useActionState } from "react"
 
-const NewsletterForm = () => {
+const DEFAULT_CONSENT_TEXT =
+  "En vous inscrivant, vous acceptez de recevoir les actualités Nura. Vous pouvez vous désinscrire à tout moment. Consultez notre [politique de confidentialité](/confidentialite)."
+
+type NewsletterFormProps = {
+  successMessage?: string
+  consentText?: string
+}
+
+const NewsletterForm = ({ successMessage, consentText }: NewsletterFormProps) => {
   const [state, formAction] = useActionState(subscribeToNewsletter, {
     success: false,
     error: null,
@@ -14,8 +23,9 @@ const NewsletterForm = () => {
 
   if (state.success) {
     return (
-      <Text className="txt-small text-ui-fg-subtle">
-        Merci ! Vous êtes bien inscrit(e) à la newsletter Nura.
+      <Text className="txt-small text-ui-fg-subtle" role="status">
+        {successMessage ||
+          "Merci ! Vous êtes bien inscrit(e) à la newsletter Nura."}
       </Text>
     )
   }
@@ -40,6 +50,12 @@ const NewsletterForm = () => {
           S&apos;inscrire
         </SubmitButton>
       </div>
+      <p className="text-[11px] leading-relaxed text-ui-fg-muted">
+        <InlineText
+          text={consentText || DEFAULT_CONSENT_TEXT}
+          className="underline underline-offset-2"
+        />
+      </p>
       <ErrorMessage error={state.error} data-testid="newsletter-error-message" />
     </form>
   )

@@ -1,3 +1,5 @@
+import { getHomeContent } from "@lib/data/home-content"
+import { getSiteSettings } from "@lib/data/site-settings"
 import { getBaseURL } from "@lib/util/env"
 import AnalyticsScripts from "@modules/layout/components/analytics-scripts"
 import CookieConsent from "@modules/layout/components/cookie-consent"
@@ -32,7 +34,12 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout(props: { children: React.ReactNode }) {
+export default async function RootLayout(props: { children: React.ReactNode }) {
+  const [siteSettings, { blocks }] = await Promise.all([
+    getSiteSettings(),
+    getHomeContent(),
+  ])
+
   return (
     <html
       lang="fr"
@@ -40,10 +47,19 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       className={`${jost.variable} ${cormorant.variable}`}
     >
       <body className="bg-bg text-ink font-sans">
-        <main className="relative">{props.children}</main>
-        <CookieConsent />
+        <a
+          href="#main-content"
+          className="fixed left-4 top-4 z-[100] -translate-y-24 bg-brown px-4 py-3 text-sm text-bg-alt focus:translate-y-0"
+        >
+          Aller au contenu principal
+        </a>
+        <div className="relative">{props.children}</div>
+        <CookieConsent text={blocks.cookie_banner?.text} />
         <AnalyticsScripts />
-        <WhatsappButton />
+        <WhatsappButton
+          phones={siteSettings.phones}
+          message={blocks.whatsapp?.message}
+        />
       </body>
     </html>
   )

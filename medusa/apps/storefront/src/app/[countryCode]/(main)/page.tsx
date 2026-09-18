@@ -52,10 +52,16 @@ export default async function Home(props: {
           block={blocks.categories}
         />
       )}
-      {region && <BestSellers region={region} />}
+      {region && (
+        <BestSellers
+          region={region}
+          block={blocks.best_sellers}
+          hidden={hidden.includes("best_sellers")}
+        />
+      )}
       <RitualBand block={blocks.ritual} />
       <Campaign block={blocks.campaign} hidden={hidden.includes("campaign")} />
-      <HomeReviews />
+      <HomeReviews block={blocks.reviews_heading} />
       <Gallery block={blocks.gallery} />
     </>
   )

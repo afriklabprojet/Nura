@@ -1,3 +1,4 @@
+import { BestSellersBlock } from "@lib/data/home-content"
 import { listProducts } from "@lib/data/products"
 import { listProductReviews } from "@lib/data/reviews"
 import { HttpTypes } from "@medusajs/types"
@@ -18,9 +19,17 @@ const badgeOf = (product: HttpTypes.StoreProduct) =>
 
 export default async function BestSellers({
   region,
+  block,
+  hidden,
 }: {
   region: HttpTypes.StoreRegion
+  block?: BestSellersBlock
+  hidden?: boolean
 }) {
+  if (hidden) {
+    return null
+  }
+
   const {
     response: { products },
   } = await listProducts({
@@ -54,12 +63,12 @@ export default async function BestSellers({
   return (
     <section className="content-container section-y">
       <Reveal className="mb-10 flex flex-col gap-3 text-center small:mb-14">
-        <span className="eyebrow">Best-sellers</span>
+        <span className="eyebrow">{block?.eyebrow || "Best-sellers"}</span>
         <h2 className="font-serif text-4xl text-brown small:text-5xl">
-          Les incontournables
+          {block?.title || "Les incontournables"}
         </h2>
         <p className="mx-auto max-w-md text-sm leading-relaxed text-ui-fg-subtle">
-          Les signatures Nura que vous aimez le plus.
+          {block?.subtitle || "Les signatures Nura que vous aimez le plus."}
         </p>
       </Reveal>
 
@@ -85,10 +94,10 @@ export default async function BestSellers({
 
       <div className="mt-12 flex justify-center">
         <LocalizedClientLink
-          href="/store"
+          href={block?.cta_href || "/store"}
           className="inline-flex h-12 items-center justify-center border border-brown/30 px-10 text-[11px] uppercase tracking-[0.2em] text-brown transition-colors hover:border-brown"
         >
-          Découvrir les best-sellers
+          {block?.cta_label || "Découvrir les best-sellers"}
         </LocalizedClientLink>
       </div>
     </section>

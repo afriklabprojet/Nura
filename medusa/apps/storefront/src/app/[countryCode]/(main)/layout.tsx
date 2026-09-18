@@ -33,7 +33,11 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
       <AnnouncementBar messages={blocks.announcement?.messages} />
       <Nav />
       {customer && cart && (
-        <CartMismatchBanner customer={customer} cart={cart} />
+        <CartMismatchBanner
+          customer={customer}
+          cart={cart}
+          errorMessage={blocks.cart_messages?.mismatch_error}
+        />
       )}
 
       {cart && (
@@ -44,7 +48,7 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
         />
       )}
       <main id="main-content">{props.children}</main>
-      <NewsletterBand />
+      <NewsletterBand block={blocks.newsletter_band} />
       <Footer />
     </>
   )

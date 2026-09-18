@@ -1,24 +1,19 @@
 "use client"
 
-import { useState } from "react"
+import { SitePhone } from "@lib/data/site-settings"
+import { useEffect, useState } from "react"
 
 type Contact = {
   number: string
   label: string
 }
 
-const CONTACTS: Contact[] = [
-  {
-    number: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER_FR || "",
-    label: "Service client France",
-  },
-  {
-    number: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER_CI || "",
-    label: "Service client Abidjan",
-  },
-].filter((contact) => Boolean(contact.number))
-
 const DEFAULT_MESSAGE = "Bonjour, j'ai une question à propos d'un produit Nura."
+
+type WhatsappButtonProps = {
+  phones: SitePhone[]
+  message?: string
+}
 
 const WhatsAppGlyph = ({ className }: { className?: string }) => (
   <svg
@@ -37,13 +32,47 @@ const CloseIcon = () => (
   </svg>
 )
 
-const buildHref = (number: string) =>
-  `https://wa.me/${number}?text=${encodeURIComponent(DEFAULT_MESSAGE)}`
+const buildHref = (number: string, message: string) =>
+  `https://wa.me/${number.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(message)}`
 
-const WhatsappButton = () => {
+const WhatsappButton = ({ phones, message }: WhatsappButtonProps) => {
+  const CONTACTS: Contact[] = phones
+    .filter((phone) => Boolean(phone.tel))
+    .map((phone) => ({
+      number: phone.tel,
+      label: `Service client ${phone.label}`,
+    }))
+  const text = message || DEFAULT_MESSAGE
   const [open, setOpen] = useState(false)
+  const [footerVisible, setFooterVisible] = useState(false)
+
+  useEffect(() => {
+    const updateFooterVisibility = () => {
+      const footer = document.querySelector("footer")
+      if (!footer) {
+        setFooterVisible(false)
+        return
+      }
+
+      const bounds = footer.getBoundingClientRect()
+      setFooterVisible(bounds.top < window.innerHeight && bounds.bottom > 0)
+    }
+
+    updateFooterVisibility()
+    window.addEventListener("scroll", updateFooterVisibility, { passive: true })
+    window.addEventListener("resize", updateFooterVisibility)
+
+    return () => {
+      window.removeEventListener("scroll", updateFooterVisibility)
+      window.removeEventListener("resize", updateFooterVisibility)
+    }
+  }, [])
 
   if (CONTACTS.length === 0) {
+    return null
+  }
+
+  if (footerVisible) {
     return null
   }
 
@@ -51,11 +80,11 @@ const WhatsappButton = () => {
     const contact = CONTACTS[0]
     return (
       <a
-        href={buildHref(contact.number)}
+        href={buildHref(contact.number, text)}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`Discuter avec nous sur WhatsApp — ${contact.label}`}
-        className="fixed bottom-6 right-6 z-40 flex items-center justify-center w-14 h-14 rounded-full bg-[#25D366] shadow-lg hover:scale-105 transition-[bottom,transform] [.has-cart-bar_&]:bottom-28 [.has-product-bar_&]:bottom-32 small:[.has-cart-bar_&]:bottom-6 small:[.has-product-bar_&]:bottom-6"
+        className="fixed bottom-6 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-lg transition-[bottom,transform] hover:scale-105 xsmall:right-6 [.has-cart-bar_&]:bottom-28 [.has-product-bar_&]:bottom-32 small:[.has-cart-bar_&]:bottom-6 small:[.has-product-bar_&]:bottom-6"
       >
         <WhatsAppGlyph className="w-7 h-7 text-white" />
       </a>
@@ -63,13 +92,15 @@ const WhatsappButton = () => {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3 transition-[bottom] [.has-cart-bar_&]:bottom-28 [.has-product-bar_&]:bottom-32 small:[.has-cart-bar_&]:bottom-6 small:[.has-product-bar_&]:bottom-6">
+    <div
+      className="fixed bottom-6 right-5 z-40 flex flex-col items-end gap-3 transition-[bottom] xsmall:right-6 [.has-cart-bar_&]:bottom-28 [.has-product-bar_&]:bottom-32 small:[.has-cart-bar_&]:bottom-6 small:[.has-product-bar_&]:bottom-6"
+    >
       {open && (
         <ul className="flex flex-col gap-2">
           {CONTACTS.map((contact) => (
             <li key={contact.number}>
               <a
-                href={buildHref(contact.number)}
+                href={buildHref(contact.number, text)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 bg-bg-alt border border-nude rounded-full pl-5 pr-3 py-2 shadow-lg text-sm text-brown hover:border-gold transition-colors"
@@ -85,6 +116,7 @@ const WhatsappButton = () => {
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-label="Discuter avec nous sur WhatsApp"
+        aria-expanded={open}
         className="flex items-center justify-center w-14 h-14 rounded-full bg-[#25D366] shadow-lg hover:scale-105 transition-transform"
       >
         {open ? (

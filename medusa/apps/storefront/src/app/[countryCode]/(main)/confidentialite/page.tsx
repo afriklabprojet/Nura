@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 import LegalPageLayout from "@modules/legal/components/legal-page-layout"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { CONTACT_EMAIL } from "@lib/constants"
+import { getSiteSettings } from "@lib/data/site-settings"
 import { LEGAL_INFORMATION } from "@lib/legal"
 
 export const metadata: Metadata = {
@@ -10,7 +10,9 @@ export const metadata: Metadata = {
     "Politique de confidentialité et de protection des données personnelles de la maison Nura.",
 }
 
-export default function ConfidentialitePage() {
+export default async function ConfidentialitePage() {
+  const siteSettings = await getSiteSettings()
+
   return (
     <LegalPageLayout
       title="Politique de confidentialité"
@@ -92,7 +94,7 @@ export default function ConfidentialitePage() {
           droit d&apos;accès, de rectification, d&apos;effacement, de
           limitation, d&apos;opposition et de portabilité sur vos données
           personnelles. Vous pouvez exercer ces droits en écrivant à{" "}
-          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+          <a href={`mailto:${siteSettings.email}`}>{siteSettings.email}</a>.
           Une réponse vous sera apportée dans un délai maximum d&apos;un
           mois.
         </p>
@@ -144,7 +146,7 @@ export default function ConfidentialitePage() {
         <p>
           Pour toute question relative à cette politique de
           confidentialité :{" "}
-          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+          <a href={`mailto:${siteSettings.email}`}>{siteSettings.email}</a>.
         </p>
       </section>
     </LegalPageLayout>

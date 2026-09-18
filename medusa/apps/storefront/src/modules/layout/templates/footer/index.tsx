@@ -1,18 +1,15 @@
 import { listCategories } from "@lib/data/categories"
+import { getHomeContent } from "@lib/data/home-content"
 import { getSiteSettings } from "@lib/data/site-settings"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import NewsletterForm from "@modules/layout/components/newsletter-form"
+import CookiePreferencesButton from "@modules/layout/components/cookie-preferences-button"
 
 // Mirrors what the FAQ states: card payments in Europe, mobile money in
 // Côte d'Ivoire through Jèko.
-const PAYMENT_METHODS = [
-  "Carte bancaire",
-  "Wave",
-  "Orange Money",
-  "MTN",
-  "Moov",
-  "Djamo",
+const DEFAULT_PAYMENT_METHODS = [
+  "France · Carte bancaire",
+  "Côte d’Ivoire · Jèko, Wave, Orange Money, MTN, Moov, Djamo",
 ]
 
 const HELP_LINKS = [
@@ -25,8 +22,12 @@ const HELP_LINKS = [
 ]
 
 export default async function Footer() {
-  const productCategories = await listCategories()
-  const siteSettings = await getSiteSettings()
+  const [productCategories, siteSettings, { blocks }] = await Promise.all([
+    listCategories(),
+    getSiteSettings(),
+    getHomeContent(),
+  ])
+  const footerExtra = blocks.footer_extra
   const topLevel = productCategories?.filter((c) => !c.parent_category) || []
 
   return (
@@ -41,11 +42,11 @@ export default async function Footer() {
               Nura
             </LocalizedClientLink>
             <p className="font-serif text-lg text-brown/70">
-              Votre aura commence ici.
+              {footerExtra?.tagline || "Votre aura commence ici."}
             </p>
             <p className="text-sm leading-relaxed text-ui-fg-subtle">
-              Parfums et soins pensés pour accompagner chaque aura, chaque
-              humeur et chaque moment.
+              {footerExtra?.blurb ||
+                "Parfums et soins pensés pour accompagner chaque aura, chaque humeur et chaque moment."}
             </p>
             <div className="flex gap-x-5 pt-2">
               <a
@@ -132,15 +133,7 @@ export default async function Footer() {
           </div>
 
           <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-3">
-              <span className="eyebrow">Newsletter</span>
-              <p className="text-sm leading-relaxed text-ui-fg-subtle">
-                Nouveautés, lancements et accès exclusifs.
-              </p>
-              <NewsletterForm />
-            </div>
-
-            <div className="flex flex-col gap-2 border-t border-nude pt-5">
+            <div className="flex flex-col gap-2">
               <span className="eyebrow">Service client</span>
               <ul className="flex flex-col gap-y-2 text-sm text-ui-fg-subtle">
                 {siteSettings.phones.map((contact) => (
@@ -161,15 +154,20 @@ export default async function Footer() {
                 <li className="text-xs text-ui-fg-muted">{siteSettings.hours}</li>
               </ul>
             </div>
+            <CookiePreferencesButton className="min-h-11 self-start text-left text-xs text-ui-fg-subtle underline underline-offset-4 hover:text-brown" />
           </div>
         </div>
 
         <div className="flex flex-col gap-y-5 border-t border-nude py-8 text-ui-fg-muted small:flex-row small:items-center small:justify-between">
           <p className="text-xs">
-            © {new Date().getFullYear()} Nura — Tous droits réservés.
+            © {new Date().getFullYear()}{" "}
+            {footerExtra?.copyright_suffix || "Nura — Tous droits réservés."}
           </p>
           <ul className="flex flex-wrap gap-2">
-            {PAYMENT_METHODS.map((method) => (
+            {(footerExtra?.payment_methods?.length
+              ? footerExtra.payment_methods
+              : DEFAULT_PAYMENT_METHODS
+            ).map((method) => (
               <li
                 key={method}
                 className="border border-nude px-2.5 py-1 text-[10px] uppercase tracking-[0.1em]"
@@ -178,7 +176,9 @@ export default async function Footer() {
               </li>
             ))}
           </ul>
-          <p className="text-xs">Votre aura commence ici.</p>
+          <p className="text-xs">
+            {footerExtra?.tagline || "Votre aura commence ici."}
+          </p>
         </div>
       </div>
     </footer>

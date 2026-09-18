@@ -1,14 +1,16 @@
+import { CartMessagesBlock } from "@lib/data/home-content"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
-const SignInPrompt = () => {
+const SignInPrompt = ({ block }: { block?: CartMessagesBlock }) => {
   return (
     <div className="flex flex-col gap-4 border border-nude bg-bg-alt p-5 xsmall:flex-row xsmall:items-center xsmall:justify-between">
       <div className="flex flex-col gap-1">
         <h2 className="font-serif text-xl text-brown">
-          Vous avez déjà un compte ?
+          {block?.sign_in_title || "Vous avez déjà un compte ?"}
         </h2>
         <p className="text-sm text-ui-fg-subtle">
-          Connectez-vous pour retrouver vos adresses et vos commandes.
+          {block?.sign_in_text ||
+            "Connectez-vous pour retrouver vos adresses et vos commandes."}
         </p>
       </div>
       <LocalizedClientLink

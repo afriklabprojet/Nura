@@ -1,9 +1,6 @@
 "use client"
 
 import {
-  Popover,
-  PopoverButton,
-  PopoverPanel,
   Transition,
 } from "@headlessui/react"
 import { convertToLocale } from "@lib/util/money"
@@ -19,8 +16,10 @@ import { Fragment, useEffect, useRef, useState } from "react"
 
 const CartDropdown = ({
   cart: cartState,
+  emptyText,
 }: {
   cart?: HttpTypes.StoreCart | null
+  emptyText?: string
 }) => {
   const [activeTimer, setActiveTimer] = useState<NodeJS.Timer | undefined>(
     undefined
@@ -75,18 +74,22 @@ const CartDropdown = ({
 
   return (
     <div
-      className="h-full z-50"
+      className="relative z-50 h-full"
       onMouseEnter={openAndCancel}
       onMouseLeave={close}
+      onFocus={openAndCancel}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          close()
+        }
+      }}
     >
-      <Popover className="relative h-full">
-        <PopoverButton className="h-full">
-          <LocalizedClientLink
-            className="hover:text-gold"
-            href="/cart"
-            data-testid="nav-cart-link"
-          >{`Panier (${totalItems})`}</LocalizedClientLink>
-        </PopoverButton>
+      <LocalizedClientLink
+        className="flex h-full items-center hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+        href="/cart"
+        data-testid="nav-cart-link"
+        aria-expanded={cartDropdownOpen}
+      >{`Panier (${totalItems})`}</LocalizedClientLink>
         <Transition
           show={cartDropdownOpen}
           as={Fragment}
@@ -97,9 +100,8 @@ const CartDropdown = ({
           leaveFrom="opacity-100 translate-y-0"
           leaveTo="opacity-0 translate-y-1"
         >
-          <PopoverPanel
-            static
-            className="hidden small:block absolute top-[calc(100%+1px)] right-0 bg-bg-alt border-x border-b border-nude w-[420px] text-ui-fg-base"
+          <div
+            className="absolute right-0 top-[calc(100%+1px)] hidden max-h-[calc(100dvh-73px)] w-[420px] overflow-y-auto border-x border-b border-nude bg-bg-alt text-ui-fg-base small:block"
             data-testid="nav-cart-dropdown"
           >
             <div className="p-4 flex items-center justify-center">
@@ -209,7 +211,7 @@ const CartDropdown = ({
                   <div className="bg-brown text-small-regular flex items-center justify-center w-6 h-6 rounded-full text-bg-alt">
                     <span>0</span>
                   </div>
-                  <span>Votre panier est vide.</span>
+                  <span>{emptyText || "Votre panier est vide."}</span>
                   <div>
                     <LocalizedClientLink href="/store">
                       <>
@@ -221,9 +223,8 @@ const CartDropdown = ({
                 </div>
               </div>
             )}
-          </PopoverPanel>
+          </div>
         </Transition>
-      </Popover>
     </div>
   )
 }

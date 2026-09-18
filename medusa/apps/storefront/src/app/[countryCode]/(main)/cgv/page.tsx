@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 import LegalPageLayout from "@modules/legal/components/legal-page-layout"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { CONTACT_EMAIL } from "@lib/constants"
+import { getSiteSettings } from "@lib/data/site-settings"
 import { LEGAL_INFORMATION } from "@lib/legal"
 
 export const metadata: Metadata = {
@@ -9,7 +9,9 @@ export const metadata: Metadata = {
   description: "Conditions générales de vente de la maison Nura.",
 }
 
-export default function CgvPage() {
+export default async function CgvPage() {
+  const siteSettings = await getSiteSettings()
+
   return (
     <LegalPageLayout
       title="Conditions générales de vente"
@@ -104,7 +106,7 @@ export default function CgvPage() {
         <p>
           Pour exercer ce droit, le Client doit notifier sa décision par
           email à{" "}
-          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>{" "}
+          <a href={`mailto:${siteSettings.email}`}>{siteSettings.email}</a>{" "}
           avant l&apos;expiration du délai de 14 jours. Le produit doit être
           retourné neuf, non ouvert, non descellé et dans son emballage
           d&apos;origine, dans un délai de 14 jours suivant la notification
@@ -137,7 +139,7 @@ export default function CgvPage() {
           consommation) et de la garantie légale contre les vices cachés
           (articles 1641 et suivants du Code civil). Pour toute question,
           contactez{" "}
-          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+          <a href={`mailto:${siteSettings.email}`}>{siteSettings.email}</a>.
         </p>
       </section>
 
@@ -159,7 +161,7 @@ export default function CgvPage() {
           Les présentes CGV sont soumises au droit français. En cas de
           litige, le Client est invité à contacter en priorité le service
           client à l&apos;adresse{" "}
-          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>{" "}
+          <a href={`mailto:${siteSettings.email}`}>{siteSettings.email}</a>{" "}
           afin de rechercher une solution amiable. À défaut d&apos;accord,
           le Client peut recourir à la médiation de la consommation décrite
           dans nos{" "}

@@ -8,13 +8,16 @@ import DiscountCode from "@modules/checkout/components/discount-code"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
 import { getCheckoutStep } from "@lib/util/checkout-step"
+import { hasUnavailableCartItems } from "@lib/util/cart-availability"
 
 type SummaryProps = {
   cart: HttpTypes.StoreCart
+  fixCartText?: string
 }
 
-const Summary = ({ cart }: SummaryProps) => {
+const Summary = ({ cart, fixCartText }: SummaryProps) => {
   const step = getCheckoutStep(cart)
+  const hasUnavailableItems = hasUnavailableCartItems(cart)
 
   return (
     <div className="flex flex-col gap-y-4">
@@ -24,12 +27,24 @@ const Summary = ({ cart }: SummaryProps) => {
       <DiscountCode cart={cart} />
       <Divider />
       <CartTotals totals={cart} />
-      <LocalizedClientLink
-        href={"/checkout?step=" + step}
-        data-testid="checkout-button"
-      >
-        <Button className="w-full h-10">Passer commande</Button>
-      </LocalizedClientLink>
+      {hasUnavailableItems ? (
+        <div>
+          <Button className="h-12 w-full" disabled data-testid="checkout-button">
+            Panier à corriger
+          </Button>
+          <p className="mt-3 text-sm leading-relaxed text-rose-700" role="alert">
+            {fixCartText ||
+              "Retirez les articles indisponibles avant de passer commande."}
+          </p>
+        </div>
+      ) : (
+        <LocalizedClientLink
+          href={"/checkout?step=" + step}
+          data-testid="checkout-button"
+        >
+          <Button className="h-12 w-full">Passer commande</Button>
+        </LocalizedClientLink>
+      )}
     </div>
   )
 }

@@ -17,10 +17,16 @@ export const HOME_BLOCK_KEYS = [
   "ritual",
   "categories",
   "gallery",
+  "best_sellers",
+  "reviews_heading",
   // Site-wide content, used across several pages
   "site_settings",
   "announcement",
   "faq",
+  "newsletter_band",
+  "cookie_banner",
+  "footer_extra",
+  "whatsapp",
   // Static pages (title + body), rendered through the same lightweight
   // markup as Journal articles. Legal pages (CGV, Confidentialité, Mentions
   // légales) are deliberately excluded — see docs/CONTENT.md.
@@ -28,6 +34,19 @@ export const HOME_BLOCK_KEYS = [
   "page_contact",
   "page_livraison_retours",
   "page_politique_cookies",
+  // Customer-journey messages: empty states, confirmations, error copy
+  // shown at specific points in the cart, checkout, account and order flows.
+  "cart_messages",
+  "checkout_messages",
+  "account_messages",
+  "order_messages",
+  "not_found_messages",
+  // Catalogue pages
+  "store_page",
+  "collections_page",
+  "product_extras",
+  "contact_extras",
+  "journal_page",
 ] as const
 
 export type HomeBlockKey = (typeof HOME_BLOCK_KEYS)[number]

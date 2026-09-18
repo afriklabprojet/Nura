@@ -1,5 +1,6 @@
 import { listCartOptions, retrieveCart } from "@lib/data/cart"
 import { retrieveCustomer } from "@lib/data/customer"
+import { getHomeContent } from "@lib/data/home-content"
 import { StoreCartShippingOption } from "@medusajs/types"
 import CartTemplate from "@modules/cart/templates"
 import { Metadata } from "next"
@@ -21,6 +22,7 @@ export default async function Cart(props: {
   })
 
   const customer = await retrieveCustomer()
+  const { blocks } = await getHomeContent()
 
   let shippingOptions: StoreCartShippingOption[] = []
 
@@ -35,6 +37,8 @@ export default async function Cart(props: {
       customer={customer}
       shippingOptions={shippingOptions}
       error={error}
+      cartMessages={blocks.cart_messages}
+      checkoutMessages={blocks.checkout_messages}
     />
   )
 }

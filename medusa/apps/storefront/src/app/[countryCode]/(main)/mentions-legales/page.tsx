@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 import LegalPageLayout from "@modules/legal/components/legal-page-layout"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { CONTACT_EMAIL, SERVICE_CLIENT_CONTACTS } from "@lib/constants"
+import { getSiteSettings } from "@lib/data/site-settings"
 import { LEGAL_INFORMATION } from "@lib/legal"
 
 export const metadata: Metadata = {
@@ -9,7 +9,9 @@ export const metadata: Metadata = {
   description: "Mentions légales de la maison Nura.",
 }
 
-export default function MentionsLegalesPage() {
+export default async function MentionsLegalesPage() {
+  const siteSettings = await getSiteSettings()
+
   return (
     <LegalPageLayout title="Mentions légales" updatedAt="17 septembre 2026">
       <section>
@@ -28,11 +30,12 @@ export default function MentionsLegalesPage() {
           Siège social : {LEGAL_INFORMATION.address}
           <br />
           Téléphone :{" "}
-          {SERVICE_CLIENT_CONTACTS.map(
-            (contact) => `${contact.label} ${contact.display}`
-          ).join(" · ")}
+          {siteSettings.phones
+            .map((contact) => `${contact.label} ${contact.display}`)
+            .join(" · ")}
           <br />
-          Email : <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+          Email :{" "}
+          <a href={`mailto:${siteSettings.email}`}>{siteSettings.email}</a>
         </p>
       </section>
 

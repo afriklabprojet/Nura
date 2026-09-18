@@ -87,6 +87,158 @@ export type PageBlock = {
   content?: string
 }
 
+export type BestSellersBlock = {
+  eyebrow?: string
+  title?: string
+  subtitle?: string
+  cta_label?: string
+  cta_href?: string
+}
+
+export type ReviewsHeadingBlock = {
+  eyebrow?: string
+  title?: string
+}
+
+export type NewsletterBandBlock = {
+  title?: string
+  subtitle?: string
+  success_message?: string
+  consent_text?: string
+}
+
+export type CookieBannerBlock = {
+  text?: string
+}
+
+export type FooterExtraBlock = {
+  tagline?: string
+  blurb?: string
+  payment_methods?: string[]
+  copyright_suffix?: string
+}
+
+export type WhatsappBlock = {
+  message?: string
+}
+
+export type CartMessagesBlock = {
+  empty_title?: string
+  empty_text?: string
+  empty_cta_label?: string
+  empty_cta_href?: string
+  sign_in_title?: string
+  sign_in_text?: string
+  fix_cart_text?: string
+  mini_cart_empty?: string
+  mismatch_error?: string
+  not_found_text?: string
+}
+
+export type CheckoutMessagesBlock = {
+  unavailable_title?: string
+  unavailable_text?: string
+  summary_question?: string
+  shipping_question?: string
+  pickup_label?: string
+  pickup_choose?: string
+  payment_empty?: string
+  payment_empty_hint?: string
+  payment_error_generic?: string
+  mobile_wallet_prompt?: string
+  jeko_error?: string
+  gift_option_text?: string
+  consent_text?: string
+  payment_failed_text?: string
+  order_failed_text?: string
+}
+
+export type AccountMessagesBlock = {
+  login_title?: string
+  login_text?: string
+  verify_sent_text?: string
+  register_title?: string
+  register_text?: string
+  register_verify_text?: string
+  register_consent_text?: string
+  forgot_title?: string
+  forgot_text?: string
+  forgot_sent_title?: string
+  forgot_sent_text?: string
+  reset_success_title?: string
+  reset_success_text?: string
+  reset_invalid_title?: string
+  reset_invalid_text?: string
+  verify_success_text?: string
+  verify_invalid_text?: string
+  sla_text?: string
+  orders_intro?: string
+  addresses_intro?: string
+  profile_intro?: string
+  wishlist_intro?: string
+  wishlist_empty_text?: string
+  order_overview_empty_title?: string
+  order_overview_empty_text?: string
+  referral_text?: string
+  transfer_intro?: string
+}
+
+export type OrderMessagesBlock = {
+  thank_you_title?: string
+  thank_you_text?: string
+  confirmation_email_text?: string
+  help_title?: string
+  transfer_success_text?: string
+  transfer_declined_text?: string
+}
+
+export type NotFoundMessagesBlock = {
+  title?: string
+  text?: string
+  error_eyebrow?: string
+  error_title?: string
+  error_text?: string
+}
+
+export type StorePageBlock = {
+  eyebrow?: string
+  title?: string
+  text?: string
+  empty_state?: string
+}
+
+export type CollectionsPageBlock = {
+  eyebrow?: string
+  title?: string
+  text?: string
+  collection_blurb_template?: string
+}
+
+export type ProductExtrasBlock = {
+  reassurance_shipping?: string
+  reassurance_returns?: string
+  shipping_tab_title?: string
+  shipping_tab_text?: string
+  returns_tab_title?: string
+  returns_tab_text?: string
+  related_title?: string
+  related_text?: string
+  recently_viewed_text?: string
+  reviews_empty_text?: string
+  review_submitted_text?: string
+}
+
+export type ContactExtrasBlock = {
+  success_message?: string
+}
+
+export type JournalPageBlock = {
+  eyebrow?: string
+  title?: string
+  text?: string
+  empty_state?: string
+}
+
 export type HomeBlocks = {
   hero?: HeroBlock
   campaign?: CampaignBlock
@@ -95,13 +247,29 @@ export type HomeBlocks = {
   ritual?: RitualBlock
   categories?: CategoriesBlock
   gallery?: GalleryBlock
+  best_sellers?: BestSellersBlock
+  reviews_heading?: ReviewsHeadingBlock
   site_settings?: SiteSettingsBlock
   announcement?: AnnouncementBlock
   faq?: FaqBlock
+  newsletter_band?: NewsletterBandBlock
+  cookie_banner?: CookieBannerBlock
+  footer_extra?: FooterExtraBlock
+  whatsapp?: WhatsappBlock
   page_a_propos?: PageBlock
   page_contact?: PageBlock
   page_livraison_retours?: PageBlock
   page_politique_cookies?: PageBlock
+  cart_messages?: CartMessagesBlock
+  checkout_messages?: CheckoutMessagesBlock
+  account_messages?: AccountMessagesBlock
+  order_messages?: OrderMessagesBlock
+  not_found_messages?: NotFoundMessagesBlock
+  store_page?: StorePageBlock
+  collections_page?: CollectionsPageBlock
+  product_extras?: ProductExtrasBlock
+  contact_extras?: ContactExtrasBlock
+  journal_page?: JournalPageBlock
 }
 
 export type HomeContent = {

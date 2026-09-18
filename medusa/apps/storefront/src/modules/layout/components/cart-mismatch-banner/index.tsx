@@ -8,8 +8,9 @@ import { useState } from "react"
 function CartMismatchBanner(props: {
   customer: StoreCustomer
   cart: StoreCart
+  errorMessage?: string
 }) {
-  const { customer, cart } = props
+  const { customer, cart, errorMessage } = props
   const [isPending, setIsPending] = useState(false)
   const [actionText, setActionText] = useState("Réessayer le transfert")
 
@@ -34,7 +35,8 @@ function CartMismatchBanner(props: {
       <div className="flex flex-col small:flex-row small:gap-2 gap-1 items-center">
         <span className="flex items-center gap-1">
           <ExclamationCircleSolid className="inline" />
-          Une erreur est survenue lors du transfert de votre panier
+          {errorMessage ||
+            "Une erreur est survenue lors du transfert de votre panier"}
         </span>
 
         <span>·</span>

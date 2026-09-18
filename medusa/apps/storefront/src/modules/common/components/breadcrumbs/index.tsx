@@ -32,7 +32,6 @@ const Breadcrumbs = ({
     <nav aria-label="Fil d'Ariane" className="txt-small text-ui-fg-subtle">
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <ol className="flex flex-wrap items-center gap-x-1">

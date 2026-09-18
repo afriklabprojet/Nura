@@ -6,7 +6,16 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/*/account", "/*/checkout", "/*/order/", "/api/"],
+      disallow: [
+        "/*/account",
+        "/*/cart",
+        "/*/checkout",
+        "/*/order/",
+        "/*/mot-de-passe-oublie",
+        "/*/reinitialiser-mot-de-passe",
+        "/*/verify-account",
+        "/api/",
+      ],
     },
     sitemap: `${getBaseURL()}/sitemap.xml`,
   }

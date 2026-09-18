@@ -6,6 +6,7 @@ import { getRegion, listRegions } from "@lib/data/regions"
 import { getBaseURL } from "@lib/util/env"
 import ProductTemplate from "@modules/products/templates"
 import { HttpTypes } from "@medusajs/types"
+import { getLocalizedAlternates } from "@lib/util/seo"
 
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
@@ -90,10 +91,20 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   }
 
   const description = product.description || product.title
+  const countries = await listRegions().then((regions) =>
+    regions
+      .flatMap((item) => item.countries?.map((country) => country.iso_2))
+      .filter((code): code is string => Boolean(code))
+  )
 
   return {
     title: product.title,
     description,
+    alternates: getLocalizedAlternates(
+      countries,
+      params.countryCode,
+      `/products/${handle}`
+    ),
     openGraph: {
       title: product.title,
       description,
@@ -159,7 +170,6 @@ function ProductJsonLd({
   return (
     <script
       type="application/ld+json"
-      // eslint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
     />
   )

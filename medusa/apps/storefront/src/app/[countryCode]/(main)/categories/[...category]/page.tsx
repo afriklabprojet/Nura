@@ -7,6 +7,7 @@ import { HttpTypes, StoreRegion } from "@medusajs/types"
 import CategoryTemplate from "@modules/categories/templates"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import { parseOptionValueIds } from "@lib/util/product-option-filters"
+import { getLocalizedAlternates } from "@lib/util/seo"
 
 type Props = {
   params: Promise<{ category: string[]; countryCode: string }>
@@ -51,18 +52,24 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   try {
     const productCategory = await getCategoryByHandle(params.category)
 
-    const title = productCategory.name + " | Nura"
-
     const description =
       productCategory.description ??
       `Découvrez notre sélection ${productCategory.name} chez Nura.`
 
+    const countries = await listRegions().then((regions) =>
+      regions
+        .flatMap((item) => item.countries?.map((country) => country.iso_2))
+        .filter((code): code is string => Boolean(code))
+    )
+
     return {
-      title: `${title} | Nura`,
+      title: productCategory.name,
       description,
-      alternates: {
-        canonical: `${params.category.join("/")}`,
-      },
+      alternates: getLocalizedAlternates(
+        countries,
+        params.countryCode,
+        `/categories/${params.category.join("/")}`
+      ),
     }
   } catch {
     notFound()

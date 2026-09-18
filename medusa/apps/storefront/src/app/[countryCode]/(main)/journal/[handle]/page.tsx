@@ -8,6 +8,7 @@ import { getBaseURL } from "@lib/util/env"
 import Breadcrumbs from "@modules/common/components/breadcrumbs"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import PostBody from "@modules/journal/components/post-body"
+import { getLocalizedAlternates } from "@lib/util/seo"
 
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
@@ -42,7 +43,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const { handle } = await props.params
+  const { countryCode, handle } = await props.params
   const data = await getPost(handle)
 
   if (!data) {
@@ -52,10 +53,20 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const { post } = data
   const description =
     post.seo_description || post.excerpt || `${post.title} — Journal Nura`
+  const countries = await listRegions().then((regions) =>
+    regions
+      .flatMap((item) => item.countries?.map((country) => country.iso_2))
+      .filter((code): code is string => Boolean(code))
+  )
 
   return {
     title: post.seo_title || post.title,
     description,
+    alternates: getLocalizedAlternates(
+      countries,
+      countryCode,
+      `/journal/${handle}`
+    ),
     openGraph: {
       type: "article",
       title: post.seo_title || post.title,
@@ -93,7 +104,6 @@ export default async function JournalPostPage(props: Props) {
     <>
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 

@@ -2,6 +2,7 @@ import { Metadata } from "next"
 import LegalPageLayout from "@modules/legal/components/legal-page-layout"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { CONTACT_EMAIL } from "@lib/constants"
+import { LEGAL_INFORMATION } from "@lib/legal"
 
 export const metadata: Metadata = {
   title: "Conditions générales de vente",
@@ -12,14 +13,14 @@ export default function CgvPage() {
   return (
     <LegalPageLayout
       title="Conditions générales de vente"
-      updatedAt="14 septembre 2026"
+      updatedAt="17 septembre 2026"
     >
       <section>
         <h2>1. Objet</h2>
         <p>
           Les présentes conditions générales de vente (CGV) régissent les
-          ventes de produits réalisées sur le site nura-paris.com entre [À
-          COMPLÉTER : dénomination sociale], (voir{" "}
+          ventes de produits réalisées sur le site nura-paris.com entre{" "}
+          {LEGAL_INFORMATION.businessName} (voir{" "}
           <LocalizedClientLink href="/mentions-legales">
             mentions légales
           </LocalizedClientLink>
@@ -43,8 +44,9 @@ export default function CgvPage() {
       <section>
         <h2>3. Prix</h2>
         <p>
-          Les prix sont indiqués en euros, toutes taxes comprises (TTC),
-          hors frais de livraison qui sont précisés avant la validation
+          Les prix sont indiqués en euros (EUR) ou en francs CFA (XOF) selon
+          le marché sélectionné, toutes taxes comprises (TTC), hors frais de
+          livraison qui sont précisés avant la validation
           définitive de la commande. Nura se réserve le droit de modifier
           ses prix à tout moment, étant entendu que le prix figurant sur la
           commande au moment de sa validation par le Client est le seul
@@ -68,9 +70,11 @@ export default function CgvPage() {
         <h2>5. Paiement</h2>
         <p>
           Le paiement s&apos;effectue en ligne, au moment de la commande,
-          par carte bancaire via notre prestataire de paiement sécurisé
-          (Stripe). Nura ne conserve aucune donnée bancaire du Client sur
-          ses propres serveurs.
+          par carte bancaire via Stripe ou par mobile money via Jèko (Wave,
+          Orange Money, MTN, Moov ou Djamo), selon le marché et les moyens
+          proposés au moment du paiement. Nura ne conserve aucune donnée
+          bancaire ni identifiant secret de portefeuille du Client sur ses
+          propres serveurs.
         </p>
       </section>
 
@@ -119,7 +123,9 @@ export default function CgvPage() {
           Le remboursement est effectué dans un délai de 14 jours suivant la
           réception du produit retourné (ou la preuve d&apos;expédition), en
           utilisant le même moyen de paiement que celui utilisé pour la
-          commande.
+          commande lorsque le prestataire le permet. Pour un paiement Jèko,
+          le remboursement peut prendre la forme d&apos;un transfert manuel vers
+          le portefeuille mobile utilisé lors de la commande.
         </p>
       </section>
 

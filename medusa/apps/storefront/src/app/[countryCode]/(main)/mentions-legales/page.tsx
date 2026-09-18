@@ -2,6 +2,7 @@ import { Metadata } from "next"
 import LegalPageLayout from "@modules/legal/components/legal-page-layout"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { CONTACT_EMAIL, SERVICE_CLIENT_CONTACTS } from "@lib/constants"
+import { LEGAL_INFORMATION } from "@lib/legal"
 
 export const metadata: Metadata = {
   title: "Mentions légales",
@@ -10,22 +11,21 @@ export const metadata: Metadata = {
 
 export default function MentionsLegalesPage() {
   return (
-    <LegalPageLayout title="Mentions légales" updatedAt="14 septembre 2026">
+    <LegalPageLayout title="Mentions légales" updatedAt="17 septembre 2026">
       <section>
         <h2>Éditeur du site</h2>
         <p>
           Le site nura-paris.com est édité par :
           <br />
-          <strong>[À COMPLÉTER : dénomination sociale]</strong>, [À
-          COMPLÉTER : forme juridique, ex. SASU / SARL], au capital de [À
-          COMPLÉTER : montant] €
+          <strong>{LEGAL_INFORMATION.businessName}</strong>,{" "}
+          {LEGAL_INFORMATION.legalForm}, au capital de {LEGAL_INFORMATION.capital}
           <br />
-          Immatriculée au RCS de [À COMPLÉTER : ville] sous le numéro [À
-          COMPLÉTER : SIREN/SIRET]
+          Immatriculée au RCS de {LEGAL_INFORMATION.registryCity} sous le numéro{" "}
+          {LEGAL_INFORMATION.registrationNumber}
           <br />
-          Numéro de TVA intracommunautaire : [À COMPLÉTER]
+          Numéro de TVA intracommunautaire : {LEGAL_INFORMATION.vatNumber}
           <br />
-          Siège social : [À COMPLÉTER : adresse complète]
+          Siège social : {LEGAL_INFORMATION.address}
           <br />
           Téléphone :{" "}
           {SERVICE_CLIENT_CONTACTS.map(
@@ -38,7 +38,7 @@ export default function MentionsLegalesPage() {
 
       <section>
         <h2>Directeur de la publication</h2>
-        <p>[À COMPLÉTER : nom du responsable légal de la publication]</p>
+        <p>{LEGAL_INFORMATION.publicationDirector}</p>
       </section>
 
       <section>
@@ -46,11 +46,11 @@ export default function MentionsLegalesPage() {
         <p>
           Le site est hébergé par :
           <br />
-          <strong>[À COMPLÉTER : nom de l&apos;hébergeur]</strong>
+          <strong>{LEGAL_INFORMATION.hostName}</strong>
           <br />
-          [À COMPLÉTER : adresse de l&apos;hébergeur]
+          {LEGAL_INFORMATION.hostAddress}
           <br />
-          [À COMPLÉTER : téléphone de l&apos;hébergeur]
+          {LEGAL_INFORMATION.hostPhone}
         </p>
       </section>
 
@@ -83,11 +83,13 @@ export default function MentionsLegalesPage() {
         <h2>Médiation de la consommation</h2>
         <p>
           Conformément à l&apos;article L.616-1 du Code de la consommation,
-          tout client peut recourir gratuitement au service de médiation
-          [À COMPLÉTER : nom du médiateur de la consommation] en cas de
+          tout client peut recourir gratuitement au service de médiation{" "}
+          {LEGAL_INFORMATION.mediatorName} en cas de
           litige non résolu directement avec notre service client, dans un
-          délai d&apos;un an à compter de sa réclamation écrite. [À
-          COMPLÉTER : coordonnées / site du médiateur choisi].
+          délai d&apos;un an à compter de sa réclamation écrite :{" "}
+          <a href={LEGAL_INFORMATION.mediatorUrl} target="_blank" rel="noreferrer">
+            {LEGAL_INFORMATION.mediatorUrl}
+          </a>.
         </p>
       </section>
     </LegalPageLayout>

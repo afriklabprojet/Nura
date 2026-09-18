@@ -2,6 +2,7 @@ import { Metadata } from "next"
 import LegalPageLayout from "@modules/legal/components/legal-page-layout"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { CONTACT_EMAIL } from "@lib/constants"
+import { LEGAL_INFORMATION } from "@lib/legal"
 
 export const metadata: Metadata = {
   title: "Politique de confidentialité",
@@ -13,13 +14,13 @@ export default function ConfidentialitePage() {
   return (
     <LegalPageLayout
       title="Politique de confidentialité"
-      updatedAt="14 septembre 2026"
+      updatedAt="17 septembre 2026"
     >
       <section>
         <h2>1. Responsable de traitement</h2>
         <p>
           Le responsable du traitement des données personnelles collectées
-          sur nura-paris.com est [À COMPLÉTER : dénomination sociale], dont
+          sur nura-paris.com est {LEGAL_INFORMATION.businessName}, dont
           les coordonnées figurent dans nos{" "}
           <LocalizedClientLink href="/mentions-legales">
             mentions légales
@@ -34,7 +35,7 @@ export default function ConfidentialitePage() {
         <ul>
           <li>Données de compte : nom, prénom, email, mot de passe (chiffré)</li>
           <li>Données de commande : adresses de livraison et de facturation, historique de commandes</li>
-          <li>Données de paiement : traitées directement par Stripe, jamais stockées sur nos serveurs</li>
+          <li>Données de paiement : traitées par Stripe ou Jèko selon le marché, jamais stockées intégralement sur nos serveurs</li>
           <li>Données de contact : nom, email, message, envoyés via le formulaire de contact</li>
           <li>Données de newsletter : adresse email, envoyée via le formulaire d&apos;inscription à la newsletter</li>
           <li>
@@ -64,8 +65,8 @@ export default function ConfidentialitePage() {
         <p>
           Vos données sont destinées à Nura et, pour les besoins strictement
           nécessaires à l&apos;exécution des commandes, à nos prestataires :
-          hébergement, paiement (Stripe), envoi d&apos;emails transactionnels
-          (Resend), transporteur(s). Ces prestataires n&apos;utilisent vos
+          hébergement, paiement (Stripe ou Jèko), envoi d&apos;emails
+          transactionnels (Resend), transporteur(s). Ces prestataires n&apos;utilisent vos
           données que pour le compte de Nura et dans le cadre de leur
           mission.
         </p>
@@ -115,10 +116,14 @@ export default function ConfidentialitePage() {
       <section>
         <h2>8. Transferts hors Union européenne</h2>
         <p>
-          [À COMPLÉTER : préciser si certains prestataires (hébergement,
-          paiement, email) transfèrent des données hors UE, et sur quel
-          mécanisme de garantie — clauses contractuelles types, décision
-          d&apos;adéquation, etc.]
+          Certains prestataires peuvent traiter des données hors de l&apos;Espace
+          économique européen, notamment pour le paiement, l&apos;email ou
+          l&apos;hébergement. Ces transferts sont encadrés, selon le prestataire
+          et le pays, par une décision d&apos;adéquation, le Data Privacy Framework
+          ou les clauses contractuelles types de la Commission européenne.
+          Pour une livraison ou un paiement en Côte d&apos;Ivoire, les données
+          strictement nécessaires sont transmises aux prestataires locaux dans
+          le cadre de l&apos;exécution de la commande.
         </p>
       </section>
 

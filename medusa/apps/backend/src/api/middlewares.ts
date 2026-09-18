@@ -1,4 +1,46 @@
-import { defineMiddlewares } from "@medusajs/framework/http"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import {
+  AuthenticatedMedusaRequest,
+  authenticate,
+  defineMiddlewares,
+  MedusaNextFunction,
+  MedusaRequest,
+  MedusaResponse,
+} from "@medusajs/framework/http"
+import { verifyOrderAccessToken } from "../lib/order-access-token"
+
+const authorizeOrderRead = async (
+  req: MedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  const orderId = req.params.id
+  const customerId = (req as AuthenticatedMedusaRequest).auth_context?.actor_id
+
+  if (customerId) {
+    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+    const {
+      data: [order],
+    } = await query.graph({
+      entity: "order",
+      fields: ["customer_id"],
+      filters: { id: orderId },
+    })
+
+    if (order?.customer_id === customerId) {
+      return next()
+    }
+  } else if (
+    verifyOrderAccessToken(
+      orderId,
+      req.headers["x-order-access-token"] as string | undefined
+    )
+  ) {
+    return next()
+  }
+
+  return res.status(404).json({ message: "Order not found" })
+}
 
 /**
  * RBAC enforcement for the admin dashboard.
@@ -24,6 +66,16 @@ import { defineMiddlewares } from "@medusajs/framework/http"
 export default defineMiddlewares({
   routes: [
     {
+      matcher: "/store/orders/:id",
+      methods: ["GET"],
+      middlewares: [
+        authenticate("customer", ["session", "bearer"], {
+          allowUnauthenticated: true,
+        }),
+        authorizeOrderRead,
+      ],
+    },
+    {
       matcher: "/admin/users*",
       policies: { resource: "user", operation: "*" },
     },
@@ -38,6 +90,18 @@ export default defineMiddlewares({
     {
       matcher: "/admin/api-keys*",
       policies: { resource: "api_key", operation: "*" },
+    },
+    {
+      matcher: "/admin/home-content*",
+      policies: { resource: "content", operation: "*" },
+    },
+    {
+      matcher: "/admin/journal*",
+      policies: { resource: "content", operation: "*" },
+    },
+    {
+      matcher: "/admin/reviews*",
+      policies: { resource: "review", operation: "*" },
     },
     {
       matcher: "/admin/products/:id",

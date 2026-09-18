@@ -5,6 +5,7 @@ import { notFound } from "next/navigation"
 import { listOrders } from "@lib/data/orders"
 import Divider from "@modules/common/components/divider"
 import TransferRequestForm from "@modules/account/components/transfer-request-form"
+import { retrieveCustomer } from "@lib/data/customer"
 
 export const metadata: Metadata = {
   title: "Mes commandes",
@@ -12,6 +13,12 @@ export const metadata: Metadata = {
 }
 
 export default async function Orders() {
+  const customer = await retrieveCustomer().catch(() => null)
+
+  if (!customer) {
+    return null
+  }
+
   const orders = await listOrders()
 
   if (!orders) {

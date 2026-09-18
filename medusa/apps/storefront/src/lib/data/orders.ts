@@ -2,16 +2,20 @@
 
 import { sdk } from "@lib/config"
 import medusaError from "@lib/util/medusa-error"
-import { getAuthHeaders, getCacheOptions } from "./cookies"
+import {
+  getAuthHeaders,
+  getCacheOptions,
+  getOrderAccessToken,
+} from "./cookies"
 import { HttpTypes } from "@medusajs/types"
 
 export const retrieveOrder = async (id: string) => {
+  const orderAccessToken = await getOrderAccessToken(id)
   const headers = {
     ...(await getAuthHeaders()),
-  }
-
-  const next = {
-    ...(await getCacheOptions("orders")),
+    ...(orderAccessToken
+      ? { "x-order-access-token": orderAccessToken }
+      : {}),
   }
 
   return sdk.client
@@ -22,8 +26,7 @@ export const retrieveOrder = async (id: string) => {
           "*payment_collections.payments,*items,*items.metadata,*items.variant,*items.product",
       },
       headers,
-      next,
-      cache: "force-cache",
+      cache: "no-store",
     })
     .then(({ order }) => order)
     .catch((err) => medusaError(err))

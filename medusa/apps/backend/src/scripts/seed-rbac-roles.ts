@@ -3,6 +3,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import {
   createRbacPoliciesWorkflow,
   createRbacRolesWorkflow,
+  updateRbacRolesWorkflow,
 } from "@medusajs/medusa/core-flows"
 
 /**
@@ -27,16 +28,7 @@ export default async function seedRbacRoles({
     filters: { name: ["Admin", "Manager"] },
   })
 
-  if (existingRoles.length) {
-    logger.info(
-      `RBAC roles already seeded (${existingRoles
-        .map((r) => r.name)
-        .join(", ")}). Skipping.`
-    )
-    return
-  }
-
-  logger.info("Seeding Admin and Manager RBAC policies...")
+  logger.info("Reconciling Admin and Manager RBAC policies...")
 
   const adminResources = [
     "user",
@@ -48,20 +40,9 @@ export default async function seedRbacRoles({
     "promotion",
     "pricing",
     "inventory",
+    "content",
+    "review",
   ]
-
-  const { result: adminPolicies } = await createRbacPoliciesWorkflow(
-    container
-  ).run({
-    input: {
-      policies: adminResources.map((resource) => ({
-        key: `${resource}:*:admin`,
-        resource,
-        operation: "*",
-        name: `Admin — ${resource}`,
-      })),
-    },
-  })
 
   // Medusa's core routes check CRUD-verb operations ("create"/"read"/"update"/
   // "delete"), not "write" — and creating/editing a product also touches the
@@ -77,41 +58,90 @@ export default async function seedRbacRoles({
   ]
   const managerOperations = ["read", "create", "update"]
 
-  const { result: managerPolicies } = await createRbacPoliciesWorkflow(
-    container
-  ).run({
-    input: {
-      policies: managerResources.flatMap((resource) =>
-        managerOperations.map((operation) => ({
-          key: `${resource}:${operation}:manager`,
-          resource,
-          operation,
-          name: `Manager — ${resource} (${operation})`,
-        }))
-      ),
-    },
+  const policyDefinitions = [
+    ...adminResources.map((resource) => ({
+      key: `${resource}:*:admin`,
+      resource,
+      operation: "*",
+      name: `Admin — ${resource}`,
+    })),
+    ...managerResources.flatMap((resource) =>
+      managerOperations.map((operation) => ({
+        key: `${resource}:${operation}:manager`,
+        resource,
+        operation,
+        name: `Manager — ${resource} (${operation})`,
+      }))
+    ),
+  ]
+
+  const { data: existingPolicies } = await query.graph({
+    entity: "rbac_policy",
+    fields: ["id", "key"],
+    filters: { key: policyDefinitions.map((policy) => policy.key) },
   })
+  const existingPolicyKeys = new Set(existingPolicies.map((policy) => policy.key))
+  const missingPolicies = policyDefinitions.filter(
+    (policy) => !existingPolicyKeys.has(policy.key)
+  )
+
+  if (missingPolicies.length) {
+    await createRbacPoliciesWorkflow(container).run({
+      input: { policies: missingPolicies },
+    })
+  }
+
+  const { data: policies } = await query.graph({
+    entity: "rbac_policy",
+    fields: ["id", "key"],
+    filters: { key: policyDefinitions.map((policy) => policy.key) },
+  })
+  const policiesByKey = new Map(policies.map((policy) => [policy.key, policy.id]))
+  const adminPolicyIds = adminResources.map(
+    (resource) => policiesByKey.get(`${resource}:*:admin`)!
+  )
+  const managerPolicyIds = managerResources.flatMap((resource) =>
+    managerOperations.map(
+      (operation) => policiesByKey.get(`${resource}:${operation}:manager`)!
+    )
+  )
 
   logger.info("Seeding Admin and Manager RBAC roles...")
 
-  await createRbacRolesWorkflow(container).run({
-    input: {
-      roles: [
-        {
-          name: "Admin",
-          description:
-            "Full operational access (products, orders, customers, promotions, pricing, inventory, users, store settings). Cannot manage roles/permissions — reserved for Super Admin.",
-          policy_ids: adminPolicies.map((p) => p.id),
-        },
-        {
-          name: "Manager",
-          description:
-            "Day-to-day operations: read/write on products, orders, customers and inventory. No access to users, store settings, API keys, RBAC, or deleting records.",
-          policy_ids: managerPolicies.map((p) => p.id),
-        },
-      ],
+  const roles = [
+    {
+      name: "Admin",
+      description:
+        "Full operational access (products, orders, customers, promotions, pricing, inventory, users, store settings and content). Cannot manage roles/permissions — reserved for Super Admin.",
+      policy_ids: adminPolicyIds,
     },
-  })
+    {
+      name: "Manager",
+      description:
+        "Day-to-day operations: read/write on products, orders, customers and inventory. No access to users, store settings, API keys, content, reviews, RBAC, or deleting records.",
+      policy_ids: managerPolicyIds,
+    },
+  ]
+
+  for (const role of roles) {
+    const existingRole = existingRoles.find((item) => item.name === role.name)
+
+    if (existingRole) {
+      await updateRbacRolesWorkflow(container).run({
+        input: {
+          selector: { id: existingRole.id },
+          update: {
+            description: role.description,
+            policy_ids: role.policy_ids,
+          },
+        },
+      })
+    } else {
+      await createRbacRolesWorkflow(container).run({
+        input: { roles: [role] },
+      })
+    }
+  }
 
   logger.info("Finished seeding Admin and Manager roles.")
 }

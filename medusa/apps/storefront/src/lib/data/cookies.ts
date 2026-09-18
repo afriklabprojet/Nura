@@ -1,6 +1,8 @@
 import "server-only"
+import { createHmac } from "crypto"
 import { cookies as nextCookies } from "next/headers"
 import { MARKET_PREF_COOKIE, REFERRAL_CODE_COOKIE } from "@lib/constants"
+import { verifySignedOrderAccessToken } from "@lib/util/order-access-token"
 
 export const getAuthHeaders = async (): Promise<
   { authorization: string } | Record<string, never>
@@ -160,3 +162,39 @@ export const removeCartId = async () => {
     maxAge: -1,
   })
 }
+
+const getOrderAccessSecret = () => {
+  const secret = process.env.ORDER_ACCESS_SECRET
+
+  if (!secret) {
+    throw new Error("ORDER_ACCESS_SECRET is required to access guest orders")
+  }
+
+  return secret
+}
+
+export const setOrderAccessToken = async (orderId: string) => {
+  const expiresAt = Date.now() + 60 * 60 * 1000
+  const signature = createHmac("sha256", getOrderAccessSecret())
+    .update(`${orderId}.${expiresAt}`)
+    .digest("hex")
+  const cookies = await nextCookies()
+
+  cookies.set(`_nura_order_${orderId}`, `${expiresAt}.${signature}`, {
+    maxAge: 60 * 60,
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  })
+}
+
+export const getOrderAccessToken = async (orderId: string) => {
+  const cookies = await nextCookies()
+  return cookies.get(`_nura_order_${orderId}`)?.value
+}
+
+export const verifyOrderAccessToken = (
+  orderId: string,
+  token: string,
+  now = Date.now()
+) => verifySignedOrderAccessToken(orderId, token, getOrderAccessSecret(), now)

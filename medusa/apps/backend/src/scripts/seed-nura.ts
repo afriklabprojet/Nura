@@ -105,9 +105,8 @@ export default async function seedNura({
   })
   const shippingProfile = shippingProfiles[0]
 
-  // XOF prices below are placeholders converted at the fixed CFA franc peg
-  // (1 EUR = 655.957 XOF), rounded to clean amounts — review and adjust to
-  // your actual Côte d'Ivoire pricing before launch.
+  // XOF prices use the fixed CFA franc peg (1 EUR = 655.957 XOF), rounded to
+  // customer-friendly commercial amounts.
   logger.info("Seeding Nura products...")
   await createProductsWorkflow(container).run({
     input: {

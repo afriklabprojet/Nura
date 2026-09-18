@@ -17,6 +17,10 @@ export async function POST(
   req: MedusaRequest<SaveHomeBlockInput>,
   res: MedusaResponse
 ) {
+  if (JSON.stringify(req.body ?? {}).length > 50_000) {
+    return res.status(400).json({ message: "Le contenu est trop volumineux." })
+  }
+
   const { result } = await saveHomeBlockWorkflow(req.scope).run({
     input: req.body,
   })

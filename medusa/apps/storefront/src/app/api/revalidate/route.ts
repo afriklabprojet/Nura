@@ -1,7 +1,7 @@
-import { revalidateTag } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
 
 import { CONTENT_CACHE_TAGS } from "@lib/util/cache-tags"
+import { revalidateTag } from "@lib/util/revalidate"
 
 /**
  * Called by the backend when editorial content changes, so an edit made in

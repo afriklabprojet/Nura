@@ -40,6 +40,20 @@ const normalise = async (
     throw new MedusaError(MedusaError.Types.INVALID_DATA, "Le contenu est requis.")
   }
 
+  if (
+    title.length > 200 ||
+    input.content.length > 100_000 ||
+    (input.excerpt?.length ?? 0) > 500 ||
+    (input.author?.length ?? 0) > 100 ||
+    (input.seo_title?.length ?? 0) > 200 ||
+    (input.seo_description?.length ?? 0) > 500
+  ) {
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      "Un ou plusieurs champs dépassent la longueur autorisée."
+    )
+  }
+
   const handle = slugify(input.handle?.trim() || title)
 
   if (!handle) {

@@ -1,17 +1,45 @@
-import { loadEnv, defineConfig } from '@medusajs/framework/utils'
+import { loadEnv, defineConfig, MedusaError } from '@medusajs/framework/utils'
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
 const modules: any[] = []
 const plugins: any[] = []
 
-// Payment providers are both optional and independent: Stripe (Europe,
+// Payment providers are both optional and independent in development: Stripe (Europe,
 // cards) registers once STRIPE_API_KEY is set, Jèko (Côte d'Ivoire, mobile
-// money — Wave/Orange Money/MTN/Moov/Djamo) once JEKO_API_KEY is set. The
-// backend keeps booting with the manual/test payment provider until at
-// least one is connected. Which provider serves which region/currency is
+// money — Wave/Orange Money/MTN/Moov/Djamo) once JEKO_API_KEY is set. Which
+// provider serves which region/currency is
 // configured per-region in the admin (Settings > Regions), not here.
 const paymentProviders: any[] = []
+
+if (process.env.S3_FILE_URL) {
+  modules.push({
+    resolve: '@medusajs/medusa/file',
+    options: {
+      providers: [
+        {
+          resolve: '@medusajs/medusa/file-s3',
+          id: 's3',
+          options: {
+            file_url: process.env.S3_FILE_URL,
+            access_key_id: process.env.S3_ACCESS_KEY_ID,
+            secret_access_key: process.env.S3_SECRET_ACCESS_KEY,
+            region: process.env.S3_REGION,
+            bucket: process.env.S3_BUCKET,
+            endpoint: process.env.S3_ENDPOINT,
+            cache_control: 'public, max-age=31536000, immutable',
+            acl: false,
+          },
+        },
+      ],
+    },
+  })
+} else if (process.env.NODE_ENV === 'production') {
+  throw new MedusaError(
+    MedusaError.Types.INVALID_DATA,
+    'Production requires persistent S3-compatible file storage.'
+  )
+}
 
 if (process.env.STRIPE_API_KEY) {
   paymentProviders.push({
@@ -37,6 +65,13 @@ if (process.env.JEKO_API_KEY) {
   })
 }
 
+if (process.env.NODE_ENV === 'production' && paymentProviders.length === 0) {
+  throw new MedusaError(
+    MedusaError.Types.INVALID_DATA,
+    'Production requires at least one configured payment provider.'
+  )
+}
+
 if (paymentProviders.length > 0) {
   modules.push({
     resolve: '@medusajs/medusa/payment',
@@ -44,9 +79,18 @@ if (paymentProviders.length > 0) {
   })
 }
 
-// Resend is optional: only registered once RESEND_API_KEY is set. Without
-// it, notifications (contact form, order confirmations, invites...) just
-// get logged instead of emailed.
+if (
+  process.env.NODE_ENV === 'production' &&
+  (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM_EMAIL)
+) {
+  throw new MedusaError(
+    MedusaError.Types.INVALID_DATA,
+    'Production requires RESEND_API_KEY and RESEND_FROM_EMAIL.'
+  )
+}
+
+// Resend remains optional for local development. Production requires it so
+// contact messages and transactional notifications cannot disappear into logs.
 if (process.env.RESEND_API_KEY) {
   modules.push({
     resolve: '@medusajs/medusa/notification',

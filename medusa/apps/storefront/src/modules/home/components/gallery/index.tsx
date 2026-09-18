@@ -1,4 +1,5 @@
-import { SOCIAL_LINKS } from "@lib/constants"
+import { GalleryBlock } from "@lib/data/home-content"
+import { getSiteSettings } from "@lib/data/site-settings"
 import Reveal from "@modules/common/components/reveal"
 import Image from "next/image"
 
@@ -10,23 +11,29 @@ const tiles = [
   { src: "/images/ugc-5.webp", label: "Textures", span: "" },
 ]
 
-const Gallery = () => {
+const Gallery = async ({ block }: { block?: GalleryBlock }) => {
+  const social = (await getSiteSettings()).social
+  const eyebrow = block?.eyebrow || "Communauté"
+  const title = block?.title || "L'univers Nura"
+  const subtitle =
+    block?.subtitle ||
+    "Campagnes, routines et gestes du quotidien — l'aura Nura vue par la maison et par vous."
+
   return (
     <section className="border-t border-nude bg-bg-alt">
       <div className="content-container section-y">
         <Reveal className="mb-10 flex flex-col gap-4 small:mb-14 small:flex-row small:items-end small:justify-between">
           <div className="flex flex-col gap-3">
-            <span className="eyebrow">Communauté</span>
+            <span className="eyebrow">{eyebrow}</span>
             <h2 className="font-serif text-4xl text-brown small:text-5xl">
-              L&apos;univers Nura
+              {title}
             </h2>
             <p className="max-w-md text-sm leading-relaxed text-ui-fg-subtle">
-              Campagnes, routines et gestes du quotidien — l&apos;aura Nura vue
-              par la maison et par vous.
+              {subtitle}
             </p>
           </div>
           <a
-            href={SOCIAL_LINKS.instagram}
+            href={social.instagram}
             target="_blank"
             rel="noreferrer"
             className="inline-flex h-12 items-center justify-center self-start border border-brown/30 px-8 text-[11px] uppercase tracking-[0.2em] text-brown transition-colors hover:border-brown"
@@ -40,7 +47,7 @@ const Gallery = () => {
             {tiles.map((tile) => (
               <li key={tile.src} className={tile.span}>
                 <a
-                  href={SOCIAL_LINKS.instagram}
+                  href={social.instagram}
                   target="_blank"
                   rel="noreferrer"
                   className="group relative block h-full w-full overflow-hidden"
@@ -65,7 +72,7 @@ const Gallery = () => {
 
         <div className="mt-6 flex justify-center gap-6 text-[11px] uppercase tracking-[0.2em] text-brown/70">
           <a
-            href={SOCIAL_LINKS.instagram}
+            href={social.instagram}
             target="_blank"
             rel="noreferrer"
             className="link-underline hover:text-brown"
@@ -73,7 +80,7 @@ const Gallery = () => {
             Instagram
           </a>
           <a
-            href={SOCIAL_LINKS.tiktok}
+            href={social.tiktok}
             target="_blank"
             rel="noreferrer"
             className="link-underline hover:text-brown"

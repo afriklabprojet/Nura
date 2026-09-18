@@ -1,9 +1,5 @@
-import {
-  CONTACT_EMAIL,
-  SERVICE_CLIENT_CONTACTS,
-  SOCIAL_LINKS,
-} from "@lib/constants"
 import { listCategories } from "@lib/data/categories"
+import { getSiteSettings } from "@lib/data/site-settings"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import NewsletterForm from "@modules/layout/components/newsletter-form"
@@ -30,6 +26,7 @@ const HELP_LINKS = [
 
 export default async function Footer() {
   const productCategories = await listCategories()
+  const siteSettings = await getSiteSettings()
   const topLevel = productCategories?.filter((c) => !c.parent_category) || []
 
   return (
@@ -52,7 +49,7 @@ export default async function Footer() {
             </p>
             <div className="flex gap-x-5 pt-2">
               <a
-                href={SOCIAL_LINKS.instagram}
+                href={siteSettings.social.instagram}
                 target="_blank"
                 rel="noreferrer"
                 className="text-[11px] uppercase tracking-[0.2em] text-brown/70 hover:text-gold"
@@ -60,7 +57,7 @@ export default async function Footer() {
                 Instagram
               </a>
               <a
-                href={SOCIAL_LINKS.tiktok}
+                href={siteSettings.social.tiktok}
                 target="_blank"
                 rel="noreferrer"
                 className="text-[11px] uppercase tracking-[0.2em] text-brown/70 hover:text-gold"
@@ -146,7 +143,7 @@ export default async function Footer() {
             <div className="flex flex-col gap-2 border-t border-nude pt-5">
               <span className="eyebrow">Service client</span>
               <ul className="flex flex-col gap-y-2 text-sm text-ui-fg-subtle">
-                {SERVICE_CLIENT_CONTACTS.map((contact) => (
+                {siteSettings.phones.map((contact) => (
                   <li key={contact.tel}>
                     <a href={`tel:${contact.tel}`} className="hover:text-gold">
                       {contact.label} — {contact.display}
@@ -155,15 +152,13 @@ export default async function Footer() {
                 ))}
                 <li>
                   <a
-                    href={`mailto:${CONTACT_EMAIL}`}
+                    href={`mailto:${siteSettings.email}`}
                     className="hover:text-gold"
                   >
-                    {CONTACT_EMAIL}
+                    {siteSettings.email}
                   </a>
                 </li>
-                <li className="text-xs text-ui-fg-muted">
-                  Du lundi au vendredi, 9h — 18h
-                </li>
+                <li className="text-xs text-ui-fg-muted">{siteSettings.hours}</li>
               </ul>
             </div>
           </div>

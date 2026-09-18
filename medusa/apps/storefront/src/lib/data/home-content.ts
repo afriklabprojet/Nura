@@ -31,10 +31,77 @@ export type EssentialsBlock = {
   handles?: string
 }
 
+export type EditorialPillar = { title: string; text: string }
+
+export type EditorialBlock = {
+  eyebrow?: string
+  title?: string
+  text?: string
+  cta_label?: string
+  cta_href?: string
+  image?: string
+  pillars?: EditorialPillar[]
+}
+
+export type RitualStep = { title: string; text: string; image?: string; href?: string }
+
+export type RitualBlock = {
+  eyebrow?: string
+  title?: string
+  steps?: RitualStep[]
+}
+
+export type CategoryDoor = { handle: string; title: string; description: string }
+
+export type CategoriesBlock = {
+  doors?: CategoryDoor[]
+}
+
+export type GalleryBlock = {
+  eyebrow?: string
+  title?: string
+  subtitle?: string
+}
+
+export type SitePhone = { label: string; tel: string; display: string }
+
+export type SiteSettingsBlock = {
+  email?: string
+  hours?: string
+  phones?: SitePhone[]
+  social?: { instagram?: string; tiktok?: string }
+}
+
+export type AnnouncementBlock = {
+  messages?: string[]
+}
+
+export type FaqItem = { question: string; answer: string }
+
+export type FaqBlock = {
+  items?: FaqItem[]
+}
+
+export type PageBlock = {
+  title?: string
+  content?: string
+}
+
 export type HomeBlocks = {
   hero?: HeroBlock
   campaign?: CampaignBlock
   essentials?: EssentialsBlock
+  editorial?: EditorialBlock
+  ritual?: RitualBlock
+  categories?: CategoriesBlock
+  gallery?: GalleryBlock
+  site_settings?: SiteSettingsBlock
+  announcement?: AnnouncementBlock
+  faq?: FaqBlock
+  page_a_propos?: PageBlock
+  page_contact?: PageBlock
+  page_livraison_retours?: PageBlock
+  page_politique_cookies?: PageBlock
 }
 
 export type HomeContent = {
@@ -44,8 +111,10 @@ export type HomeContent = {
 }
 
 /**
- * What the admin has configured for the home page. Absent or switched-off
- * blocks come back empty and each section falls back to its own defaults.
+ * What the admin has configured across the site — home page sections, the
+ * static pages, the FAQ, and shared settings like contact details. Absent or
+ * switched-off blocks come back empty and each consumer falls back to its
+ * own defaults, so an unconfigured block never breaks a page.
  *
  * The cache is dropped by the backend the moment an editor saves (see the
  * content-revalidate subscriber); the hour-long window is only a safety net

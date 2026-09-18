@@ -4,6 +4,7 @@ import { listCategories } from "@lib/data/categories"
 import { listLocales } from "@lib/data/locales"
 import { getLocale } from "@lib/data/locale-actions"
 import { listRegions } from "@lib/data/regions"
+import { getSiteSettings } from "@lib/data/site-settings"
 import { StoreRegion } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import User from "@modules/common/icons/user"
@@ -15,12 +16,16 @@ import SearchBar from "@modules/layout/components/search-bar"
 import SideMenu from "@modules/layout/components/side-menu"
 
 export default async function Nav() {
-  const [regions, locales, currentLocale, categories] = await Promise.all([
-    listRegions().then((regions: StoreRegion[]) => regions),
-    listLocales(),
-    getLocale(),
-    listCategories({ fields: "id,name,handle,parent_category,category_children" }),
-  ])
+  const [regions, locales, currentLocale, categories, siteSettings] =
+    await Promise.all([
+      listRegions().then((regions: StoreRegion[]) => regions),
+      listLocales(),
+      getLocale(),
+      listCategories({
+        fields: "id,name,handle,parent_category,category_children",
+      }),
+      getSiteSettings(),
+    ])
 
   const menuCategories: MenuCategory[] = categories
     .filter((category) => !category.parent_category)
@@ -46,6 +51,7 @@ export default async function Nav() {
                 locales={locales}
                 currentLocale={currentLocale}
                 categories={menuCategories}
+                siteSettings={siteSettings}
               />
             </div>
             <DesktopMenu categories={menuCategories} />

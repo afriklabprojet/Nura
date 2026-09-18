@@ -2,33 +2,42 @@
 
 import { useEffect, useState } from "react"
 
-const messages = [
+const DEFAULT_MESSAGES = [
   "Livraison en France et en Côte d'Ivoire",
   "Paiement sécurisé",
   "Retours sous 14 jours",
   "Votre aura commence ici",
 ]
 
-const AnnouncementBar = () => {
+const AnnouncementBar = ({ messages }: { messages?: string[] }) => {
+  const items = messages?.length ? messages : DEFAULT_MESSAGES
   const [index, setIndex] = useState(0)
+  const [paused, setPaused] = useState(false)
 
   useEffect(() => {
-    const id = setInterval(
-      () => setIndex((i) => (i + 1) % messages.length),
-      4500
-    )
+    if (items.length < 2 || paused) {
+      return
+    }
+
+    const id = setInterval(() => setIndex((i) => (i + 1) % items.length), 4500)
     return () => clearInterval(id)
-  }, [])
+  }, [items.length, paused])
 
   return (
-    <div className="relative z-20 w-full bg-brown text-bg-alt">
+    <div
+      className="relative z-20 w-full bg-brown text-bg-alt"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+    >
       <div className="content-container flex h-9 items-center justify-center overflow-hidden">
         <p
           key={index}
           className="animate-fade-in-top text-center text-[10px] uppercase tracking-[0.3em] small:text-[11px]"
-          aria-live="polite"
+          aria-live="off"
         >
-          {messages[index]}
+          {items[index % items.length]}
         </p>
       </div>
     </div>

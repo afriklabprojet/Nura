@@ -1,13 +1,14 @@
 import { findCategoryImage, getCategoryImage } from "@lib/constants"
+import { CategoriesBlock } from "@lib/data/home-content"
 import { listProducts } from "@lib/data/products"
 import { HttpTypes } from "@medusajs/types"
 import Image from "next/image"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Reveal from "@modules/common/components/reveal"
 
-// The brief's three doors into the shop. Anything else the catalogue holds
-// stays reachable from the navigation and the store page.
-const DOORS = [
+// The two doors into the shop, editable from the admin. Anything else the
+// catalogue holds stays reachable from the navigation and the store page.
+const DEFAULT_DOORS = [
   {
     handle: "parfums",
     title: "Parfums",
@@ -31,12 +32,16 @@ type Tile = {
 const CategoriesSection = async ({
   categories,
   region,
+  block,
 }: {
   categories: HttpTypes.StoreProductCategory[]
   region: HttpTypes.StoreRegion
+  block?: CategoriesBlock
 }) => {
+  const doors = block?.doors?.length ? block.doors : DEFAULT_DOORS
+
   const categoryTiles: Tile[] = await Promise.all(
-    DOORS.map(async (door) => {
+    doors.map(async (door) => {
       const category = categories.find((c) => c.handle === door.handle)
 
       let packshot: string | undefined

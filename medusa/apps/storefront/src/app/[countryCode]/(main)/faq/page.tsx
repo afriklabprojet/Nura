@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import { CONTACT_EMAIL, SERVICE_CLIENT_CONTACTS } from "@lib/constants"
+import { getHomeContent } from "@lib/data/home-content"
 
 export const metadata: Metadata = {
   title: "FAQ",
@@ -7,11 +7,7 @@ export const metadata: Metadata = {
     "Questions fréquentes — livraison, retours, paiement et suivi de commande Nura.",
 }
 
-const serviceClient = SERVICE_CLIENT_CONTACTS.map(
-  (contact) => `${contact.label} (${contact.display})`
-).join(" et ")
-
-const faqItems = [
+const DEFAULT_ITEMS = [
   {
     question: "Quels sont les délais et zones de livraison ?",
     answer:
@@ -39,11 +35,15 @@ const faqItems = [
   },
   {
     question: "Comment vous contacter ?",
-    answer: `Vous pouvez nous écrire via le formulaire de contact, par email à ${CONTACT_EMAIL}, ou joindre notre service client ${serviceClient}, du lundi au vendredi.`,
+    answer:
+      "Vous pouvez nous écrire via le formulaire de contact, par email à contact@nura-paris.com, ou joindre notre service client France (+33 7 45 06 48 87) et Abidjan (+225 05 05 79 88 82), du lundi au vendredi.",
   },
 ]
 
-export default function FaqPage() {
+export default async function FaqPage() {
+  const { blocks } = await getHomeContent()
+  const items = blocks.faq?.items?.length ? blocks.faq.items : DEFAULT_ITEMS
+
   return (
     <div className="content-container py-16 small:py-24">
       <div className="max-w-2xl mx-auto flex flex-col items-center text-center gap-y-4 mb-14">
@@ -56,7 +56,7 @@ export default function FaqPage() {
       </div>
 
       <div className="max-w-2xl mx-auto flex flex-col gap-y-10">
-        {faqItems.map((item) => (
+        {items.map((item) => (
           <section key={item.question}>
             <h2 className="font-serif text-xl small:text-2xl text-brown mb-3">
               {item.question}

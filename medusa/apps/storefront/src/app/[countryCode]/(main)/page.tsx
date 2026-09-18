@@ -44,13 +44,19 @@ export default async function Home(props: {
           hidden={hidden.includes("essentials")}
         />
       )}
-      <Editorial />
-      {region && <CategoriesSection categories={categories} region={region} />}
+      <Editorial block={blocks.editorial} />
+      {region && (
+        <CategoriesSection
+          categories={categories}
+          region={region}
+          block={blocks.categories}
+        />
+      )}
       {region && <BestSellers region={region} />}
-      <RitualBand />
+      <RitualBand block={blocks.ritual} />
       <Campaign block={blocks.campaign} hidden={hidden.includes("campaign")} />
       <HomeReviews />
-      <Gallery />
+      <Gallery block={blocks.gallery} />
     </>
   )
 }

@@ -2,6 +2,7 @@ import { Metadata } from "next"
 
 import { listCartOptions, retrieveCart } from "@lib/data/cart"
 import { retrieveCustomer } from "@lib/data/customer"
+import { getHomeContent } from "@lib/data/home-content"
 import { getBaseURL } from "@lib/util/env"
 import { StoreCartShippingOption } from "@medusajs/types"
 import AnnouncementBar from "@modules/layout/components/announcement-bar"
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 export default async function PageLayout(props: { children: React.ReactNode }) {
   const customer = await retrieveCustomer()
   const cart = await retrieveCart()
+  const { blocks } = await getHomeContent()
   let shippingOptions: StoreCartShippingOption[] = []
 
   if (cart) {
@@ -28,7 +30,7 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
 
   return (
     <>
-      <AnnouncementBar />
+      <AnnouncementBar messages={blocks.announcement?.messages} />
       <Nav />
       {customer && cart && (
         <CartMismatchBanner customer={customer} cart={cart} />
@@ -41,7 +43,7 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
           shippingOptions={shippingOptions}
         />
       )}
-      {props.children}
+      <main id="main-content">{props.children}</main>
       <NewsletterBand />
       <Footer />
     </>

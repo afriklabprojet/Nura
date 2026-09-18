@@ -2,10 +2,12 @@ import ItemsPreviewTemplate from "@modules/cart/templates/preview"
 import DiscountCode from "@modules/checkout/components/discount-code"
 import CartTotals from "@modules/common/components/cart-totals"
 import Divider from "@modules/common/components/divider"
-import { SERVICE_CLIENT_CONTACTS } from "@lib/constants"
+import { getSiteSettings } from "@lib/data/site-settings"
 import { HttpTypes } from "@medusajs/types"
 
-const CheckoutSummary = ({ cart }: { cart: HttpTypes.StoreCart }) => {
+const CheckoutSummary = async ({ cart }: { cart: HttpTypes.StoreCart }) => {
+  const siteSettings = await getSiteSettings()
+
   return (
     <div className="flex flex-col gap-4 small:sticky small:top-8 small:self-start">
       <div className="flex w-full flex-col border border-nude bg-bg-alt p-6">
@@ -21,7 +23,7 @@ const CheckoutSummary = ({ cart }: { cart: HttpTypes.StoreCart }) => {
 
       <p className="px-1 text-xs leading-relaxed text-ui-fg-muted">
         Une question sur votre commande ?{" "}
-        {SERVICE_CLIENT_CONTACTS.map((contact, index) => (
+        {siteSettings.phones.map((contact, index) => (
           <span key={contact.tel}>
             {index > 0 && " · "}
             <a href={`tel:${contact.tel}`} className="text-gold hover:text-brown">

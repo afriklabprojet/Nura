@@ -1,6 +1,6 @@
 import React from "react"
 
-import { SERVICE_CLIENT_CONTACTS } from "@lib/constants"
+import { getSiteSettings } from "@lib/data/site-settings"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 import AccountNav from "../components/account-nav"
@@ -11,10 +11,9 @@ interface AccountLayoutProps {
   children: React.ReactNode
 }
 
-const AccountLayout: React.FC<AccountLayoutProps> = ({
-  customer,
-  children,
-}) => {
+const AccountLayout = async ({ customer, children }: AccountLayoutProps) => {
+  const siteSettings = await getSiteSettings()
+
   return (
     <div className="content-container py-10 small:py-16" data-testid="account-page">
       {customer && (
@@ -38,7 +37,7 @@ const AccountLayout: React.FC<AccountLayoutProps> = ({
             Notre équipe vous répond sous 24 à 48 h.
           </p>
           <div className="flex flex-wrap gap-x-4 text-sm">
-            {SERVICE_CLIENT_CONTACTS.map((contact) => (
+            {siteSettings.phones.map((contact) => (
               <a
                 key={contact.tel}
                 href={`tel:${contact.tel}`}

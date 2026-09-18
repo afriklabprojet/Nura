@@ -210,7 +210,7 @@ const JournalPage = () => {
             <Input
               value={draft.title}
               onChange={(event) => set("title", event.target.value)}
-              placeholder="Comment choisir son parfum"
+              placeholder="Ex. : Les bienfaits de l'huile d'argan"
             />
           </div>
           <div className="flex flex-col gap-y-2">
@@ -220,7 +220,7 @@ const JournalPage = () => {
             <Input
               value={draft.handle}
               onChange={(event) => set("handle", event.target.value)}
-              placeholder="comment-choisir-son-parfum"
+              placeholder="les-bienfaits-de-l-huile-d-argan"
             />
           </div>
         </div>

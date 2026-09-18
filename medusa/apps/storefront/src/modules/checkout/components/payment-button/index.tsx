@@ -1,11 +1,11 @@
 "use client"
 
-import { isManual, isStripeLike } from "@lib/constants"
-import { placeOrder } from "@lib/data/cart"
+import { isJeko, isManual, isStripeLike } from "@lib/constants"
+import { initiatePaymentSession, placeOrder } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import { Button } from "@modules/common/components/ui"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import React, { useState } from "react"
 import ErrorMessage from "../error-message"
 
@@ -18,6 +18,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
   cart,
   "data-testid": dataTestId,
 }) => {
+  const searchParams = useSearchParams()
   const notReady =
     !cart ||
     !cart.shipping_address ||
@@ -25,10 +26,14 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
     !cart.email ||
     (cart.shipping_methods?.length ?? 0) < 1
 
-  const paymentSession = cart.payment_collection?.payment_sessions?.[0]
+  const paymentSession = cart.payment_collection?.payment_sessions?.find(
+    (session) => session.status === "pending"
+  )
+  const selectedProvider =
+    searchParams.get("payment_provider") ?? paymentSession?.provider_id ?? ""
 
   switch (true) {
-    case isStripeLike(paymentSession?.provider_id):
+    case isStripeLike(selectedProvider):
       return (
         <StripePaymentButton
           notReady={notReady}
@@ -36,13 +41,86 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           data-testid={dataTestId}
         />
       )
-    case isManual(paymentSession?.provider_id):
+    case isManual(selectedProvider):
       return (
         <ManualTestPaymentButton notReady={notReady} data-testid={dataTestId} />
+      )
+    case isJeko(selectedProvider):
+      return (
+        <JekoPaymentButton
+          cart={cart}
+          providerId={selectedProvider}
+          wallet={searchParams.get("wallet") ?? ""}
+          notReady={notReady}
+          data-testid={dataTestId}
+        />
       )
     default:
       return <Button disabled>Sélectionnez un mode de paiement</Button>
   }
+}
+
+const JekoPaymentButton = ({
+  cart,
+  providerId,
+  wallet,
+  notReady,
+  "data-testid": dataTestId,
+}: {
+  cart: HttpTypes.StoreCart
+  providerId: string
+  wallet: string
+  notReady: boolean
+  "data-testid"?: string
+}) => {
+  const [submitting, setSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const handlePayment = async () => {
+    setSubmitting(true)
+    setErrorMessage(null)
+
+    try {
+      const { payment_collection } = await initiatePaymentSession(cart, {
+        provider_id: providerId,
+        data: {
+          paymentMethod: wallet,
+          cart_id: cart.id,
+          country_code: cart.shipping_address?.country_code,
+        },
+      })
+      const session = payment_collection?.payment_sessions?.find(
+        (item) => item.provider_id === providerId
+      )
+      const redirectUrl = session?.data?.redirectUrl as string | undefined
+
+      if (!redirectUrl) {
+        throw new Error(
+          "Impossible d'initier le paiement Jèko. Réessayez ou choisissez un autre moyen de paiement."
+        )
+      }
+
+      window.location.assign(redirectUrl)
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : String(error))
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <>
+      <Button
+        disabled={notReady || !wallet}
+        onClick={handlePayment}
+        size="large"
+        isLoading={submitting}
+        data-testid={dataTestId}
+      >
+        Commander et payer avec Jèko
+      </Button>
+      <ErrorMessage error={errorMessage} data-testid="jeko-payment-error-message" />
+    </>
+  )
 }
 
 const StripePaymentButton = ({

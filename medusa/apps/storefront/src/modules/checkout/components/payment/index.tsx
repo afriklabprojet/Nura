@@ -37,6 +37,9 @@ const Payment = ({
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
     activeSession?.provider_id ?? ""
   )
+  const [selectedJekoWallet, setSelectedJekoWallet] = useState(
+    (activeSession?.data?.paymentMethod as string | undefined) ?? ""
+  )
 
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -80,6 +83,19 @@ const Payment = ({
   const handleSubmit = async () => {
     setIsLoading(true)
     try {
+      if (isJeko(selectedPaymentMethod)) {
+        if (!selectedJekoWallet) {
+          setError("Choisissez un portefeuille mobile pour continuer.")
+          return
+        }
+
+        const params = new URLSearchParams(searchParams)
+        params.set("step", "review")
+        params.set("payment_provider", selectedPaymentMethod)
+        params.set("wallet", selectedJekoWallet)
+        return router.push(`${pathname}?${params}`, { scroll: false })
+      }
+
       const shouldInputPaymentDetails =
         isStripeLike(selectedPaymentMethod) && !activeSession
 
@@ -162,8 +178,11 @@ const Payment = ({
                         paymentProviderId={paymentMethod.id}
                         selectedPaymentOptionId={selectedPaymentMethod}
                         paymentInfoMap={paymentInfoMap}
-                        cart={cart}
-                        setError={setError}
+                        selectedWallet={selectedJekoWallet}
+                        setSelectedWallet={(wallet) => {
+                          setError(null)
+                          setSelectedJekoWallet(wallet)
+                        }}
                       />
                     ) : (
                       <PaymentContainer
@@ -197,25 +216,22 @@ const Payment = ({
             data-testid="payment-method-error-message"
           />
 
-          {/* Jèko has no separate "continue" step — choosing a wallet above
-              immediately redirects the customer to complete the payment. */}
-          {!isJeko(selectedPaymentMethod) && (
-            <Button
-              size="large"
-              className="mt-6"
-              onClick={handleSubmit}
-              isLoading={isLoading}
-              disabled={
-                (isStripeLike(selectedPaymentMethod) && !paymentComplete) ||
-                (!selectedPaymentMethod && !paidByGiftcard)
-              }
-              data-testid="submit-payment-button"
-            >
-              {!activeSession && isStripeLike(selectedPaymentMethod)
-                ? "Saisir les détails de paiement"
-                : "Continuer vers la récapitulation"}
-            </Button>
-          )}
+          <Button
+            size="large"
+            className="mt-6"
+            onClick={handleSubmit}
+            isLoading={isLoading}
+            disabled={
+              (isStripeLike(selectedPaymentMethod) && !paymentComplete) ||
+              (isJeko(selectedPaymentMethod) && !selectedJekoWallet) ||
+              (!selectedPaymentMethod && !paidByGiftcard)
+            }
+            data-testid="submit-payment-button"
+          >
+            {!activeSession && isStripeLike(selectedPaymentMethod)
+              ? "Saisir les détails de paiement"
+              : "Continuer vers la récapitulation"}
+          </Button>
         </div>
 
         <div className={isOpen ? "hidden" : "block"}>

@@ -7,12 +7,16 @@ import CheckoutSummary from "@modules/checkout/templates/checkout-summary"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
+import PaymentError from "@modules/common/components/payment-error"
 
 export const metadata: Metadata = {
   title: "Commande",
 }
 
-export default async function Checkout() {
+export default async function Checkout(props: {
+  searchParams: Promise<{ error?: string }>
+}) {
+  const { error } = await props.searchParams
   const cart = await retrieveCart()
 
   if (!cart) {
@@ -24,6 +28,7 @@ export default async function Checkout() {
   return (
     <div className="content-container grid grid-cols-1 gap-x-10 gap-y-10 py-10 small:grid-cols-[1fr_400px] medium:gap-x-20 small:py-14">
       <div>
+        <PaymentError code={error} />
         <Suspense fallback={null}>
           <CheckoutSteps />
         </Suspense>

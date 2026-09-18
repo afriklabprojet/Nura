@@ -3,6 +3,7 @@
 import { sdk } from "@lib/config"
 import { getAuthHeaders, getCacheOptions } from "./cookies"
 import { HttpTypes } from "@medusajs/types"
+import { isManual } from "@lib/constants"
 
 export const listCartPaymentMethods = async (regionId: string) => {
   const headers = {
@@ -25,9 +26,14 @@ export const listCartPaymentMethods = async (regionId: string) => {
       }
     )
     .then(({ payment_providers }) =>
-      payment_providers.sort((a, b) => {
-        return a.id > b.id ? 1 : -1
-      })
+      payment_providers
+        .filter(
+          (provider) =>
+            process.env.NODE_ENV !== "production" || !isManual(provider.id)
+        )
+        .sort((a, b) => {
+          return a.id > b.id ? 1 : -1
+        })
     )
     .catch(() => {
       return null

@@ -51,6 +51,8 @@ type JekoPaymentRequestResponse = {
   reference: string
   type: string
   paymentMethod: string
+  amountCents?: number
+  currency?: string
   status: "pending" | "success" | "error"
   redirectUrl?: string
   errorReason?: string | null
@@ -62,6 +64,9 @@ type JekoSessionData = {
   paymentMethod: JekoPaymentMethod
   redirectUrl?: string
   jekoStatus?: string
+  amountCents: number
+  currency: string
+  storeId: string
 }
 
 // Jèko's own hosted checkout confirms mobile money payments (Wave, Orange
@@ -135,6 +140,31 @@ class JekoPaymentProviderService extends AbstractPaymentProvider<Options> {
     )
   }
 
+  private validatePaymentRequest(
+    response: JekoPaymentRequestResponse,
+    expected: JekoSessionData
+  ) {
+    const mismatches = [
+      response.id !== expected.paymentRequestId && "payment request",
+      response.reference !== expected.reference && "reference",
+      response.storeId !== expected.storeId && "store",
+      response.paymentMethod !== expected.paymentMethod && "payment method",
+      response.amountCents !== undefined &&
+        response.amountCents !== expected.amountCents &&
+        "amount",
+      response.currency !== undefined &&
+        response.currency.toUpperCase() !== expected.currency &&
+        "currency",
+    ].filter(Boolean)
+
+    if (mismatches.length) {
+      throw new MedusaError(
+        MedusaError.Types.UNEXPECTED_STATE,
+        `Jèko returned inconsistent ${mismatches.join(", ")} data.`
+      )
+    }
+  }
+
   // Called once the customer has picked a mobile money wallet in the
   // storefront's Jèko payment step — see the `data.paymentMethod` it sends.
   // Until then, the storefront simply doesn't call this (no Jèko API call
@@ -145,6 +175,7 @@ class JekoPaymentProviderService extends AbstractPaymentProvider<Options> {
     const { amount, currency_code, data } = input
     const sessionId = data?.session_id as string | undefined
     const paymentMethod = data?.paymentMethod as JekoPaymentMethod | undefined
+    const cartId = data?.cart_id as string | undefined
 
     if (!sessionId) {
       throw new MedusaError(
@@ -160,12 +191,40 @@ class JekoPaymentProviderService extends AbstractPaymentProvider<Options> {
       )
     }
 
-    const successUrl =
-      (data?.successUrl as string | undefined) ??
-      `${process.env.STOREFRONT_URL}/api/payment-return/jeko?outcome=success&cart_id=${data?.cart_id ?? ""}`
-    const errorUrl =
-      (data?.errorUrl as string | undefined) ??
-      `${process.env.STOREFRONT_URL}/api/payment-return/jeko?outcome=error&cart_id=${data?.cart_id ?? ""}`
+    if (!cartId) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "Missing cart_id for Jèko payment."
+      )
+    }
+
+    const countryCode = data?.country_code as string | undefined
+    const storefrontUrl = process.env.STOREFRONT_URL
+    if (!storefrontUrl && process.env.NODE_ENV === "production") {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "STOREFRONT_URL is required for Jèko payments in production."
+      )
+    }
+
+    const createReturnUrl = (outcome: "success" | "error") => {
+      const url = new URL(
+        "/api/payment-return/jeko",
+        storefrontUrl || "http://localhost:8000"
+      )
+      url.searchParams.set("outcome", outcome)
+      url.searchParams.set("cart_id", cartId)
+      url.searchParams.set("session_id", sessionId)
+
+      if (countryCode && /^[a-z]{2}$/i.test(countryCode)) {
+        url.searchParams.set("country_code", countryCode.toLowerCase())
+      }
+
+      return url.toString()
+    }
+
+    const successUrl = createReturnUrl("success")
+    const errorUrl = createReturnUrl("error")
 
     // NOTE: Jèko's `amountCents` field is a multiple of 100 even for XOF (a
     // currency with no minor unit in everyday use) — confirmed against their
@@ -194,12 +253,26 @@ class JekoPaymentProviderService extends AbstractPaymentProvider<Options> {
       }
     )
 
+    if (
+      response.reference !== sessionId ||
+      response.storeId !== this.options_.store_id ||
+      response.paymentMethod !== paymentMethod
+    ) {
+      throw new MedusaError(
+        MedusaError.Types.UNEXPECTED_STATE,
+        "Jèko returned payment data that does not match the request."
+      )
+    }
+
     const sessionData: JekoSessionData = {
       paymentRequestId: response.id,
       reference: sessionId,
       paymentMethod,
       redirectUrl: response.redirectUrl,
       jekoStatus: response.status,
+      amountCents,
+      currency: currency_code.toUpperCase(),
+      storeId: this.options_.store_id,
     }
 
     return {
@@ -209,25 +282,24 @@ class JekoPaymentProviderService extends AbstractPaymentProvider<Options> {
     }
   }
 
-  // Mobile money confirmation happens off-site (the customer approves the
-  // debit on their phone) — this can't be authorized synchronously here, so
-  // we return `pending_authorization`. The cart can still complete with the
-  // order "awaiting" payment; the webhook (or a later status check) marks it
-  // captured once Jèko confirms. See Medusa's async/deferred payment docs.
+  // Mobile money confirmation happens off-site. A pending request needs more
+  // customer action and must not create an unpaid order. Once Jèko confirms
+  // success, the return flow or webhook authorizes and captures the payment.
   async authorizePayment(
     input: AuthorizePaymentInput
   ): Promise<AuthorizePaymentOutput> {
     const data = input.data as unknown as JekoSessionData
 
     if (!data?.paymentRequestId) {
-      return { status: "pending_authorization", data: input.data }
+      return { status: "requires_more", data: input.data }
     }
 
     const response = await this.getPaymentRequest(data.paymentRequestId)
+    this.validatePaymentRequest(response, data)
     const status = mapJekoStatus(response.status)
 
     return {
-      status: status === "pending" ? "pending_authorization" : status,
+      status: status === "pending" ? "requires_more" : status,
       data: { ...data, jekoStatus: response.status } as unknown as Record<
         string,
         unknown
@@ -254,8 +326,16 @@ class JekoPaymentProviderService extends AbstractPaymentProvider<Options> {
   }
 
   async updatePayment(input: UpdatePaymentInput): Promise<UpdatePaymentOutput> {
-    // Jèko doesn't support amending an existing payment request's amount —
-    // nothing to forward.
+    const data = input.data as unknown as JekoSessionData
+    const amountCents = Math.round(Number(input.amount) * 100)
+
+    if (!data?.amountCents || amountCents !== data.amountCents) {
+      throw new MedusaError(
+        MedusaError.Types.NOT_ALLOWED,
+        "A Jèko payment amount cannot be changed after initiation. Create a new payment session."
+      )
+    }
+
     return { data: input.data }
   }
 
@@ -269,6 +349,7 @@ class JekoPaymentProviderService extends AbstractPaymentProvider<Options> {
     }
 
     const response = await this.getPaymentRequest(data.paymentRequestId)
+    this.validatePaymentRequest(response, data)
 
     return {
       status: mapJekoStatus(response.status),

@@ -1,5 +1,10 @@
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import ChevronDown from "@modules/common/icons/chevron-down"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+}
 
 export default function CheckoutLayout({
   children,

@@ -1,21 +1,33 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 import type { CreatePromotionDTO } from "@medusajs/framework/types"
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import {
+  ContainerRegistrationKeys,
+  MedusaError,
+  Modules,
+} from "@medusajs/framework/utils"
 import { sendEmailNotificationWorkflow } from "../workflows/send-email-notification"
 import { renderEmailLayout, getStorefrontUrl } from "../lib/email-templates"
 import { formatMoney } from "../lib/format-money"
-import { generatePromoCode } from "../lib/generate-promo-code"
+import { generateIdempotentPromoCode } from "../lib/generate-promo-code"
 
 type OrderPlacedEvent = {
   id: string
 }
 
-// Placeholder "give 10, get 10" reward amount — review and adjust to your
-// actual referral economics before launch. Kept currency-aware the same
-// way seed-nura.ts's XOF prices are, at the same rough peg.
 const REWARD_AMOUNT: Record<string, number> = {
-  eur: 10,
-  xof: 6500,
+  eur: Number(process.env.REFERRAL_REWARD_EUR || 10),
+  xof: Number(process.env.REFERRAL_REWARD_XOF || 6500),
+}
+
+if (
+  Object.values(REWARD_AMOUNT).some(
+    (amount) => !Number.isSafeInteger(amount) || amount <= 0
+  )
+) {
+  throw new MedusaError(
+    MedusaError.Types.INVALID_DATA,
+    "Referral reward amounts must be positive integers"
+  )
 }
 
 export default async function referralRewardHandler({
@@ -30,11 +42,25 @@ export default async function referralRewardHandler({
     data: [order],
   } = await query.graph({
     entity: "order",
-    fields: ["id", "display_id", "customer_id", "email", "currency_code"],
+    fields: [
+      "id",
+      "display_id",
+      "customer_id",
+      "email",
+      "currency_code",
+      "total",
+      "payment_collections.status",
+    ],
     filters: { id: data.id },
   })
 
-  if (!order?.customer_id) {
+  if (
+    !order?.customer_id ||
+    !order.payment_collections?.length ||
+    order.payment_collections.some(
+      (collection) => !collection || collection.status !== "completed"
+    )
+  ) {
     return
   }
 
@@ -68,10 +94,21 @@ export default async function referralRewardHandler({
     return
   }
 
+  if (referrer.id === customer.id) {
+    await customerModuleService.updateCustomers(customer.id, {
+      metadata: { ...metadata, referral_reward_issued: true },
+    })
+    return
+  }
+
   const rewardAmount = REWARD_AMOUNT[order.currency_code] ?? REWARD_AMOUNT.eur
 
-  const refereeCode = generatePromoCode()
-  const referrerCode = generatePromoCode()
+  if ((order.total || 0) < rewardAmount) {
+    return
+  }
+
+  const refereeCode = generateIdempotentPromoCode("referee", customer.id)
+  const referrerCode = generateIdempotentPromoCode("referrer", customer.id)
 
   const promotionsToCreate: CreatePromotionDTO[] = [refereeCode, referrerCode].map(
     (code) => ({
@@ -89,7 +126,14 @@ export default async function referralRewardHandler({
     })
   )
 
-  await promotionModuleService.createPromotions(promotionsToCreate)
+  const existingPromotions = await promotionModuleService.listPromotions({
+    code: [refereeCode, referrerCode],
+  })
+  const existingCodeSet = new Set(existingPromotions.map(({ code }) => code))
+
+  await promotionModuleService.createPromotions(
+    promotionsToCreate.filter(({ code }) => !existingCodeSet.has(code))
+  )
 
   await customerModuleService.updateCustomers(customer.id, {
     metadata: { ...metadata, referral_reward_issued: true },

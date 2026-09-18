@@ -1,3 +1,6 @@
+import { createOrderAccessToken } from "./order-access-token"
+import { MedusaError } from "@medusajs/framework/utils"
+
 // Shared HTML wrapper for all transactional emails sent via the
 // resend-notification provider, so order confirmations, password resets and
 // email verification messages all look like the same brand. Styles are
@@ -29,5 +32,21 @@ export function renderButton(href: string, label: string) {
 }
 
 export function getStorefrontUrl() {
-  return process.env.STOREFRONT_URL || "http://localhost:8000"
+  if (process.env.STOREFRONT_URL) {
+    return process.env.STOREFRONT_URL.replace(/\/$/, "")
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      "STOREFRONT_URL is required in production"
+    )
+  }
+
+  return "http://localhost:8000"
+}
+
+export function getOrderAccessUrl(orderId: string) {
+  const token = createOrderAccessToken(orderId)
+  return `${getStorefrontUrl()}/order/${encodeURIComponent(orderId)}/access/${encodeURIComponent(token)}`
 }

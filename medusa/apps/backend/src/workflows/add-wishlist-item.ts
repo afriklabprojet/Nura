@@ -4,6 +4,7 @@ import {
   StepResponse,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
+import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
 import { WISHLIST_MODULE } from "../modules/wishlist"
 import type WishlistModuleService from "../modules/wishlist/service"
 
@@ -17,6 +18,18 @@ const addWishlistItemStep = createStep(
   async (input: AddWishlistItemInput, { container }) => {
     const wishlistModuleService: WishlistModuleService =
       container.resolve(WISHLIST_MODULE)
+    const query = container.resolve(ContainerRegistrationKeys.QUERY)
+    const {
+      data: [product],
+    } = await query.graph({
+      entity: "product",
+      fields: ["id"],
+      filters: { id: input.product_id },
+    })
+
+    if (!product) {
+      throw new MedusaError(MedusaError.Types.NOT_FOUND, "Produit introuvable.")
+    }
 
     const existing = await wishlistModuleService.listWishlistItems({
       customer_id: input.customer_id,

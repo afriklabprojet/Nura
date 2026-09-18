@@ -18,6 +18,11 @@ type Options = {
   from: string
 }
 
+const MAX_SEND_ATTEMPTS = 3
+
+const wait = (milliseconds: number) =>
+  new Promise((resolve) => setTimeout(resolve, milliseconds))
+
 class ResendNotificationService extends AbstractNotificationProviderService {
   static identifier = "resend-notification"
 
@@ -61,24 +66,47 @@ class ResendNotificationService extends AbstractNotificationProviderService {
 
     const content =
       "content" in notification ? notification.content : undefined
+    const idempotencyKey = (
+      notification as ProviderSendNotificationDTO & {
+        idempotency_key?: string | null
+      }
+    ).idempotency_key
 
-    const { data, error } = await this.client_.emails.send({
-      from,
-      to: notification.to,
-      subject: content?.subject ?? "Nura",
-      html: content?.html ?? "",
-    })
-
-    if (error) {
-      throw new MedusaError(
-        MedusaError.Types.UNEXPECTED_STATE,
-        `Failed to send email via Resend: ${error.message}`
+    for (let attempt = 1; attempt <= MAX_SEND_ATTEMPTS; attempt++) {
+      const { data, error } = await this.client_.emails.send(
+        {
+          from,
+          to: notification.to,
+          subject: content?.subject ?? "Nura",
+          html: content?.html ?? "",
+        },
+        { idempotencyKey: idempotencyKey || undefined }
       )
+
+      if (!error) {
+        this.logger_.info(`Sent email via Resend (id: ${data?.id})`)
+
+        return { id: data?.id }
+      }
+
+      const retryable = error.statusCode === 429 || (error.statusCode || 0) >= 500
+      if (!retryable || attempt === MAX_SEND_ATTEMPTS) {
+        throw new MedusaError(
+          MedusaError.Types.UNEXPECTED_STATE,
+          `Failed to send email via Resend: ${error.message}`
+        )
+      }
+
+      this.logger_.warn(
+        `Temporary Resend failure (${error.statusCode}); retrying attempt ${attempt + 1}/${MAX_SEND_ATTEMPTS}`
+      )
+      await wait(attempt * 250)
     }
 
-    this.logger_.info(`Sent email via Resend (id: ${data?.id})`)
-
-    return { id: data?.id }
+    throw new MedusaError(
+      MedusaError.Types.UNEXPECTED_STATE,
+      "Failed to send email via Resend"
+    )
   }
 }
 

@@ -1,5 +1,6 @@
 import {
   getStorefrontUrl,
+  getOrderAccessUrl,
   renderButton,
   renderEmailLayout,
 } from "../email-templates"
@@ -30,6 +31,16 @@ describe("email-templates", () => {
   describe("getStorefrontUrl", () => {
     it("falls back to localhost:8000 when STOREFRONT_URL is unset", () => {
       expect(getStorefrontUrl()).toBe("http://localhost:8000")
+    })
+  })
+
+  describe("getOrderAccessUrl", () => {
+    it("creates a signed cross-device order link", () => {
+      process.env.ORDER_ACCESS_SECRET = "unit-test-secret"
+
+      expect(getOrderAccessUrl("order_1")).toMatch(
+        /^http:\/\/localhost:8000\/order\/order_1\/access\/\d+\.[a-f0-9]{64}$/
+      )
     })
   })
 })

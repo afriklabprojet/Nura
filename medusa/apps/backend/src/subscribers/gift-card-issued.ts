@@ -4,7 +4,7 @@ import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { sendEmailNotificationWorkflow } from "../workflows/send-email-notification"
 import { renderEmailLayout, getStorefrontUrl } from "../lib/email-templates"
 import { formatMoney } from "../lib/format-money"
-import { generatePromoCode as generateGiftCardCode } from "../lib/generate-promo-code"
+import { generateIdempotentPromoCode } from "../lib/generate-promo-code"
 
 type OrderPlacedEvent = {
   id: string
@@ -25,6 +25,9 @@ export default async function giftCardIssuedHandler({
       "display_id",
       "email",
       "currency_code",
+      "metadata",
+      "payment_collections.status",
+      "items.id",
       "items.quantity",
       "items.unit_price",
       "items.title",
@@ -33,9 +36,20 @@ export default async function giftCardIssuedHandler({
     filters: { id: data.id },
   })
 
-  if (!order?.email) {
+  if (
+    !order?.email ||
+    !order.payment_collections?.length ||
+    order.payment_collections.some(
+      (collection) => !collection || collection.status !== "completed"
+    )
+  ) {
     return
   }
+
+  const metadata = (order.metadata || {}) as Record<string, unknown>
+  const existingCodes = metadata.gift_card_codes as
+    | { code: string; amount: number }[]
+    | undefined
 
   const giftCardItems = (order.items || []).filter(
     (item) => item?.product?.is_giftcard
@@ -47,15 +61,18 @@ export default async function giftCardIssuedHandler({
 
   const promotionModuleService = container.resolve(Modules.PROMOTION)
 
-  const codes: { code: string; amount: number }[] = []
+  const codes: { code: string; amount: number }[] = existingCodes || []
   const promotionsToCreate: CreatePromotionDTO[] = []
 
-  for (const item of giftCardItems) {
+  if (!existingCodes) for (const item of giftCardItems) {
     const quantity = item!.quantity || 1
     const amount = item!.unit_price || 0
 
     for (let i = 0; i < quantity; i++) {
-      const code = generateGiftCardCode()
+      const code = generateIdempotentPromoCode(
+        "gift-card",
+        `${order.id}:${item!.id}:${i}`
+      )
       codes.push({ code, amount })
       promotionsToCreate.push({
         code,
@@ -73,8 +90,20 @@ export default async function giftCardIssuedHandler({
     }
   }
 
-  if (promotionsToCreate.length === 0) {
-    return
+  if (promotionsToCreate.length > 0) {
+    const existingPromotions = await promotionModuleService.listPromotions({
+      code: codes.map(({ code }) => code),
+    })
+    const existingCodeSet = new Set(existingPromotions.map(({ code }) => code))
+
+    await promotionModuleService.createPromotions(
+      promotionsToCreate.filter(({ code }) => !existingCodeSet.has(code))
+    )
+
+    const orderModuleService = container.resolve(Modules.ORDER)
+    await orderModuleService.updateOrders(order.id, {
+      metadata: { ...metadata, gift_card_codes: codes },
+    })
   }
 
   // The codes represent real paid value, so they're always issued — even if
@@ -82,7 +111,11 @@ export default async function giftCardIssuedHandler({
   // can look them up and pass them on manually. Only the email is skipped.
   await promotionModuleService.createPromotions(promotionsToCreate)
 
-  if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM_EMAIL) {
+  if (
+    metadata.gift_card_email_sent === true ||
+    !process.env.RESEND_API_KEY ||
+    !process.env.RESEND_FROM_EMAIL
+  ) {
     return
   }
 
@@ -122,6 +155,15 @@ export default async function giftCardIssuedHandler({
           indiqué, sur une seule commande.
         </p>
       `),
+    },
+  })
+
+  const orderModuleService = container.resolve(Modules.ORDER)
+  await orderModuleService.updateOrders(order.id, {
+    metadata: {
+      ...metadata,
+      gift_card_codes: codes,
+      gift_card_email_sent: true,
     },
   })
 }

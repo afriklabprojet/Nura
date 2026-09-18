@@ -1,7 +1,7 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { sendEmailNotificationWorkflow } from "../workflows/send-email-notification"
-import { renderEmailLayout, renderButton, getStorefrontUrl } from "../lib/email-templates"
+import { renderEmailLayout, renderButton, getOrderAccessUrl } from "../lib/email-templates"
 import { formatMoney } from "../lib/format-money"
 
 type OrderPlacedEvent = {
@@ -56,12 +56,15 @@ export default async function orderPlacedHandler({
     )
     .join("")
 
-  const orderUrl = `${getStorefrontUrl()}/order/${order.id}/confirmed`
+  const orderUrl = getOrderAccessUrl(order.id)
 
   await sendEmailNotificationWorkflow(container).run({
     input: {
       to: order.email,
       trigger_type: "order_placed",
+      resource_id: order.id,
+      resource_type: "order",
+      idempotency_key: `order-placed:${order.id}`,
       subject: `Confirmation de votre commande Nura n°${order.display_id}`,
       html: renderEmailLayout(`
         <h1 style="font-size:20px;text-align:center;margin:0 0 16px;">Merci pour votre commande</h1>

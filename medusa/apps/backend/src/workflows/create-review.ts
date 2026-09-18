@@ -31,6 +31,27 @@ const createReviewStep = createStep(
       )
     }
 
+    if (
+      input.customer_name.length > 255 ||
+      (input.title?.length ?? 0) > 120 ||
+      input.content.length > 2000
+    ) {
+      throw new MedusaError(MedusaError.Types.INVALID_DATA, "L'avis est trop long.")
+    }
+
+    const query = container.resolve(ContainerRegistrationKeys.QUERY)
+    const {
+      data: [product],
+    } = await query.graph({
+      entity: "product",
+      fields: ["id"],
+      filters: { id: input.product_id },
+    })
+
+    if (!product) {
+      throw new MedusaError(MedusaError.Types.NOT_FOUND, "Produit introuvable.")
+    }
+
     const existing = await reviewModuleService.listReviews({
       customer_id: input.customer_id,
       product_id: input.product_id,
@@ -49,7 +70,6 @@ const createReviewStep = createStep(
     // submitting a review at all.
     let verifiedPurchase = false
     try {
-      const query = container.resolve(ContainerRegistrationKeys.QUERY)
       const { data: orders } = await query.graph({
         entity: "order",
         fields: ["id", "items.product_id"],

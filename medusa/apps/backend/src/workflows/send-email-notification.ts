@@ -6,6 +6,9 @@ export type SendEmailNotificationWorkflowInput = {
   subject: string
   html: string
   trigger_type: string
+  resource_id?: string
+  resource_type?: string
+  idempotency_key?: string
 }
 
 export const sendEmailNotificationWorkflow = createWorkflow(
@@ -16,6 +19,9 @@ export const sendEmailNotificationWorkflow = createWorkflow(
         to: input.to,
         channel: "email",
         trigger_type: input.trigger_type,
+        resource_id: input.resource_id,
+        resource_type: input.resource_type,
+        idempotency_key: input.idempotency_key,
         content: {
           subject: input.subject,
           html: input.html,

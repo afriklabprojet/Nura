@@ -9,6 +9,7 @@ import {
   TdHTMLAttributes,
   TextareaHTMLAttributes,
   ThHTMLAttributes,
+  useId,
 } from "react"
 
 // Re-export clsx as clx for compatibility
@@ -217,11 +218,15 @@ type InputProps = InputHTMLAttributes<HTMLInputElement> & {
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className, label, ...props }, ref) => {
+    const generatedId = useId()
+    const inputId = props.id ?? generatedId
+
     return (
       <div className="flex flex-col gap-1">
-        {label && <Label>{label}</Label>}
+        {label && <Label htmlFor={inputId}>{label}</Label>}
         <input
           ref={ref}
+          id={inputId}
           className={clsx(
             "flex h-10 w-full rounded-sm border border-nude bg-bg-alt px-3 py-2 text-sm text-ink placeholder:text-brown/40 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
             className
@@ -241,11 +246,15 @@ type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, label, ...props }, ref) => {
+    const generatedId = useId()
+    const textareaId = props.id ?? generatedId
+
     return (
       <div className="flex flex-col gap-1">
-        {label && <Label>{label}</Label>}
+        {label && <Label htmlFor={textareaId}>{label}</Label>}
         <textarea
           ref={ref}
+          id={textareaId}
           className={clsx(
             "flex w-full rounded-sm border border-nude bg-bg-alt px-3 py-2 text-sm text-ink placeholder:text-brown/40 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
             className

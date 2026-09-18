@@ -17,7 +17,7 @@ export async function POST(
 ) {
   const email = req.body?.email?.trim().toLowerCase()
 
-  if (!email || !EMAIL_RE.test(email)) {
+  if (!email || email.length > 254 || !EMAIL_RE.test(email)) {
     return res.status(400).json({ message: "Adresse email invalide." })
   }
 

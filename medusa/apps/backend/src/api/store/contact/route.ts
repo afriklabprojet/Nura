@@ -30,16 +30,18 @@ export async function POST(
     })
   }
 
+  if (
+    name.trim().length > 100 ||
+    email.trim().length > 254 ||
+    (phone?.trim().length ?? 0) > 30 ||
+    message.trim().length > 5000
+  ) {
+    return res.status(400).json({ message: "Le formulaire est trop long." })
+  }
+
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER)
 
-  // Always keep a server-side record, regardless of whether email delivery
-  // below succeeds — this is the only trace of the message if Resend isn't
-  // configured yet, or if sending fails.
-  logger.info(
-    `[contact] New message from ${name.trim()} <${email.trim()}>${
-      phone?.trim() ? ` (${phone.trim()})` : ""
-    }: ${message.trim()}`
-  )
+  logger.info("[contact] New contact form submission received")
 
   const storeEmail = process.env.RESEND_FROM_EMAIL
   if (process.env.RESEND_API_KEY && storeEmail) {

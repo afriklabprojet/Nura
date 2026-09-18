@@ -4,7 +4,7 @@ import { sdk } from "@lib/config"
 import medusaError from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
 import { FetchError } from "@medusajs/js-sdk"
-import { revalidateTag } from "next/cache"
+import { revalidateTag } from "@lib/util/revalidate"
 import { redirect } from "next/navigation"
 import {
   getAuthHeaders,

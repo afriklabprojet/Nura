@@ -39,6 +39,14 @@ export async function POST(
     })
   }
 
+  if (
+    product_id.length > 255 ||
+    (title?.trim().length ?? 0) > 120 ||
+    content.trim().length > 2000
+  ) {
+    return res.status(400).json({ message: "L'avis est trop long." })
+  }
+
   const customerId = req.auth_context.actor_id
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
@@ -61,7 +69,7 @@ export async function POST(
       customer_name: customerName,
       product_id,
       rating,
-      title,
+      title: title?.trim(),
       content: content.trim(),
     },
   })

@@ -80,8 +80,15 @@ const SearchBar = () => {
       </button>
 
       {open && (
-        <div className="absolute top-full right-0 mt-3 w-80 bg-bg-alt border border-ui-border-base shadow-lg rounded-sm p-4 z-50">
+        <div
+          className="absolute top-full right-0 mt-3 w-80 bg-bg-alt border border-ui-border-base shadow-lg rounded-sm p-4 z-50"
+          role="search"
+        >
+          <label htmlFor="product-search" className="sr-only">
+            Rechercher un produit
+          </label>
           <input
+            id="product-search"
             type="search"
             autoFocus
             value={query}
@@ -91,7 +98,11 @@ const SearchBar = () => {
             data-testid="search-input"
           />
 
-          <div className="mt-3 flex flex-col gap-y-2 max-h-80 overflow-y-auto">
+          <div
+            className="mt-3 flex flex-col gap-y-2 max-h-80 overflow-y-auto"
+            aria-live="polite"
+            aria-busy={isSearching}
+          >
             {isSearching && (
               <p className="txt-small text-ui-fg-subtle">Recherche...</p>
             )}
@@ -120,6 +131,12 @@ const SearchBar = () => {
                 <span className="txt-small text-ui-fg-base">{hit.title}</span>
               </LocalizedClientLink>
             ))}
+            {!isSearching && hits.length > 0 && (
+              <span className="sr-only">
+                {hits.length} résultat{hits.length > 1 ? "s" : ""} trouvé
+                {hits.length > 1 ? "s" : ""}.
+              </span>
+            )}
           </div>
         </div>
       )}

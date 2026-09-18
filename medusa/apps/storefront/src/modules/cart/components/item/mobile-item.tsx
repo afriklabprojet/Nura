@@ -80,18 +80,24 @@ const MobileItem = ({
 
       <div className="flex items-center justify-between pl-24">
         <div className="flex items-center gap-3">
-          <CartItemSelect
-            value={item.quantity}
-            onChange={(value) => changeQuantity(parseInt(value.target.value))}
-            className="h-11 w-16 p-4"
-            data-testid="product-select-button"
-          >
-            {Array.from({ length: maxQuantity }, (_, i) => (
-              <option value={i + 1} key={i + 1}>
-                {i + 1}
-              </option>
-            ))}
-          </CartItemSelect>
+          {maxQuantity > 0 ? (
+            <CartItemSelect
+              value={item.quantity}
+              onChange={(value) => changeQuantity(parseInt(value.target.value))}
+              className="h-11 w-16 p-4"
+              data-testid="product-select-button"
+            >
+              {Array.from({ length: maxQuantity }, (_, i) => (
+                <option value={i + 1} key={i + 1}>
+                  {i + 1}
+                </option>
+              ))}
+            </CartItemSelect>
+          ) : (
+            <span className="text-small-regular text-rose-600" role="status">
+              Indisponible
+            </span>
+          )}
           {updating && <Spinner />}
         </div>
 

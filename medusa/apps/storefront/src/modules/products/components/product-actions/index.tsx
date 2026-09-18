@@ -1,7 +1,6 @@
 "use client"
 
 import { addToCart } from "@lib/data/cart"
-import { useIntersection } from "@lib/hooks/use-in-view"
 import { HttpTypes } from "@medusajs/types"
 import { Button } from "@modules/common/components/ui"
 import Divider from "@modules/common/components/divider"
@@ -41,7 +40,20 @@ export default function ProductActions({
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const [options, setOptions] = useState<Record<string, string | undefined>>({})
+  const [options, setOptions] = useState<Record<string, string | undefined>>(() => {
+    const variantId = searchParams.get("v_id")
+    const variant = product.variants?.find((item) => item.id === variantId)
+
+    if (variant) {
+      return optionsAsKeymap(variant.options) ?? {}
+    }
+
+    if (product.variants?.length === 1) {
+      return optionsAsKeymap(product.variants[0].options) ?? {}
+    }
+
+    return {}
+  })
   const [isAdding, setIsAdding] = useState(false)
   const countryCode = useParams().countryCode as string
 
@@ -128,35 +140,58 @@ export default function ProductActions({
   }, [selectedVariant])
 
   const actionsRef = useRef<HTMLDivElement>(null)
+  const [showMobileActions, setShowMobileActions] = useState(false)
 
-  const inView = useIntersection(actionsRef, "0px")
+  useEffect(() => {
+    const updateMobileActions = () => {
+      const actions = actionsRef.current
+      setShowMobileActions(Boolean(actions && actions.getBoundingClientRect().bottom < 64))
+    }
+
+    updateMobileActions()
+    window.addEventListener("scroll", updateMobileActions, { passive: true })
+    window.addEventListener("resize", updateMobileActions)
+
+    return () => {
+      window.removeEventListener("scroll", updateMobileActions)
+      window.removeEventListener("resize", updateMobileActions)
+    }
+  }, [])
+
+  useEffect(() => {
+    document.body.classList.toggle("has-product-bar", showMobileActions)
+    return () => document.body.classList.remove("has-product-bar")
+  }, [showMobileActions])
 
   // add the selected variant to the cart
-  const handleAddToCart = async () => {
-    if (!selectedVariant?.id) return null
+  const handleAddToCart = async (): Promise<void> => {
+    if (!selectedVariant?.id) return
 
     setIsAdding(true)
 
-    await addToCart({
-      variantId: selectedVariant.id,
-      quantity: 1,
-      countryCode,
-    })
-
-    setIsAdding(false)
+    try {
+      await addToCart({
+        variantId: selectedVariant.id,
+        quantity: 1,
+        countryCode,
+      })
+    } finally {
+      setIsAdding(false)
+    }
   }
 
   return (
     <>
-      <div className="flex flex-col gap-y-2" ref={actionsRef}>
+      <div className="flex flex-col gap-y-4" ref={actionsRef}>
         <div>
           {(product.variants?.length ?? 0) > 1 && (
-            <div className="flex flex-col gap-y-4">
+            <div className="flex flex-col gap-y-5">
               {(product.options || []).map((option) => {
                 return (
                   <div key={option.id}>
                     <OptionSelect
                       option={option}
+                      variants={product.variants}
                       current={options[option.id]}
                       updateOption={setOptionValue}
                       title={option.title ?? ""}
@@ -195,7 +230,7 @@ export default function ProductActions({
               !isValidVariant
             }
             variant="primary"
-            className="w-full h-10"
+            className="h-12 w-full"
             isLoading={isAdding}
             data-testid="add-product-button"
           >
@@ -219,7 +254,7 @@ export default function ProductActions({
           inStock={inStock}
           handleAddToCart={handleAddToCart}
           isAdding={isAdding}
-          show={!inView}
+          show={showMobileActions}
           optionsDisabled={!!disabled || isAdding}
         />
       </div>

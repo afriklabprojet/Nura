@@ -6,15 +6,18 @@ import SignInPrompt from "../components/sign-in-prompt"
 import ShippingPriceNudge from "@modules/shipping/components/free-shipping-price-nudge"
 import { HttpTypes, StoreCartShippingOption } from "@medusajs/types"
 import { getCheckoutStep } from "@lib/util/checkout-step"
+import PaymentError from "@modules/common/components/payment-error"
 
 const CartTemplate = ({
   cart,
   customer,
   shippingOptions,
+  error,
 }: {
   cart: HttpTypes.StoreCart | null
   customer: HttpTypes.StoreCustomer | null
   shippingOptions: StoreCartShippingOption[]
+  error?: string
 }) => {
   if (!cart?.items?.length) {
     return (
@@ -29,6 +32,7 @@ const CartTemplate = ({
       className="content-container py-10 pb-28 small:py-16 small:pb-16"
       data-testid="cart-container"
     >
+      <PaymentError code={error} />
       <div className="mb-8 flex flex-col gap-3 small:mb-10">
         <span className="eyebrow">Votre sélection</span>
         <h1 className="font-serif text-4xl text-brown small:text-5xl">

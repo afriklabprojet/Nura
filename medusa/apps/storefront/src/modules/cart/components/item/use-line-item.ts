@@ -21,7 +21,7 @@ export const useLineItem = (item: HttpTypes.StoreCartLineItem) => {
   const maxQuantity =
     !item.variant?.manage_inventory || item.variant?.allow_backorder
       ? 10
-      : Math.max(Math.min(item.variant?.inventory_quantity ?? 0, 10), 1)
+      : Math.min(item.variant?.inventory_quantity ?? 0, 10)
 
   return { updating, error, changeQuantity, maxQuantity }
 }

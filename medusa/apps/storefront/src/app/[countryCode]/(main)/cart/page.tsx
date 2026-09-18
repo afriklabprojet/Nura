@@ -8,9 +8,13 @@ import { notFound } from "next/navigation"
 export const metadata: Metadata = {
   title: "Panier",
   description: "Consultez votre panier.",
+  robots: { index: false, follow: false },
 }
 
-export default async function Cart() {
+export default async function Cart(props: {
+  searchParams: Promise<{ error?: string }>
+}) {
+  const { error } = await props.searchParams
   const cart = await retrieveCart().catch((error) => {
     console.error(error)
     return notFound()
@@ -30,6 +34,7 @@ export default async function Cart() {
       cart={cart}
       customer={customer}
       shippingOptions={shippingOptions}
+      error={error}
     />
   )
 }

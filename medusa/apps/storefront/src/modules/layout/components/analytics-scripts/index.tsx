@@ -1,7 +1,7 @@
 "use client"
 
 import Script from "next/script"
-import { usePathname, useSearchParams } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { Suspense, useEffect, useRef, useState } from "react"
 
 import {
@@ -28,7 +28,6 @@ const TIKTOK_PIXEL_ID = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID
 // trigger a full page load for.
 const RouteChangeTracker = () => {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const isFirstRender = useRef(true)
 
   useEffect(() => {
@@ -37,14 +36,10 @@ const RouteChangeTracker = () => {
       return
     }
 
-    const url = searchParams.toString()
-      ? `${pathname}?${searchParams.toString()}`
-      : pathname
-
-    window.gtag?.("event", "page_view", { page_path: url })
+    window.gtag?.("event", "page_view", { page_path: pathname })
     window.fbq?.("track", "PageView")
     window.ttq?.page?.()
-  }, [pathname, searchParams])
+  }, [pathname])
 
   return null
 }

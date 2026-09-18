@@ -31,7 +31,7 @@ export async function POST(
   res: MedusaResponse
 ) {
   const productId = req.body?.product_id
-  if (!productId) {
+  if (!productId || productId.length > 255) {
     return res.status(400).json({ message: "product_id is required." })
   }
 

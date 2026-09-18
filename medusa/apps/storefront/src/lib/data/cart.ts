@@ -3,13 +3,14 @@
 import { sdk } from "@lib/config"
 import medusaError from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
-import { revalidateTag } from "next/cache"
+import { revalidateTag } from "@lib/util/revalidate"
 import { redirect } from "next/navigation"
 import {
   getAuthHeaders,
   getCacheOptions,
   getCacheTag,
   getCartId,
+  setOrderAccessToken,
   removeCartId,
   setCartId,
   setMarketPreference,
@@ -379,7 +380,8 @@ export async function placeOrder(cartId?: string) {
     const orderCacheTag = await getCacheTag("orders")
     revalidateTag(orderCacheTag)
 
-    removeCartId()
+    await setOrderAccessToken(cartRes.order.id)
+    await removeCartId()
     redirect(`/${countryCode}/order/${cartRes?.order.id}/confirmed`)
   }
 

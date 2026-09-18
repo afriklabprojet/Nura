@@ -17,7 +17,7 @@ type MobileActionsProps = {
   options: Record<string, string | undefined>
   updateOptions: (title: string, value: string) => void
   inStock?: boolean
-  handleAddToCart: () => void
+  handleAddToCart: () => Promise<void>
   isAdding?: boolean
   show: boolean
   optionsDisabled: boolean
@@ -52,12 +52,18 @@ const MobileActions: React.FC<MobileActionsProps> = ({
 
   const isSimple = isSimpleProduct(product)
 
+  const addFromOptions = async () => {
+    await handleAddToCart()
+    close()
+  }
+
   return (
     <>
       <div
-        className={clx("lg:hidden inset-x-0 bottom-0 fixed z-50", {
+        className={clx("fixed inset-x-0 bottom-0 z-50 bg-bg-alt small:hidden", {
           "pointer-events-none": !show,
         })}
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <Transition
           as={Fragment}
@@ -70,14 +76,15 @@ const MobileActions: React.FC<MobileActionsProps> = ({
           leaveTo="opacity-0"
         >
           <div
-            className="bg-bg-alt flex flex-col gap-y-3 justify-center items-center text-large-regular p-4 h-full w-full border-t border-nude"
+            className="border-t border-nude bg-bg-alt/95 px-5 py-3 shadow-[0_-8px_24px_rgba(47,35,27,0.08)] backdrop-blur"
             data-testid="mobile-actions"
           >
-            <div className="flex items-center gap-x-2">
-              <span data-testid="mobile-title">{product.title}</span>
-              <span>—</span>
+            <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+              <span className="truncate text-ui-fg-subtle" data-testid="mobile-title">
+                {variant ? Object.values(options).join(" / ") : "Choisir un format"}
+              </span>
               {selectedPrice ? (
-                <div className="flex items-end gap-x-2 text-ui-fg-base">
+                <div className="flex shrink-0 items-end gap-x-2 text-ui-fg-base">
                   {selectedPrice.price_type === "sale" && (
                     <p>
                       <span className="line-through text-small-regular">
@@ -98,28 +105,24 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                 <div></div>
               )}
             </div>
-            <div className={clx("grid grid-cols-2 w-full gap-x-4", {
+            <div className={clx("grid w-full grid-cols-2 gap-2", {
               "!grid-cols-1": isSimple
             })}>
               {!isSimple && <Button
                 onClick={open}
                 variant="secondary"
-                className="w-full"
+                className="h-12 w-full px-3"
                 data-testid="mobile-actions-button"
               >
                 <div className="flex items-center justify-between w-full">
-                  <span>
-                    {variant
-                      ? Object.values(options).join(" / ")
-                      : "Choisir les options"}
-                  </span>
+                  <span>Options</span>
                   <ChevronDown />
                 </div>
               </Button>}
               <Button
                 onClick={handleAddToCart}
-                disabled={!inStock || !variant}
-                className="w-full"
+                disabled={!inStock || !variant || optionsDisabled}
+                className="h-12 w-full px-3"
                 isLoading={isAdding}
                 data-testid="mobile-cart-button"
               >
@@ -147,8 +150,8 @@ const MobileActions: React.FC<MobileActionsProps> = ({
             <div className="fixed inset-0 bg-gray-700 bg-opacity-75 backdrop-blur-sm" />
           </Transition.Child>
 
-          <div className="fixed bottom-0 inset-x-0">
-            <div className="flex min-h-full h-full items-center justify-center text-center">
+          <div className="fixed inset-x-0 bottom-0">
+            <div className="flex min-h-full items-end justify-center text-center">
               <Transition.Child
                 as={Fragment}
                 enter="ease-out duration-300"
@@ -159,19 +162,28 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                 leaveTo="opacity-0"
               >
                 <Dialog.Panel
-                  className="w-full h-full transform overflow-hidden text-left flex flex-col gap-y-3"
+                  className="flex max-h-[100dvh] w-full transform flex-col overflow-hidden bg-bg-alt text-left shadow-2xl"
                   data-testid="mobile-actions-modal"
                 >
-                  <div className="w-full flex justify-end pr-6">
+                  <div className="flex w-full items-center justify-between border-b border-nude px-5 py-4">
+                    <div>
+                      <Dialog.Title className="font-serif text-2xl text-brown">
+                        Choisir votre format
+                      </Dialog.Title>
+                      <p className="mt-1 text-sm text-ui-fg-subtle">
+                        {product.title}
+                      </p>
+                    </div>
                     <button
                       onClick={close}
-                      className="bg-bg-alt w-12 h-12 rounded-full text-brown flex justify-center items-center"
+                      className="flex h-11 w-11 items-center justify-center rounded-full border border-nude text-brown"
+                      aria-label="Fermer"
                       data-testid="close-modal-button"
                     >
                       <X />
                     </button>
                   </div>
-                  <div className="bg-bg-alt px-6 py-12">
+                  <div className="overflow-y-auto px-5 py-6">
                     {(product.variants?.length ?? 0) > 1 && (
                       <div className="flex flex-col gap-y-6">
                         {(product.options || []).map((option) => {
@@ -179,6 +191,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                             <div key={option.id}>
                               <OptionSelect
                                 option={option}
+                                variants={product.variants}
                                 current={options[option.id]}
                                 updateOption={updateOptions}
                                 title={option.title ?? ""}
@@ -189,6 +202,33 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                         })}
                       </div>
                     )}
+                  </div>
+                  <div
+                    className="shrink-0 border-t border-nude bg-bg-alt px-5 pt-4"
+                    style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+                  >
+                    <div className="mb-3 flex items-center justify-between text-sm">
+                      <span className="text-ui-fg-subtle">
+                        {variant ? Object.values(options).join(" / ") : "Sélectionnez un format"}
+                      </span>
+                      {selectedPrice && (
+                        <span className="font-medium text-brown">
+                          {selectedPrice.calculated_price}
+                        </span>
+                      )}
+                    </div>
+                    <Button
+                      onClick={addFromOptions}
+                      disabled={!inStock || !variant || optionsDisabled}
+                      className="h-12 w-full"
+                      isLoading={isAdding}
+                    >
+                      {!variant
+                        ? "Sélectionner une variante"
+                        : !inStock
+                        ? "Épuisé"
+                        : "Ajouter au panier"}
+                    </Button>
                   </div>
                 </Dialog.Panel>
               </Transition.Child>

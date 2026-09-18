@@ -4,6 +4,7 @@ import React from "react"
 
 type OptionSelectProps = {
   option: HttpTypes.StoreProductOption
+  variants?: HttpTypes.StoreProductVariant[] | null
   current: string | undefined
   updateOption: (title: string, value: string) => void
   title: string
@@ -13,31 +14,45 @@ type OptionSelectProps = {
 
 const OptionSelect: React.FC<OptionSelectProps> = ({
   option,
+  variants,
   current,
   updateOption,
   title,
   "data-testid": dataTestId,
   disabled,
 }) => {
-  const filteredOptions = (option.values ?? []).map((v) => v.value)
+  const variantValues = new Set(
+    variants?.flatMap((variant) =>
+      (variant.options ?? [])
+        .filter((variantOption) => variantOption.option_id === option.id)
+        .map((variantOption) => variantOption.value)
+    )
+  )
+  const filteredOptions = Array.from(
+    new Set((option.values ?? []).map((value) => value.value))
+  ).filter((value) => !variants || variantValues.has(value))
 
   return (
-    <div className="flex flex-col gap-y-3">
-      <span className="text-sm">Choisir : {title}</span>
+    <fieldset className="min-w-0 border-0 p-0">
+      <legend className="mb-3 text-xs font-medium uppercase tracking-[0.12em] text-ui-fg-subtle">
+        {title}
+      </legend>
       <div
-        className="flex flex-wrap justify-between gap-2"
+        className="grid grid-cols-2 gap-2"
         data-testid={dataTestId}
       >
         {filteredOptions.map((v) => {
           return (
             <button
+              type="button"
               onClick={() => updateOption(option.id, v)}
               key={v}
+              aria-pressed={v === current}
               className={clx(
-                "border-ui-border-base bg-ui-bg-subtle border text-small-regular h-10 rounded-rounded p-2 flex-1 ",
+                "min-h-12 border px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2",
                 {
-                  "border-ui-border-interactive": v === current,
-                  "hover:shadow-elevation-card-rest transition-shadow ease-in-out duration-150":
+                  "border-brown bg-brown text-bg-alt": v === current,
+                  "border-ui-border-base bg-ui-bg-subtle text-brown hover:border-brown":
                     v !== current,
                 }
               )}
@@ -49,7 +64,7 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
           )
         })}
       </div>
-    </div>
+    </fieldset>
   )
 }
 

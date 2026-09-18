@@ -11,7 +11,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
 
   return (
     <div id="product-info">
-      <div className="flex flex-col gap-y-4 lg:max-w-[500px] mx-auto">
+      <div className="mx-auto flex flex-col gap-y-3 small:gap-y-4 lg:max-w-[500px]">
         <div className="flex items-center gap-x-3">
           {metadata.type_produit && (
             <span className="text-xs uppercase tracking-[0.15em] text-gold">
@@ -33,8 +33,8 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
           </LocalizedClientLink>
         )}
         <Heading
-          level="h2"
-          className="text-3xl small:text-4xl leading-tight"
+          level="h1"
+          className="text-3xl leading-tight small:text-4xl"
           data-testid="product-title"
         >
           {product.title}

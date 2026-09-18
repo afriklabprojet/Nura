@@ -1,7 +1,7 @@
 "use server"
 
 import { sdk } from "@lib/config"
-import { revalidateTag } from "next/cache"
+import { revalidateTag } from "@lib/util/revalidate"
 import { getAuthHeaders, getCacheOptions, getCacheTag } from "./cookies"
 
 export type WishlistItem = {

@@ -10,13 +10,14 @@
     "build": "turbo build",
     "start": "turbo start",
     "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
     "test": "turbo test",
     "backend:seed": "turbo seed --filter=@dtc/backend",
     "backend:dev": "turbo dev --filter=@dtc/backend",
     "storefront:dev": "turbo dev --filter=@dtc/storefront"
   },
   "devDependencies": {
-    "@medusajs/eslint-plugin": "2.20.1",
+    "@medusajs/eslint-plugin": "2.21.0",
     "ajv": "^8.13.0",
     "eslint": "^9.39.4",
     "jiti": "^2.7.0",
@@ -24,8 +25,7 @@
     "turbo": "^2.0.14"
   },
   "workspaces": [
-    "apps/**",
-    "!apps/backend/.medusa/**"
+    "apps/*"
   ],
   "overrides": {
     "eslint": {
@@ -33,6 +33,9 @@
     },
     "@eslint/eslintrc": {
       "ajv": "^6.12.4"
+    },
+    "@graphql-codegen/plugin-helpers": {
+      "lodash": "4.18.1"
     },
     "react": "19.0.5",
     "react-dom": "19.0.5",
@@ -50,8 +53,8 @@
     "tailwindcss-radix": false
   },
   "dependencies": {
-    "@medusajs/medusa": "^2.20.1",
-    "@medusajs/types": "^2.20.1",
+    "@medusajs/medusa": "2.21.0",
+    "@medusajs/types": "2.21.0",
     "caniuse-lite": "^1.0.30001810",
     "date-fns": "^3.6.0",
     "react-aria": "^3.52.1",

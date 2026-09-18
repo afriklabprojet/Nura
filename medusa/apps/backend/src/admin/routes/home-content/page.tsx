@@ -13,6 +13,7 @@ import {
 } from "@medusajs/ui"
 import { useEffect, useState } from "react"
 import ImageField from "../../components/image-field"
+import RepeatableField from "../../components/repeatable-field"
 import { adminFetch } from "../../lib/api"
 
 type Block = {
@@ -71,6 +72,92 @@ const DEFAULTS: Record<string, BlockState> = {
       title: "Les essentiels Nura",
       subtitle: "Découvrez les signatures parfumées de la maison.",
       handles: "",
+    },
+  },
+  editorial: {
+    active: true,
+    starts_at: "",
+    ends_at: "",
+    data: {
+      eyebrow: "L'univers Nura",
+      title: "Votre aura commence ici.",
+      text: "Nura imagine des parfums et des soins pensés pour accompagner chaque aura, chaque humeur et chaque moment. Une parfumerie orientale revisitée avec la douceur du soin contemporain.",
+      cta_label: "Découvrir Nura",
+      cta_href: "/a-propos",
+      image: "",
+      pillars: [
+        {
+          title: "Matières nobles",
+          text: "Des ingrédients sélectionnés avec exigence, sans compromis sur la qualité.",
+        },
+        {
+          title: "Formules sensorielles",
+          text: "Des textures délicates pensées pour le geste autant que pour la peau.",
+        },
+        {
+          title: "Entre Paris et Abidjan",
+          text: "Une maison nourrie de deux cultures, une même idée de l'élégance.",
+        },
+      ],
+    },
+  },
+  ritual: {
+    active: true,
+    starts_at: "",
+    ends_at: "",
+    data: {
+      eyebrow: "Le rituel Nura",
+      title: "Parfumez. Hydratez. Sublimez.",
+      steps: [
+        {
+          title: "Parfumer",
+          text: "Découvrez votre signature olfactive.",
+          image: "",
+          href: "/categories/parfums",
+        },
+        {
+          title: "Hydrater",
+          text: "Prenez soin de votre peau avec nos essentiels bodycare.",
+          image: "",
+          href: "/categories/bodycare",
+        },
+        {
+          title: "Sublimer",
+          text: "Associez les produits pour créer votre propre rituel.",
+          image: "",
+          href: "/categories/coffrets",
+        },
+      ],
+    },
+  },
+  categories: {
+    active: true,
+    starts_at: "",
+    ends_at: "",
+    data: {
+      doors: [
+        {
+          handle: "parfums",
+          title: "Parfums",
+          description: "Trouvez le parfum qui vous ressemble.",
+        },
+        {
+          handle: "bodycare",
+          title: "Bodycare",
+          description: "Des essentiels pour prendre soin de votre peau.",
+        },
+      ],
+    },
+  },
+  gallery: {
+    active: true,
+    starts_at: "",
+    ends_at: "",
+    data: {
+      eyebrow: "Communauté",
+      title: "L'univers Nura",
+      subtitle:
+        "Campagnes, routines et gestes du quotidien — l'aura Nura vue par la maison et par vous.",
     },
   },
 }
@@ -347,6 +434,168 @@ const HomeContentPage = () => {
           </Text>
         </div>
         {saveButton("essentials")}
+      </Container>
+
+      <Container className="flex flex-col gap-y-4">
+        {header(
+          "editorial",
+          "Éditorial",
+          "La section « L'univers Nura » avec l'image et les trois piliers de la maison."
+        )}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {field("editorial", "eyebrow", "Sur-titre", "L'univers Nura")}
+          {field("editorial", "title", "Titre", "Votre aura commence ici.")}
+        </div>
+        <div className="flex flex-col gap-y-2">
+          <Label size="small" weight="plus">
+            Texte
+          </Label>
+          <Textarea
+            rows={3}
+            value={state.editorial.data.text ?? ""}
+            onChange={(event) => set("editorial", "text", event.target.value)}
+          />
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {field("editorial", "cta_label", "Bouton", "Découvrir Nura")}
+          {field("editorial", "cta_href", "Lien", "/a-propos")}
+        </div>
+        <ImageField
+          label="Image"
+          value={state.editorial.data.image ?? ""}
+          onChange={(value) => set("editorial", "image", value)}
+          hint="Format portrait, 4:5 environ."
+        />
+        <RepeatableField
+          label="Piliers"
+          items={state.editorial.data.pillars ?? []}
+          empty={{ title: "", text: "" }}
+          onChange={(pillars) => set("editorial", "pillars", pillars)}
+          addLabel="Ajouter un pilier"
+          renderItem={(pillar, update) => (
+            <div className="flex flex-col gap-y-2">
+              <Input
+                value={pillar.title}
+                placeholder="Titre"
+                onChange={(event) => update({ title: event.target.value })}
+              />
+              <Textarea
+                rows={2}
+                value={pillar.text}
+                placeholder="Texte"
+                onChange={(event) => update({ text: event.target.value })}
+              />
+            </div>
+          )}
+        />
+        {saveButton("editorial")}
+      </Container>
+
+      <Container className="flex flex-col gap-y-4">
+        {header(
+          "ritual",
+          "Le rituel",
+          "Les trois étapes du rituel Nura (Parfumer, Hydrater, Sublimer)."
+        )}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {field("ritual", "eyebrow", "Sur-titre", "Le rituel Nura")}
+          {field("ritual", "title", "Titre", "Parfumez. Hydratez. Sublimez.")}
+        </div>
+        <RepeatableField
+          label="Étapes"
+          items={state.ritual.data.steps ?? []}
+          empty={{ title: "", text: "", image: "", href: "" }}
+          onChange={(steps) => set("ritual", "steps", steps)}
+          addLabel="Ajouter une étape"
+          renderItem={(step, update) => (
+            <div className="flex flex-col gap-y-2">
+              <Input
+                value={step.title}
+                placeholder="Titre"
+                onChange={(event) => update({ title: event.target.value })}
+              />
+              <Textarea
+                rows={2}
+                value={step.text}
+                placeholder="Texte"
+                onChange={(event) => update({ text: event.target.value })}
+              />
+              <Input
+                value={step.href ?? ""}
+                placeholder="Lien, ex. /categories/parfums"
+                onChange={(event) => update({ href: event.target.value })}
+              />
+              <ImageField
+                label="Image"
+                value={step.image ?? ""}
+                onChange={(value) => update({ image: value })}
+                hint="Format portrait, 4:5 environ."
+              />
+            </div>
+          )}
+        />
+        {saveButton("ritual")}
+      </Container>
+
+      <Container className="flex flex-col gap-y-4">
+        {header(
+          "categories",
+          "Catégories mises en avant",
+          "Les deux portes d'entrée de la boutique. L'image et le titre viennent de la catégorie liée quand elle existe."
+        )}
+        <RepeatableField
+          label="Portes"
+          items={state.categories.data.doors ?? []}
+          empty={{ handle: "", title: "", description: "" }}
+          onChange={(doors) => set("categories", "doors", doors)}
+          addLabel="Ajouter une porte"
+          renderItem={(door, update) => (
+            <div className="flex flex-col gap-y-2">
+              <Input
+                value={door.handle}
+                placeholder="URL de la catégorie, ex. parfums"
+                onChange={(event) => update({ handle: event.target.value })}
+              />
+              <Input
+                value={door.title}
+                placeholder="Titre affiché si la catégorie n'existe pas"
+                onChange={(event) => update({ title: event.target.value })}
+              />
+              <Textarea
+                rows={2}
+                value={door.description}
+                placeholder="Description"
+                onChange={(event) =>
+                  update({ description: event.target.value })
+                }
+              />
+            </div>
+          )}
+        />
+        {saveButton("categories")}
+      </Container>
+
+      <Container className="flex flex-col gap-y-4">
+        {header(
+          "gallery",
+          "Galerie / communauté",
+          "L'en-tête de la section Instagram en bas de la page d'accueil. Les cinq images restent fixes."
+        )}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {field("gallery", "eyebrow", "Sur-titre", "Communauté")}
+          {field("gallery", "title", "Titre", "L'univers Nura")}
+        </div>
+        <div className="flex flex-col gap-y-2">
+          <Label size="small" weight="plus">
+            Sous-titre
+          </Label>
+          <Textarea
+            rows={2}
+            value={state.gallery.data.subtitle ?? ""}
+            onChange={(event) => set("gallery", "subtitle", event.target.value)}
+          />
+        </div>
+        {saveButton("gallery")}
       </Container>
     </div>
   )

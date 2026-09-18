@@ -46,6 +46,227 @@ const HOME_BLOCKS = [
       handles: "",
     },
   },
+  {
+    key: "editorial",
+    data: {
+      eyebrow: "L'univers Nura",
+      title: "Votre aura commence ici.",
+      text: "Nura imagine des parfums et des soins pensés pour accompagner chaque aura, chaque humeur et chaque moment. Une parfumerie orientale revisitée avec la douceur du soin contemporain.",
+      cta_label: "Découvrir Nura",
+      cta_href: "/a-propos",
+      image: "/images/editorial.webp",
+      pillars: [
+        {
+          title: "Matières nobles",
+          text: "Des ingrédients sélectionnés avec exigence, sans compromis sur la qualité.",
+        },
+        {
+          title: "Formules sensorielles",
+          text: "Des textures délicates pensées pour le geste autant que pour la peau.",
+        },
+        {
+          title: "Entre Paris et Abidjan",
+          text: "Une maison nourrie de deux cultures, une même idée de l'élégance.",
+        },
+      ],
+    },
+  },
+  {
+    key: "ritual",
+    data: {
+      eyebrow: "Le rituel Nura",
+      title: "Parfumez. Hydratez. Sublimez.",
+      steps: [
+        {
+          title: "Parfumer",
+          text: "Découvrez votre signature olfactive.",
+          image: "/images/ritual-1.webp",
+          href: "/categories/parfums",
+        },
+        {
+          title: "Hydrater",
+          text: "Prenez soin de votre peau avec nos essentiels bodycare.",
+          image: "/images/ritual-2.webp",
+          href: "/categories/bodycare",
+        },
+        {
+          title: "Sublimer",
+          text: "Associez les produits pour créer votre propre rituel.",
+          image: "/images/ritual-3.webp",
+          href: "/categories/coffrets",
+        },
+      ],
+    },
+  },
+  {
+    key: "categories",
+    data: {
+      doors: [
+        {
+          handle: "parfums",
+          title: "Parfums",
+          description: "Trouvez le parfum qui vous ressemble.",
+        },
+        {
+          handle: "bodycare",
+          title: "Bodycare",
+          description: "Des essentiels pour prendre soin de votre peau.",
+        },
+      ],
+    },
+  },
+  {
+    key: "gallery",
+    data: {
+      eyebrow: "Communauté",
+      title: "L'univers Nura",
+      subtitle:
+        "Campagnes, routines et gestes du quotidien — l'aura Nura vue par la maison et par vous.",
+    },
+  },
+  {
+    key: "site_settings",
+    data: {
+      email: "contact@nura-paris.com",
+      hours: "Du lundi au vendredi, 9h — 18h",
+      phones: [
+        { label: "France", tel: "+33745064887", display: "+33 7 45 06 48 87" },
+        {
+          label: "Abidjan",
+          tel: "+2250505798882",
+          display: "+225 05 05 79 88 82",
+        },
+      ],
+      social: {
+        instagram: "https://instagram.com/nura",
+        tiktok: "https://tiktok.com/@nura",
+      },
+    },
+  },
+  {
+    key: "announcement",
+    data: {
+      messages: [
+        "Livraison en France et en Côte d'Ivoire",
+        "Paiement sécurisé",
+        "Retours sous 14 jours",
+        "Votre aura commence ici",
+      ],
+    },
+  },
+  {
+    key: "faq",
+    data: {
+      items: [
+        {
+          question: "Quels sont les délais et zones de livraison ?",
+          answer:
+            "Nous livrons en France métropolitaine et en Côte d'Ivoire. Le délai indicatif est de 3 à 7 jours ouvrés. Les frais de livraison sont précisés avant la validation de votre commande.",
+        },
+        {
+          question: "Comment suivre ma commande ?",
+          answer:
+            "Un email de confirmation vous est envoyé dès la validation de votre commande. Vous pouvez ensuite suivre son statut depuis votre compte, rubrique « Commandes ».",
+        },
+        {
+          question: "Quels moyens de paiement acceptez-vous ?",
+          answer:
+            "En Europe, vous pouvez payer par carte bancaire (Stripe). En Côte d'Ivoire, le paiement mobile money (Wave, Orange Money, MTN, Moov, Djamo) est disponible via notre partenaire Jèko.",
+        },
+        {
+          question: "Puis-je retourner un produit ?",
+          answer:
+            "Vous disposez d'un délai de 14 jours après réception pour exercer votre droit de rétractation. Les produits doivent être retournés neufs, non ouverts et dans leur emballage d'origine. Pour des raisons d'hygiène, les produits descellés (parfums, cosmétiques) ne peuvent pas être retournés.",
+        },
+        {
+          question: "Les produits sont-ils testés sur les animaux ?",
+          answer:
+            "Non. Conformément à la réglementation européenne, aucun produit cosmétique Nura n'est testé sur les animaux, et nous ne le demandons pas à nos fournisseurs.",
+        },
+        {
+          question: "Comment vous contacter ?",
+          answer:
+            "Vous pouvez nous écrire via le formulaire de contact, par email à contact@nura-paris.com, ou joindre notre service client France (+33 7 45 06 48 87) et Abidjan (+225 05 05 79 88 82), du lundi au vendredi.",
+        },
+      ],
+    },
+  },
+  {
+    key: "page_a_propos",
+    data: {
+      title: "Votre aura commence ici.",
+      content: `Nura imagine des parfums et des soins pensés pour accompagner chaque aura, chaque humeur et chaque moment.
+
+## Notre histoire
+
+Nura est née d'une conviction simple : le parfum et le soin ne sont pas de simples produits, ils accompagnent une aura. Entre Paris et Abidjan, la maison puise dans des matières nobles et des gestes rituels pour composer des formules sensorielles, pensées pour révéler ce qui rend chacune unique.
+
+## Notre philosophie
+
+Chaque création Nura est une invitation au rituel : ralentir, prendre soin de soi, et laisser sa présence rayonner. Nous croyons à l'essentiel — des compositions justes, des textures délicates, des écrins épurés — pour que le soin reste un moment à soi, chaque jour.
+
+## Nos engagements
+
+- Des matières premières sélectionnées avec exigence, sans compromis sur la qualité.
+- Des formules pensées pour la peau, développées dans le respect de la réglementation cosmétique européenne.
+- Une direction artistique sobre et durable : peu d'éditions, des objets faits pour durer.`,
+    },
+  },
+  {
+    key: "page_contact",
+    data: {
+      title: "Contact",
+      content: `Une question sur un produit, une commande ou une collaboration ? Écrivez-nous, nous vous répondons sous 24 à 48 h.
+
+Livraison, retours, paiement : la plupart des réponses se trouvent déjà dans notre [FAQ](/faq).`,
+    },
+  },
+  {
+    key: "page_livraison_retours",
+    data: {
+      title: "Livraison & retours",
+      content: `Tout ce qu'il faut savoir avant et après votre commande.
+
+## Zones et délais
+
+Nous livrons en France métropolitaine et en Côte d'Ivoire. Le délai indicatif est de 3 à 7 jours ouvrés à compter de la validation de votre commande.
+
+## Frais de livraison
+
+Les frais de livraison dépendent de votre destination. Ils sont calculés et affichés avant la validation du paiement, à l'étape Livraison du tunnel de commande.
+
+## Suivi de commande
+
+Un email de confirmation vous est envoyé dès la validation de votre commande. Vous pouvez ensuite en suivre le statut depuis votre compte, rubrique [Commandes](/account/orders).
+
+## Droit de rétractation
+
+Vous disposez de 14 jours après réception pour exercer votre droit de rétractation. Les produits doivent être retournés neufs, non ouverts et dans leur emballage d'origine.
+
+Pour des raisons d'hygiène, les produits descellés — parfums et cosmétiques ouverts — ne peuvent pas être repris. Le remboursement intervient dans les 14 jours suivant la réception du retour, sur le moyen de paiement utilisé lors de la commande.
+
+Les conditions complètes figurent dans nos [conditions générales de vente](/cgv).`,
+    },
+  },
+  {
+    key: "page_politique_cookies",
+    data: {
+      title: "Politique de cookies",
+      content: `## Qu'est-ce qu'un cookie ?
+
+Un cookie est un petit fichier texte déposé sur votre appareil lors de la visite d'un site internet. Il permet au site de reconnaître votre appareil et de mémoriser certaines informations sur vos préférences ou actions passées.
+
+## Les cookies utilisés sur ce site
+
+Cookies strictement nécessaires — indispensables au fonctionnement du site (panier, session de connexion, région choisie). Ils ne peuvent pas être désactivés et ne nécessitent pas votre consentement conformément à la réglementation.
+
+Cookies de mesure d'audience et de publicité — utilisés uniquement si vous les acceptez, pour mesurer la fréquentation du site (Google Analytics) et l'efficacité de nos campagnes publicitaires (Meta, TikTok). Ces outils ne sont chargés qu'après votre consentement explicite via le bandeau de cookies.
+
+## Gérer vos préférences
+
+Lors de votre première visite, un bandeau vous permet d'accepter ou de refuser les cookies non essentiels. Vous pouvez modifier votre choix à tout moment en effaçant les cookies de votre navigateur, ce qui réaffichera le bandeau lors de votre prochaine visite.`,
+    },
+  },
 ]
 
 const POSTS = [

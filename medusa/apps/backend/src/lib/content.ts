@@ -8,7 +8,27 @@ export const slugify = (value: string) =>
     .replace(/^-+|-+$/g, "")
     .slice(0, 120)
 
-export const HOME_BLOCK_KEYS = ["hero", "campaign", "essentials"] as const
+export const HOME_BLOCK_KEYS = [
+  // Home page sections
+  "hero",
+  "campaign",
+  "essentials",
+  "editorial",
+  "ritual",
+  "categories",
+  "gallery",
+  // Site-wide content, used across several pages
+  "site_settings",
+  "announcement",
+  "faq",
+  // Static pages (title + body), rendered through the same lightweight
+  // markup as Journal articles. Legal pages (CGV, Confidentialité, Mentions
+  // légales) are deliberately excluded — see docs/CONTENT.md.
+  "page_a_propos",
+  "page_contact",
+  "page_livraison_retours",
+  "page_politique_cookies",
+] as const
 
 export type HomeBlockKey = (typeof HOME_BLOCK_KEYS)[number]
 

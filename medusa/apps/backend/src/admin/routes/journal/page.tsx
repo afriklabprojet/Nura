@@ -256,7 +256,9 @@ const JournalPage = () => {
           />
           <Text size="xsmall" className="text-ui-fg-muted">
             Mise en forme simple : une ligne vide sépare les paragraphes, une
-            ligne commençant par ## devient un sous-titre.
+            ligne commençant par ## devient un sous-titre, une ligne
+            commençant par - devient un élément de liste, et [texte](/lien)
+            crée un lien.
           </Text>
         </div>
 

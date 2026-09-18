@@ -5,7 +5,7 @@
 # does while loading ~20+ modules, observed as `medusa db:migrate` never
 # reaching the database no matter how long the connection timeout is set.
 # node:22-bookworm-slim (glibc) does not have this problem.
-FROM node:22-bookworm-slim AS build
+FROM node:22-bookworm-slim@sha256:83f487e0a63425e5b4d146fb5e5be574bcbe1b7b843d3ebafdd95eaf7767a7e5 AS build
 WORKDIR /app
 
 # node:22-bookworm-slim bundles an older npm (10.x) than what generated
@@ -33,7 +33,7 @@ RUN npm run build
 WORKDIR /app/apps/backend/.medusa/server
 RUN npm install --omit=dev
 
-FROM node:22-bookworm-slim AS runtime
+FROM node:22-bookworm-slim@sha256:83f487e0a63425e5b4d146fb5e5be574bcbe1b7b843d3ebafdd95eaf7767a7e5 AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 

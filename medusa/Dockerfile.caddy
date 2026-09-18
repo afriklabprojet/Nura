@@ -3,10 +3,12 @@
 # Stock Caddy doesn't include the MaxMind GeoIP matcher used by the
 # Caddyfile for market detection (Côte d'Ivoire → XOF/Jèko) — Caddy plugins
 # are compiled in, not loaded at runtime, so this builds a custom binary.
-FROM caddy:2-builder-alpine AS builder
+FROM caddy:2-builder-alpine@sha256:1a1689db91cfb390b2d856a1b3774e796852822cd723fa54c475b272f82bb4b7 AS builder
 
-RUN xcaddy build --with github.com/porech/caddy-maxmind-geolocation
+RUN xcaddy build \
+	--with github.com/porech/caddy-maxmind-geolocation \
+	--with github.com/mholt/caddy-ratelimit@5625512f24f6f59d6f64fb3aafe5eecff0b286db
 
-FROM caddy:2-alpine
+FROM caddy:2-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648
 
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy

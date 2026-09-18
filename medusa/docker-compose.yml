@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:cf78e76683b9ca8c5733cbbdce6c9262b45b6767934dd0a95e671f9a0fc20685
     restart: unless-stopped
     environment:
       POSTGRES_USER: medusa
@@ -15,7 +15,7 @@ services:
       retries: 10
 
   redis:
-    image: redis:7-alpine
+    image: redis:7-alpine@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf
     restart: unless-stopped
     volumes:
       - redis_data:/data
@@ -26,7 +26,7 @@ services:
       retries: 10
 
   geoipupdate:
-    image: ghcr.io/maxmind/geoipupdate
+    image: ghcr.io/maxmind/geoipupdate@sha256:51e70dd6f16cd3e4d845ac02d09940b10772a75b9d741427d235a78570923c1d
     restart: unless-stopped
     environment:
       GEOIPUPDATE_ACCOUNT_ID: ${GEOIPUPDATE_ACCOUNT_ID:?create a free MaxMind account and license key — see DEPLOYMENT.md}
@@ -37,9 +37,14 @@ services:
       GEOIPUPDATE_FREQUENCY: "72"
     volumes:
       - geoip_data:/usr/share/GeoIP
+    healthcheck:
+      test: ["CMD-SHELL", "test -s /usr/share/GeoIP/GeoLite2-Country.mmdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
 
   meilisearch:
-    image: getmeili/meilisearch:v1.11
+    image: getmeili/meilisearch:v1.11@sha256:6f8f1fc29d1ff67b4d8d503bb4e0a69b55c8d42600decafde951344218193a27
     restart: unless-stopped
     environment:
       MEILI_MASTER_KEY: "${MEILISEARCH_API_KEY:?set MEILISEARCH_API_KEY in .env, generate with: openssl rand -hex 16}"
@@ -69,6 +74,7 @@ services:
       REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
       COOKIE_SECRET: ${COOKIE_SECRET:?set COOKIE_SECRET in .env}
+      ORDER_ACCESS_SECRET: ${ORDER_ACCESS_SECRET:?set ORDER_ACCESS_SECRET in .env}
       STORE_CORS: ${STORE_CORS:?set STORE_CORS in .env, e.g. https://nura-paris.com}
       ADMIN_CORS: ${ADMIN_CORS:?set ADMIN_CORS in .env, e.g. https://admin.nura-paris.com}
       AUTH_CORS: ${AUTH_CORS:?set AUTH_CORS in .env, combine STORE_CORS and ADMIN_CORS}
@@ -81,12 +87,33 @@ services:
       JEKO_WEBHOOK_SECRET: ${JEKO_WEBHOOK_SECRET:-}
       MEDUSA_FF_RBAC: "true"
       MEDUSA_FF_RBAC_FILTER_FIELDS: "true"
-      RESEND_API_KEY: ${RESEND_API_KEY:-}
-      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:?set a production Resend API key}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:?set an address on a Resend-verified domain}
       MEILISEARCH_HOST: http://meilisearch:7700
       MEILISEARCH_API_KEY: ${MEILISEARCH_API_KEY}
+      S3_FILE_URL: ${S3_FILE_URL:?set the public URL of persistent media storage}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?set the S3-compatible access key}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?set the S3-compatible secret key}
+      S3_REGION: ${S3_REGION:?set the S3-compatible region}
+      S3_BUCKET: ${S3_BUCKET:?set the S3-compatible bucket}
+      S3_ENDPOINT: ${S3_ENDPOINT:-}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      OTEL_SERVICE_NAME: nura-backend
+      REFERRAL_REWARD_EUR: ${REFERRAL_REWARD_EUR:-10}
+      REFERRAL_REWARD_XOF: ${REFERRAL_REWARD_XOF:-6500}
     expose:
       - "9000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:9000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   storefront:
     build:
@@ -104,11 +131,51 @@ services:
         NEXT_PUBLIC_META_PIXEL_ID: ${NEXT_PUBLIC_META_PIXEL_ID:-}
         NEXT_PUBLIC_TIKTOK_PIXEL_ID: ${NEXT_PUBLIC_TIKTOK_PIXEL_ID:-}
         NEXT_PUBLIC_WHATSAPP_NUMBER: ${NEXT_PUBLIC_WHATSAPP_NUMBER:-}
+        LEGAL_BUSINESS_NAME: ${LEGAL_BUSINESS_NAME:?set the legal business name}
+        LEGAL_FORM: ${LEGAL_FORM:?set the legal form, or Sans objet}
+        LEGAL_CAPITAL: ${LEGAL_CAPITAL:?set the share capital, or Sans objet}
+        LEGAL_REGISTRY_CITY: ${LEGAL_REGISTRY_CITY:?set the registry city}
+        LEGAL_REGISTRATION_NUMBER: ${LEGAL_REGISTRATION_NUMBER:?set the SIREN/SIRET}
+        LEGAL_VAT_NUMBER: ${LEGAL_VAT_NUMBER:?set the VAT number, or Sans objet}
+        LEGAL_ADDRESS: ${LEGAL_ADDRESS:?set the registered address}
+        LEGAL_PUBLICATION_DIRECTOR: ${LEGAL_PUBLICATION_DIRECTOR:?set the publication director}
+        LEGAL_HOST_NAME: ${LEGAL_HOST_NAME:?set the hosting company}
+        LEGAL_HOST_ADDRESS: ${LEGAL_HOST_ADDRESS:?set the hosting company address}
+        LEGAL_HOST_PHONE: ${LEGAL_HOST_PHONE:?set the hosting company phone}
+        LEGAL_MEDIATOR_NAME: ${LEGAL_MEDIATOR_NAME:?choose a consumer mediator}
+        LEGAL_MEDIATOR_URL: ${LEGAL_MEDIATOR_URL:?set the consumer mediator URL}
     restart: unless-stopped
+    environment:
+      ORDER_ACCESS_SECRET: ${ORDER_ACCESS_SECRET:?set ORDER_ACCESS_SECRET in .env}
+      LEGAL_BUSINESS_NAME: ${LEGAL_BUSINESS_NAME:?set the legal business name}
+      LEGAL_FORM: ${LEGAL_FORM:?set the legal form, or Sans objet}
+      LEGAL_CAPITAL: ${LEGAL_CAPITAL:?set the share capital, or Sans objet}
+      LEGAL_REGISTRY_CITY: ${LEGAL_REGISTRY_CITY:?set the registry city}
+      LEGAL_REGISTRATION_NUMBER: ${LEGAL_REGISTRATION_NUMBER:?set the SIREN/SIRET}
+      LEGAL_VAT_NUMBER: ${LEGAL_VAT_NUMBER:?set the VAT number, or Sans objet}
+      LEGAL_ADDRESS: ${LEGAL_ADDRESS:?set the registered address}
+      LEGAL_PUBLICATION_DIRECTOR: ${LEGAL_PUBLICATION_DIRECTOR:?set the publication director}
+      LEGAL_HOST_NAME: ${LEGAL_HOST_NAME:?set the hosting company}
+      LEGAL_HOST_ADDRESS: ${LEGAL_HOST_ADDRESS:?set the hosting company address}
+      LEGAL_HOST_PHONE: ${LEGAL_HOST_PHONE:?set the hosting company phone}
+      LEGAL_MEDIATOR_NAME: ${LEGAL_MEDIATOR_NAME:?choose a consumer mediator}
+      LEGAL_MEDIATOR_URL: ${LEGAL_MEDIATOR_URL:?set the consumer mediator URL}
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     expose:
       - "8000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   caddy:
     build:
@@ -116,9 +183,10 @@ services:
       dockerfile: Dockerfile.caddy
     restart: unless-stopped
     depends_on:
-      - backend
-      - storefront
-      - geoipupdate
+      backend:
+        condition: service_healthy
+      geoipupdate:
+        condition: service_healthy
     ports:
       - "80:80"
       - "443:443"
@@ -127,6 +195,16 @@ services:
       - geoip_data:/etc/caddy/geoip:ro
       - caddy_data:/data
       - caddy_config:/config
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:2019/config/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
 
 volumes:
   postgres_data:

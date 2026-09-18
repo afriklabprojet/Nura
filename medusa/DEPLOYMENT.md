@@ -27,18 +27,28 @@ alors sur ton propre serveur : tu possèdes le code et les données.
    Puis remplir :
    - `POSTGRES_PASSWORD`, `JWT_SECRET`, `COOKIE_SECRET` — générer avec
      `openssl rand -hex 32` (une valeur différente pour chacun).
+    - `ORDER_ACCESS_SECRET` et `BACKUP_ENCRYPTION_KEY` — deux autres valeurs
+       distinctes générées de la même façon.
    - `STORE_CORS` / `ADMIN_CORS` / `AUTH_CORS` — tes vrais domaines.
    - `NEXT_PUBLIC_MEDUSA_BACKEND_URL` / `NEXT_PUBLIC_BASE_URL` — tes vraies
      URLs publiques.
+    - Les variables `S3_*` d'un bucket S3/R2 persistant (voir « Médias »).
+    - Toutes les variables `LEGAL_*` avec les informations réelles de
+       l'entreprise, de l'hébergeur et du médiateur choisi. Le storefront de
+       production ne se construit pas si l'une d'elles manque.
+    - Au moins Stripe ou Jèko doit être configuré avant le premier démarrage
+       de production. Le paiement manuel n'y est jamais proposé.
+    - `RESEND_API_KEY` et `RESEND_FROM_EMAIL` sont obligatoires en production;
+       l'adresse d'envoi doit appartenir à un domaine vérifié dans Resend.
    - `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` — laisser vide pour l'instant
-     (étape 5).
+       (étape 5). Caddy peut exposer l'admin avant le storefront.
 
 3. **Adapter `Caddyfile`** avec tes vrais domaines (remplace
    `nura-paris.com` et `api.nura-paris.com`).
 
 4. **Démarrer** :
    ```bash
-   docker compose up -d --build postgres redis backend caddy
+   docker compose up -d --build postgres redis meilisearch geoipupdate backend caddy
    ```
    Au premier démarrage, le backend crée automatiquement les tables
    (migrations). Vérifie que tout va bien :
@@ -78,9 +88,9 @@ Le site est alors accessible sur tes deux domaines, avec HTTPS automatique
 
 ## Paiement réel
 
-Deux régions, deux moyens de paiement. Tant que les clés ci-dessous sont
-vides, le paiement tourne en mode manuel/test (aucun argent réel ne bouge) —
-le site reste utilisable pour tout tester avant d'activer les vrais comptes.
+Deux régions, deux moyens de paiement. Le provider manuel reste disponible en
+développement. En production, le backend refuse de démarrer tant qu'aucun
+provider réel n'est configuré afin d'éviter toute commande sans paiement réel.
 
 **Important : la création et la vérification des comptes Stripe et Jèko ne
 peuvent être faites que par toi.** Ces plateformes exigent tes documents
@@ -97,7 +107,10 @@ validés, connecte-les au site avec les étapes ci-dessous.
    `.env` (`STRIPE_API_KEY`, `NEXT_PUBLIC_STRIPE_KEY`).
 3. Crée un webhook Stripe pointant vers
    `https://api.nura-paris.com/hooks/payment/stripe_stripe`, copie le
-   secret de signature dans `STRIPE_WEBHOOK_SECRET`.
+   secret de signature dans `STRIPE_WEBHOOK_SECRET`, et abonne-le aux
+   événements `payment_intent.amount_capturable_updated`,
+   `payment_intent.succeeded`, `payment_intent.payment_failed` et
+   `payment_intent.partially_funded`.
 4. Redéploie : `docker compose up -d --build backend storefront`.
 5. Dans l'admin, **Settings > Regions > Europe**, active le mode de
    paiement Stripe.
@@ -145,6 +158,7 @@ une fois le compte créé, assigne-lui un rôle via **Settings > Roles**.
 Une fois Resend configuré, le site envoie automatiquement :
 - le message du formulaire `/contact` (à toi, `RESEND_FROM_EMAIL`),
 - la confirmation de commande (au client, après paiement),
+- les notifications d'annulation, d'expédition, de livraison et de remboursement,
 - le lien de réinitialisation de mot de passe,
 - le lien de vérification d'email,
 - la notification de nouvel inscrit à la newsletter (à toi).
@@ -156,9 +170,9 @@ Une fois Resend configuré, le site envoie automatiquement :
    vérifié (ex. `contact@nura-paris.com`).
 3. Redéploie : `docker compose up -d --build backend`.
 
-Tant que ces variables sont vides, les messages restent journalisés côté
-serveur uniquement (`docker compose logs backend`), sans erreur pour le
-visiteur.
+Le mode sans Resend, où les messages sont uniquement journalisés, est réservé
+au développement local. Le backend de production refuse de démarrer sans ces
+deux variables.
 
 ## Recherche produit (Meilisearch)
 
@@ -193,9 +207,9 @@ Auto-hébergée, aucun compte tiers requis :
      -d '{"description":"Storefront search-only key","actions":["search"],"indexes":["products"],"expiresAt":null}'
    ```
    Copie le `key` retourné dans `.env` (`NEXT_PUBLIC_MEILISEARCH_API_KEY`),
-   mets `NEXT_PUBLIC_MEILISEARCH_HOST` sur l'URL publique de Meilisearch
-   (ex. `https://api.nura-paris.com:7700` — pense à l'exposer dans ton
-   `Caddyfile` si tu veux l'atteindre depuis l'extérieur), puis :
+   mets `NEXT_PUBLIC_MEILISEARCH_HOST` sur
+   `https://api.nura-paris.com/meilisearch` (Caddy expose déjà ce chemin avec
+   une limite de débit), puis :
    ```bash
    docker compose up -d --build storefront
    ```
@@ -216,12 +230,10 @@ Caddy lui-même (auto-hébergée, aucun service tiers appelé à chaque visite) 
    génère une clé de licence (`Manage License Keys`).
 2. Mets ton `Account ID` et ta clé dans `.env`
    (`GEOIPUPDATE_ACCOUNT_ID`, `GEOIPUPDATE_LICENSE_KEY`).
-3. Premier démarrage uniquement — démarre `geoipupdate` seul et laisse-le
-   terminer le premier téléchargement de la base (quelques secondes) avant
-   de démarrer Caddy, sinon Caddy n'a pas encore de base à lire :
+3. Au premier démarrage, le healthcheck attend automatiquement la fin du
+   téléchargement avant de démarrer Caddy :
    ```bash
    docker compose up -d geoipupdate
-   sleep 15
    docker compose up -d --build
    ```
    Les démarrages suivants n'ont pas besoin de cette étape séparée — la
@@ -245,8 +257,32 @@ docker compose up -d --build
 
 ## Sauvegardes
 
-La base de données vit dans le volume Docker `postgres_data`. Programme une
-sauvegarde régulière, par exemple :
+Les sauvegardes sont chiffrées en AES-256 et conservées 30 jours par défaut.
+Exporte la clé indiquée dans `.env` sans la passer en argument de commande :
 ```bash
-docker compose exec postgres pg_dump -U medusa medusa | gzip > backup-$(date +%F).sql.gz
+export BACKUP_ENCRYPTION_KEY='valeur-de-.env'
+./scripts/backup-postgres.sh
 ```
+
+Programme cette commande chaque nuit et copie aussi le dossier `backups/` vers
+un stockage hors serveur. Pour vérifier une restauration sur une base de test :
+
+```bash
+export BACKUP_ENCRYPTION_KEY='valeur-de-.env'
+RESTORE_CONFIRM=medusa ./scripts/restore-postgres.sh backups/medusa-TIMESTAMP.dump.enc
+```
+
+Teste une restauration au moins une fois par trimestre.
+
+## Médias persistants
+
+Le backend exige en production un bucket compatible S3. Configure
+`S3_FILE_URL`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_REGION`,
+`S3_BUCKET` et, pour un service compatible tel que R2, `S3_ENDPOINT`.
+
+## Supervision
+
+Les conteneurs exposent des healthchecks et limitent leurs journaux à cinq
+fichiers de 10 Mo. Configure `OTEL_EXPORTER_OTLP_ENDPOINT` pour envoyer les
+traces HTTP, workflows, requêtes, base et cache vers un collecteur compatible
+OTLP. Ajoute aussi une sonde externe sur `/health` et sur la page d'accueil.

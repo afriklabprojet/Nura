@@ -7,6 +7,10 @@ checkEnvVariables()
  */
 const S3_HOSTNAME = process.env.MEDUSA_CLOUD_S3_HOSTNAME
 const S3_PATHNAME = process.env.MEDUSA_CLOUD_S3_PATHNAME
+const MEDUSA_BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
+const MEDUSA_BACKEND = MEDUSA_BACKEND_URL
+  ? new URL(MEDUSA_BACKEND_URL)
+  : null
 
 /**
  * @type {import('next').NextConfig}
@@ -27,14 +31,10 @@ const nextConfig = {
       fullUrl: true,
     },
   },
-  eslint: {
-    ignoreDuringBuilds: false,
-  },
   typescript: {
     ignoreBuildErrors: false,
   },
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
         protocol: "http",
@@ -52,6 +52,15 @@ const nextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      ...(MEDUSA_BACKEND
+        ? [
+            {
+              protocol: MEDUSA_BACKEND.protocol.slice(0, -1),
+              hostname: MEDUSA_BACKEND.hostname,
+              port: MEDUSA_BACKEND.port,
+            },
+          ]
+        : []),
       ...(S3_HOSTNAME && S3_PATHNAME
         ? [
             {

@@ -1,0 +1,17 @@
+.git
+.github
+.env
+.env.*
+!.env.example
+node_modules
+**/node_modules
+.turbo
+**/.turbo
+**/.next
+**/.medusa
+**/dist
+**/coverage
+*.log
+backups
+README.md
+DEPLOYMENT.md

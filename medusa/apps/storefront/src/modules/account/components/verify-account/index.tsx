@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
+import { AccountMessagesBlock } from "@lib/data/home-content"
 import { Button } from "@modules/common/components/ui"
 import { confirmEmailVerification } from "@lib/data/customer"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 type VerificationState = "verifying" | "success" | "error"
 
-const VerifyAccount = () => {
+const VerifyAccount = ({ messages }: { messages?: AccountMessagesBlock }) => {
   const searchParams = useSearchParams()
   const token = searchParams.get("token")
   const [state, setState] = useState<VerificationState>("verifying")
@@ -48,8 +49,8 @@ const VerifyAccount = () => {
       {state === "success" && (
         <>
           <p className="text-base-regular text-ui-fg-base">
-            Votre email est vérifié. Vous pouvez maintenant vous connecter à
-            votre compte.
+            {messages?.verify_success_text ||
+              "Votre email est vérifié. Vous pouvez maintenant vous connecter à votre compte."}
           </p>
           <LocalizedClientLink href="/account">
             <Button variant="primary">Se connecter</Button>
@@ -60,8 +61,8 @@ const VerifyAccount = () => {
       {state === "error" && (
         <>
           <p className="text-base-regular text-ui-fg-base">
-            Ce lien de vérification est invalide ou a expiré. Connectez-vous
-            pour recevoir un nouvel email de vérification.
+            {messages?.verify_invalid_text ||
+              "Ce lien de vérification est invalide ou a expiré. Connectez-vous pour recevoir un nouvel email de vérification."}
           </p>
           <LocalizedClientLink href="/account">
             <Button variant="secondary">Se connecter</Button>

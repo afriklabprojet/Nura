@@ -1,12 +1,19 @@
 "use client"
 
+import { AccountMessagesBlock } from "@lib/data/home-content"
 import { Button } from "@modules/common/components/ui"
 
 import OrderCard from "../order-card"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
 
-const OrderOverview = ({ orders }: { orders: HttpTypes.StoreOrder[] }) => {
+const OrderOverview = ({
+  orders,
+  messages,
+}: {
+  orders: HttpTypes.StoreOrder[]
+  messages?: AccountMessagesBlock
+}) => {
   if (orders?.length) {
     return (
       <div className="flex flex-col gap-y-8 w-full">
@@ -27,9 +34,12 @@ const OrderOverview = ({ orders }: { orders: HttpTypes.StoreOrder[] }) => {
       className="w-full flex flex-col items-center gap-y-4"
       data-testid="no-orders-container"
     >
-      <h2 className="text-large-semi">Rien à afficher ici</h2>
+      <h2 className="text-large-semi">
+        {messages?.order_overview_empty_title || "Rien à afficher ici"}
+      </h2>
       <p className="text-base-regular">
-        Vous n&apos;avez pas encore de commande, changeons ça {":)"}
+        {messages?.order_overview_empty_text ||
+          "Vous n'avez pas encore de commande, changeons ça :)"}
       </p>
       <div className="mt-4">
         <LocalizedClientLink href="/" passHref>

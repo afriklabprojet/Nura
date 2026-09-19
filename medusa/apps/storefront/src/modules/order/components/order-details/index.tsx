@@ -1,9 +1,11 @@
+import { OrderMessagesBlock } from "@lib/data/home-content"
 import { HttpTypes } from "@medusajs/types"
 import { Text } from "@modules/common/components/ui"
 
 type OrderDetailsProps = {
   order: HttpTypes.StoreOrder
   showStatus?: boolean
+  messages?: OrderMessagesBlock
 }
 
 const FULFILLMENT_STATUS_LABELS: Record<string, string> = {
@@ -27,7 +29,10 @@ const PAYMENT_STATUS_LABELS: Record<string, string> = {
   requires_action: "Action requise",
 }
 
-const OrderDetails = ({ order, showStatus }: OrderDetailsProps) => {
+const DEFAULT_CONFIRMATION_TEXT =
+  "Les détails de confirmation de votre commande ont été envoyés à {email}."
+
+const OrderDetails = ({ order, showStatus, messages }: OrderDetailsProps) => {
   const formatStatus = (str: string, labels: Record<string, string>) => {
     if (labels[str]) {
       return labels[str]
@@ -38,17 +43,21 @@ const OrderDetails = ({ order, showStatus }: OrderDetailsProps) => {
     return formatted.slice(0, 1).toUpperCase() + formatted.slice(1)
   }
 
+  const [before, after] = (
+    messages?.confirmation_email_text || DEFAULT_CONFIRMATION_TEXT
+  ).split("{email}")
+
   return (
     <div>
       <Text>
-        Les détails de confirmation de votre commande ont été envoyés à{" "}
+        {before}
         <span
           className="text-ui-fg-medium-plus font-semibold"
           data-testid="order-email"
         >
           {order.email}
         </span>
-        .
+        {after ?? ""}
       </Text>
       <Text className="mt-2">
         Date de commande :{" "}

@@ -1,16 +1,19 @@
+import { AccountMessagesBlock } from "@lib/data/home-content"
 import { login } from "@lib/data/customer"
 import { LOGIN_VIEW } from "@modules/account/templates/login-template"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
+import EmailNotice from "@modules/common/components/email-notice"
 import Input from "@modules/common/components/input"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { useActionState } from "react"
 
 type Props = {
   setCurrentView: (view: LOGIN_VIEW) => void
+  messages?: AccountMessagesBlock
 }
 
-const Login = ({ setCurrentView }: Props) => {
+const Login = ({ setCurrentView, messages }: Props) => {
   const [message, formAction] = useActionState(login, null)
 
   return (
@@ -18,17 +21,25 @@ const Login = ({ setCurrentView }: Props) => {
       className="max-w-sm w-full flex flex-col items-center"
       data-testid="login-page"
     >
-      <h1 className="text-large-semi uppercase mb-6">Bon retour</h1>
+      <h1 className="text-large-semi uppercase mb-6">
+        {messages?.login_title || "Bon retour"}
+      </h1>
       <p className="text-center text-base-regular text-ui-fg-base mb-8">
-        Connectez-vous pour accéder à une expérience d&apos;achat enrichie.
+        {messages?.login_text ||
+          "Connectez-vous pour accéder à une expérience d'achat enrichie."}
       </p>
       {message?.state === "verification_required" && (
         <div
           className="w-full mb-6 text-center text-base-regular text-ui-fg-base bg-ui-bg-subtle border border-ui-border-base rounded-rounded p-4"
           data-testid="login-verification-message"
         >
-          Un lien de vérification a été envoyé à <strong>{message.email}</strong>.
-          Vérifiez votre email puis connectez-vous.
+          <EmailNotice
+            text={
+              messages?.verify_sent_text ||
+              "Un lien de vérification a été envoyé à {email}. Vérifiez votre email puis connectez-vous."
+            }
+            email={message.email}
+          />
         </div>
       )}
       <form className="w-full" action={formAction}>

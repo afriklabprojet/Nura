@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 
 import AddressBook from "@modules/account/components/address-book"
 
+import { getHomeContent } from "@lib/data/home-content"
 import { getRegion } from "@lib/data/regions"
 import { retrieveCustomer } from "@lib/data/customer"
 
@@ -18,6 +19,7 @@ export default async function Addresses(props: {
   const { countryCode } = params
   const customer = await retrieveCustomer()
   const region = await getRegion(countryCode)
+  const { blocks } = await getHomeContent()
 
   if (!customer || !region) {
     notFound()
@@ -28,9 +30,8 @@ export default async function Addresses(props: {
       <div className="mb-8 flex flex-col gap-y-4">
         <h1 className="text-2xl-semi">Adresses de livraison</h1>
         <p className="text-base-regular">
-          Consultez et modifiez vos adresses de livraison, vous pouvez en
-          ajouter autant que vous le souhaitez. Elles seront disponibles lors
-          de votre prochaine commande.
+          {blocks.account_messages?.addresses_intro ||
+            "Consultez et modifiez vos adresses de livraison, vous pouvez en ajouter autant que vous le souhaitez. Elles seront disponibles lors de votre prochaine commande."}
         </p>
       </div>
       <AddressBook customer={customer} region={region} />

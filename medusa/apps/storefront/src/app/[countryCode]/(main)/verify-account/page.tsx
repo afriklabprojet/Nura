@@ -1,3 +1,4 @@
+import { getHomeContent } from "@lib/data/home-content"
 import { Metadata } from "next"
 import { Suspense } from "react"
 
@@ -8,7 +9,9 @@ export const metadata: Metadata = {
   description: "Vérifiez votre adresse email pour finaliser votre inscription.",
 }
 
-export default function VerifyAccountPage() {
+export default async function VerifyAccountPage() {
+  const { blocks } = await getHomeContent()
+
   return (
     <div className="w-full flex justify-center px-8 py-12">
       <Suspense
@@ -18,7 +21,7 @@ export default function VerifyAccountPage() {
           </p>
         }
       >
-        <VerifyAccount />
+        <VerifyAccount messages={blocks.account_messages} />
       </Suspense>
     </div>
   )

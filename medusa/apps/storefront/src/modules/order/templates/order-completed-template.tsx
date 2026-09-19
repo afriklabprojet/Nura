@@ -1,3 +1,4 @@
+import { getHomeContent } from "@lib/data/home-content"
 import { Heading } from "@modules/common/components/ui"
 import { cookies as nextCookies } from "next/headers"
 
@@ -18,6 +19,8 @@ export default async function OrderCompletedTemplate({
   order,
 }: OrderCompletedTemplateProps) {
   const cookies = await nextCookies()
+  const { blocks } = await getHomeContent()
+  const messages = blocks.order_messages
 
   const isOnboarding = cookies.get("_medusa_onboarding")?.value === "true"
 
@@ -33,10 +36,13 @@ export default async function OrderCompletedTemplate({
             level="h1"
             className="flex flex-col gap-y-3 text-3xl mb-4"
           >
-            <span>Merci !</span>
-            <span>Votre commande a bien été passée.</span>
+            <span>{messages?.thank_you_title || "Merci !"}</span>
+            <span>
+              {messages?.thank_you_text ||
+                "Votre commande a bien été enregistrée."}
+            </span>
           </Heading>
-          <OrderDetails order={order} />
+          <OrderDetails order={order} showStatus messages={messages} />
           <Heading level="h2" className="flex flex-row text-3xl-regular">
             Récapitulatif
           </Heading>
@@ -44,7 +50,7 @@ export default async function OrderCompletedTemplate({
           <CartTotals totals={order} />
           <ShippingDetails order={order} />
           <PaymentDetails order={order} />
-          <Help />
+          <Help title={messages?.help_title} />
         </div>
       </div>
     </div>

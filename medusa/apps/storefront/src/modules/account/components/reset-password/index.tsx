@@ -1,5 +1,6 @@
 "use client"
 
+import { AccountMessagesBlock } from "@lib/data/home-content"
 import { resetPassword } from "@lib/data/customer"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
@@ -9,7 +10,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import { useSearchParams } from "next/navigation"
 import { useActionState } from "react"
 
-const ResetPassword = () => {
+const ResetPassword = ({ messages }: { messages?: AccountMessagesBlock }) => {
   const searchParams = useSearchParams()
   const token = searchParams.get("token")
   const [message, formAction] = useActionState(resetPassword, null)
@@ -20,9 +21,12 @@ const ResetPassword = () => {
         className="max-w-sm w-full flex flex-col items-center text-center gap-y-4"
         data-testid="reset-password-invalid-link"
       >
-        <h1 className="text-large-semi uppercase">Lien invalide</h1>
+        <h1 className="text-large-semi uppercase">
+          {messages?.reset_invalid_title || "Lien invalide"}
+        </h1>
         <p className="text-base-regular text-ui-fg-base">
-          Ce lien de réinitialisation est invalide ou a expiré.
+          {messages?.reset_invalid_text ||
+            "Ce lien de réinitialisation est invalide ou a expiré."}
         </p>
         <LocalizedClientLink href="/mot-de-passe-oublie">
           <Button variant="secondary">Demander un nouveau lien</Button>
@@ -37,10 +41,12 @@ const ResetPassword = () => {
         className="max-w-sm w-full flex flex-col items-center text-center gap-y-4"
         data-testid="reset-password-success"
       >
-        <h1 className="text-large-semi uppercase">Mot de passe mis à jour</h1>
+        <h1 className="text-large-semi uppercase">
+          {messages?.reset_success_title || "Mot de passe mis à jour"}
+        </h1>
         <p className="text-base-regular text-ui-fg-base">
-          Votre mot de passe a bien été réinitialisé. Vous pouvez maintenant
-          vous connecter.
+          {messages?.reset_success_text ||
+            "Votre mot de passe a bien été réinitialisé. Vous pouvez maintenant vous connecter."}
         </p>
         <LocalizedClientLink href="/account">
           <Button variant="primary">Se connecter</Button>

@@ -7,9 +7,14 @@ import WishlistButton from "@modules/products/components/wishlist-button"
 type WishlistOverviewProps = {
   products: HttpTypes.StoreProduct[]
   region: HttpTypes.StoreRegion
+  emptyText?: string
 }
 
-const WishlistOverview = ({ products, region }: WishlistOverviewProps) => {
+const WishlistOverview = ({
+  products,
+  region,
+  emptyText,
+}: WishlistOverviewProps) => {
   if (products.length === 0) {
     return (
       <div
@@ -17,7 +22,7 @@ const WishlistOverview = ({ products, region }: WishlistOverviewProps) => {
         data-testid="wishlist-empty"
       >
         <Text className="text-ui-fg-subtle">
-          Vous n&apos;avez pas encore de favoris.
+          {emptyText || "Vous n'avez pas encore de favoris."}
         </Text>
         <LocalizedClientLink href="/store" className="underline text-brown">
           Découvrir nos produits

@@ -190,6 +190,9 @@ export type OrderMessagesBlock = {
   help_title?: string
   transfer_success_text?: string
   transfer_declined_text?: string
+  transfer_request_text?: string
+  transfer_ownership_text?: string
+  transfer_ignore_text?: string
 }
 
 export type NotFoundMessagesBlock = {
@@ -215,6 +218,7 @@ export type CollectionsPageBlock = {
 }
 
 export type ProductExtrasBlock = {
+  reassurance_question?: string
   reassurance_shipping?: string
   reassurance_returns?: string
   shipping_tab_title?: string
@@ -280,9 +284,9 @@ export type HomeContent = {
 
 /**
  * What the admin has configured across the site — home page sections, the
- * static pages, the FAQ, and shared settings like contact details. Absent or
- * switched-off blocks come back empty and each consumer falls back to its
- * own defaults, so an unconfigured block never breaks a page.
+ * static pages, the FAQ, and shared settings like contact details. Absent
+ * blocks use presentation defaults; switched-off block keys are returned in
+ * `hidden` so consumers can omit them.
  *
  * The cache is dropped by the backend the moment an editor saves (see the
  * content-revalidate subscriber); the hour-long window is only a safety net

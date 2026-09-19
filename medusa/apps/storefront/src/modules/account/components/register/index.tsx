@@ -1,18 +1,24 @@
 "use client"
 
 import { useActionState } from "react"
+import { AccountMessagesBlock } from "@lib/data/home-content"
 import Input from "@modules/common/components/input"
 import { LOGIN_VIEW } from "@modules/account/templates/login-template"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import EmailNotice from "@modules/common/components/email-notice"
+import InlineText from "@modules/common/components/inline-text"
 import { signup } from "@lib/data/customer"
 
 type Props = {
   setCurrentView: (view: LOGIN_VIEW) => void
+  messages?: AccountMessagesBlock
 }
 
-const Register = ({ setCurrentView }: Props) => {
+const DEFAULT_CONSENT_TEXT =
+  "En créant un compte, vous acceptez la [politique de confidentialité](/confidentialite) et les [conditions générales de vente](/cgv) de Nura."
+
+const Register = ({ setCurrentView, messages }: Props) => {
   const [message, formAction] = useActionState(signup, null)
 
   return (
@@ -21,19 +27,24 @@ const Register = ({ setCurrentView }: Props) => {
       data-testid="register-page"
     >
       <h1 className="text-large-semi uppercase mb-6">
-        Rejoindre Nura
+        {messages?.register_title || "Rejoindre Nura"}
       </h1>
       <p className="text-center text-base-regular text-ui-fg-base mb-4">
-        Créez votre compte Nura et profitez d&apos;une expérience d&apos;achat
-        enrichie.
+        {messages?.register_text ||
+          "Créez votre compte Nura et profitez d'une expérience d'achat enrichie."}
       </p>
       {message?.state === "verification_required" && (
         <div
           className="w-full mb-4 text-center text-base-regular text-ui-fg-base bg-ui-bg-subtle border border-ui-border-base rounded-rounded p-4"
           data-testid="register-verification-message"
         >
-          Un lien de vérification a été envoyé à <strong>{message.email}</strong>.
-          Vérifiez votre boîte de réception puis connectez-vous.
+          <EmailNotice
+            text={
+              messages?.register_verify_text ||
+              "Un lien de vérification a été envoyé à {email}. Vérifiez votre boîte de réception puis connectez-vous."
+            }
+            email={message.email}
+          />
         </div>
       )}
       <form className="w-full flex flex-col" action={formAction}>
@@ -81,15 +92,10 @@ const Register = ({ setCurrentView }: Props) => {
           data-testid="register-error"
         />
         <span className="text-center text-ui-fg-base text-small-regular mt-6">
-          En créant un compte, vous acceptez la{" "}
-          <LocalizedClientLink href="/confidentialite" className="underline">
-            politique de confidentialité
-          </LocalizedClientLink>{" "}
-          et les{" "}
-          <LocalizedClientLink href="/cgv" className="underline">
-            conditions générales de vente
-          </LocalizedClientLink>{" "}
-          de Nura.
+          <InlineText
+            text={messages?.register_consent_text || DEFAULT_CONSENT_TEXT}
+            className="underline"
+          />
         </span>
         <SubmitButton className="w-full mt-6" data-testid="register-button">
           Créer mon compte

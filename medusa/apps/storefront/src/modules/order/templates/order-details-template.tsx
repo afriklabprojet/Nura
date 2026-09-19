@@ -1,5 +1,6 @@
 "use client"
 
+import { OrderMessagesBlock } from "@lib/data/home-content"
 import { XMark } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
@@ -12,10 +13,12 @@ import React from "react"
 
 type OrderDetailsTemplateProps = {
   order: HttpTypes.StoreOrder
+  messages?: OrderMessagesBlock
 }
 
 const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
   order,
+  messages,
 }) => {
   return (
     <div className="flex flex-col justify-center gap-y-4">
@@ -33,11 +36,11 @@ const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
         className="flex flex-col gap-4 h-full bg-bg-alt w-full"
         data-testid="order-details-container"
       >
-        <OrderDetails order={order} showStatus />
+        <OrderDetails order={order} showStatus messages={messages} />
         <Items order={order} />
         <ShippingDetails order={order} />
         <OrderSummary order={order} />
-        <Help />
+        <Help title={messages?.help_title} />
       </div>
     </div>
   )

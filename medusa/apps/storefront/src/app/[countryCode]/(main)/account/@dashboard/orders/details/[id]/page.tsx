@@ -1,3 +1,4 @@
+import { getHomeContent } from "@lib/data/home-content"
 import { retrieveOrder } from "@lib/data/orders"
 import OrderDetailsTemplate from "@modules/order/templates/order-details-template"
 import { Metadata } from "next"
@@ -29,5 +30,7 @@ export default async function OrderDetailPage(props: Props) {
     notFound()
   }
 
-  return <OrderDetailsTemplate order={order} />
+  const { blocks } = await getHomeContent()
+
+  return <OrderDetailsTemplate order={order} messages={blocks.order_messages} />
 }

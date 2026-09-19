@@ -6,7 +6,17 @@ import { useState } from "react"
 
 type TransferStatus = "pending" | "success" | "error"
 
-const TransferActions = ({ id, token }: { id: string; token: string }) => {
+const TransferActions = ({
+  id,
+  token,
+  successText,
+  declinedText,
+}: {
+  id: string
+  token: string
+  successText?: string
+  declinedText?: string
+}) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [status, setStatus] = useState<{
     accept: TransferStatus | null
@@ -40,12 +50,12 @@ const TransferActions = ({ id, token }: { id: string; token: string }) => {
     <div className="flex flex-col gap-y-4">
       {status?.accept === "success" && (
         <Text className="text-emerald-500">
-          Commande transférée avec succès !
+          {successText || "Commande transférée avec succès !"}
         </Text>
       )}
       {status?.decline === "success" && (
         <Text className="text-emerald-500">
-          Transfert de commande refusé avec succès !
+          {declinedText || "Transfert de commande refusé avec succès !"}
         </Text>
       )}
       {status?.accept !== "success" && status?.decline !== "success" && (

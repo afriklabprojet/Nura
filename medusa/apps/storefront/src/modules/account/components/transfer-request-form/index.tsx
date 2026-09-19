@@ -6,7 +6,7 @@ import { useActionState } from "react"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
 import { useEffect, useState } from "react"
 
-export default function TransferRequestForm() {
+export default function TransferRequestForm({ text }: { text?: string }) {
   const [showSuccess, setShowSuccess] = useState(false)
 
   const [state, formAction] = useActionState(createTransferRequest, {
@@ -29,8 +29,8 @@ export default function TransferRequestForm() {
             Transfert de commande
           </Heading>
           <p className="text-small-regular text-neutral-500">
-            Vous ne trouvez pas la commande que vous cherchez ?
-            <br /> Rattachez une commande à votre compte.
+            {text ||
+              "Vous ne trouvez pas la commande que vous cherchez ? Rattachez une commande à votre compte."}
           </p>
         </div>
         <form

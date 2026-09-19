@@ -1,5 +1,6 @@
 "use client"
 
+import { AccountMessagesBlock } from "@lib/data/home-content"
 import { requestPasswordReset } from "@lib/data/customer"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
@@ -7,7 +8,7 @@ import Input from "@modules/common/components/input"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { useActionState } from "react"
 
-const ForgotPassword = () => {
+const ForgotPassword = ({ messages }: { messages?: AccountMessagesBlock }) => {
   const [message, formAction] = useActionState(requestPasswordReset, null)
 
   if (message?.state === "success") {
@@ -16,10 +17,12 @@ const ForgotPassword = () => {
         className="max-w-sm w-full flex flex-col items-center text-center gap-y-4"
         data-testid="forgot-password-success"
       >
-        <h1 className="text-large-semi uppercase">Vérifiez votre boîte mail</h1>
+        <h1 className="text-large-semi uppercase">
+          {messages?.forgot_sent_title || "Vérifiez votre boîte mail"}
+        </h1>
         <p className="text-base-regular text-ui-fg-base">
-          Si un compte existe avec cette adresse email, un lien de
-          réinitialisation vient de vous être envoyé.
+          {messages?.forgot_sent_text ||
+            "Si un compte existe avec cette adresse email, un lien de réinitialisation vient de vous être envoyé."}
         </p>
         <LocalizedClientLink href="/account">
           Retour à la connexion
@@ -33,10 +36,12 @@ const ForgotPassword = () => {
       className="max-w-sm w-full flex flex-col items-center"
       data-testid="forgot-password-page"
     >
-      <h1 className="text-large-semi uppercase mb-6">Mot de passe oublié</h1>
+      <h1 className="text-large-semi uppercase mb-6">
+        {messages?.forgot_title || "Mot de passe oublié"}
+      </h1>
       <p className="text-center text-base-regular text-ui-fg-base mb-8">
-        Indiquez votre adresse email, nous vous enverrons un lien pour
-        réinitialiser votre mot de passe.
+        {messages?.forgot_text ||
+          "Indiquez votre adresse email, nous vous enverrons un lien pour réinitialiser votre mot de passe."}
       </p>
       <form className="w-full" action={formAction}>
         <div className="flex flex-col w-full gap-y-2">

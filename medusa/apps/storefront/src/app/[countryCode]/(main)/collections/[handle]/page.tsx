@@ -2,6 +2,7 @@ import { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { getCollectionByHandle, listCollections } from "@lib/data/collections"
+import { getHomeContent } from "@lib/data/home-content"
 import { listRegions } from "@lib/data/regions"
 import { StoreCollection, StoreRegion } from "@medusajs/types"
 import CollectionTemplate from "@modules/collections/templates"
@@ -95,6 +96,8 @@ export default async function CollectionPage(props: Props) {
     notFound()
   }
 
+  const { blocks } = await getHomeContent()
+
   return (
     <CollectionTemplate
       collection={collection}
@@ -102,6 +105,7 @@ export default async function CollectionPage(props: Props) {
       sortBy={sortBy}
       countryCode={params.countryCode}
       optionValueIds={optionValueIds}
+      blurbTemplate={blocks.collections_page?.collection_blurb_template}
     />
   )
 }

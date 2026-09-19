@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 import Image from "next/image"
 
+import { getHomeContent } from "@lib/data/home-content"
 import { listPosts } from "@lib/data/journal"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
@@ -20,24 +21,28 @@ const formatDate = (value: string | null) =>
     : null
 
 export default async function JournalPage() {
-  const { posts } = await listPosts(24)
+  const [{ posts }, { blocks }] = await Promise.all([
+    listPosts(24),
+    getHomeContent(),
+  ])
+  const journalPage = blocks.journal_page
 
   return (
     <div className="content-container section-y">
       <div className="mx-auto mb-12 flex max-w-xl flex-col items-center gap-4 text-center small:mb-16">
-        <span className="eyebrow">Journal</span>
+        <span className="eyebrow">{journalPage?.eyebrow || "Journal"}</span>
         <h1 className="font-serif text-4xl text-brown small:text-6xl">
-          Conseils &amp; rituels
+          {journalPage?.title || "Conseils & rituels"}
         </h1>
         <p className="text-sm leading-relaxed text-ui-fg-subtle">
-          Choisir son parfum, prendre soin de sa peau, comprendre nos
-          matières : les mots de la maison.
+          {journalPage?.text ||
+            "Choisir son parfum, prendre soin de sa peau, comprendre nos matières : les mots de la maison."}
         </p>
       </div>
 
       {posts.length === 0 ? (
         <p className="py-12 text-center text-sm text-ui-fg-subtle">
-          Les premiers articles arrivent bientôt.
+          {journalPage?.empty_state || "Les premiers articles arrivent bientôt."}
         </p>
       ) : (
         <ul className="grid grid-cols-1 gap-10 xsmall:grid-cols-2 small:grid-cols-3 small:gap-x-8 small:gap-y-14">

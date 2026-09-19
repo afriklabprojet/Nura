@@ -214,6 +214,7 @@ export type CollectionsPageBlock = {
   eyebrow?: string
   title?: string
   text?: string
+  empty_state?: string
   collection_blurb_template?: string
 }
 

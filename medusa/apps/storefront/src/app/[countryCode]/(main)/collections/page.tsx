@@ -2,6 +2,7 @@ import { Metadata } from "next"
 import Image from "next/image"
 
 import { listCollections } from "@lib/data/collections"
+import { getHomeContent } from "@lib/data/home-content"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
@@ -21,6 +22,8 @@ export default async function CollectionsPage(props: {
   const { countryCode } = await props.params
   const region = await getRegion(countryCode)
   const { collections } = await listCollections({ fields: "*products" })
+  const { blocks } = await getHomeContent()
+  const collectionsPage = blocks.collections_page
 
   const tiles = await Promise.all(
     collections.map(async (collection) => {
@@ -48,18 +51,22 @@ export default async function CollectionsPage(props: {
   return (
     <div className="content-container section-y">
       <div className="mx-auto mb-12 flex max-w-xl flex-col items-center gap-4 text-center small:mb-16">
-        <span className="eyebrow">Nos collections</span>
+        <span className="eyebrow">
+          {collectionsPage?.eyebrow || "Nos collections"}
+        </span>
         <h1 className="font-serif text-4xl text-brown small:text-6xl">
-          Collections
+          {collectionsPage?.title || "Collections"}
         </h1>
         <p className="text-sm leading-relaxed text-ui-fg-subtle">
-          Des ensembles pensés pour se répondre : un parfum, un soin, un geste.
+          {collectionsPage?.text ||
+            "Des ensembles pensés pour se répondre : un parfum, un soin, un geste."}
         </p>
       </div>
 
       {tiles.length === 0 ? (
         <p className="py-12 text-center text-sm text-ui-fg-subtle">
-          Nos collections arrivent très bientôt.
+          {collectionsPage?.empty_state ||
+            "Nos collections arrivent très bientôt."}
         </p>
       ) : (
         <ul

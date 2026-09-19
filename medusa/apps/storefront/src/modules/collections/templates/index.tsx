@@ -8,21 +8,30 @@ import Breadcrumbs from "@modules/common/components/breadcrumbs"
 import { HttpTypes } from "@medusajs/types"
 import { OptionValueIds } from "@lib/util/product-option-filters"
 
+const DEFAULT_BLURB_TEMPLATE =
+  "Découvrez les créations réunies dans la collection {title}."
+
 export default function CollectionTemplate({
   sortBy,
   collection,
   page,
   countryCode,
   optionValueIds,
+  blurbTemplate,
 }: {
   sortBy?: SortOptions
   collection: HttpTypes.StoreCollection
   page?: string
   countryCode: string
   optionValueIds?: OptionValueIds
+  blurbTemplate?: string
 }) {
   const pageNumber = page ? parseInt(page) : 1
   const sort = sortBy || "created_at"
+  const blurb = (blurbTemplate || DEFAULT_BLURB_TEMPLATE).replaceAll(
+    "{title}",
+    collection.title
+  )
 
   return (
     <div className="content-container py-10 small:py-16">
@@ -41,6 +50,9 @@ export default function CollectionTemplate({
         <h1 className="font-serif text-4xl text-brown small:text-5xl">
           {collection.title}
         </h1>
+        <p className="max-w-lg text-sm leading-relaxed text-ui-fg-subtle">
+          {blurb}
+        </p>
       </div>
 
       <RefinementList sortBy={sort} hideOptionsPicker />

@@ -68,7 +68,7 @@ export default async function ContactPage() {
         </div>
 
         <div className="border border-nude bg-bg-alt p-6 small:p-10">
-          <ContactForm />
+          <ContactForm successMessage={blocks.contact_extras?.success_message} />
         </div>
       </div>
     </div>

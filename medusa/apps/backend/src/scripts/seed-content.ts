@@ -186,7 +186,7 @@ const HOME_BLOCKS = [
         {
           question: "Comment vous contacter ?",
           answer:
-            "Vous pouvez nous écrire via le formulaire de contact, par email à contact@nura-paris.com, ou joindre notre service client France (+33 7 45 06 48 87) et Abidjan (+225 05 05 79 88 82), du lundi au vendredi.",
+            "Vous pouvez nous écrire ou retrouver toutes nos coordonnées sur la page Contact.",
         },
       ],
     },
@@ -265,6 +265,225 @@ Cookies de mesure d'audience et de publicité — utilisés uniquement si vous l
 ## Gérer vos préférences
 
 Lors de votre première visite, un bandeau vous permet d'accepter ou de refuser les cookies non essentiels. Vous pouvez modifier votre choix à tout moment en effaçant les cookies de votre navigateur, ce qui réaffichera le bandeau lors de votre prochaine visite.`,
+    },
+  },
+  {
+    key: "newsletter_band",
+    data: {
+      title: "Entrez dans l'univers Nura.",
+      subtitle:
+        "Recevez nos nouveautés, lancements, conseils parfum & bodycare et accès exclusifs.",
+      success_message: "Merci ! Vous êtes bien inscrit(e) à la newsletter Nura.",
+      consent_text:
+        "En vous inscrivant, vous acceptez de recevoir les actualités Nura. Vous pouvez vous désinscrire à tout moment. Consultez notre [politique de confidentialité](/confidentialite).",
+    },
+  },
+  {
+    key: "cookie_banner",
+    data: {
+      text: "Ce site utilise des cookies strictement nécessaires à son fonctionnement (panier, session, région), ainsi que, si vous l'acceptez, des cookies de mesure d'audience et de publicité. En savoir plus et gérer votre choix dans notre [politique de cookies](/politique-cookies).",
+    },
+  },
+  {
+    key: "whatsapp",
+    data: {
+      message: "Bonjour, j'ai une question à propos d'un produit Nura.",
+    },
+  },
+  {
+    key: "footer_extra",
+    data: {
+      tagline: "Votre aura commence ici.",
+      blurb:
+        "Parfums et soins pensés pour accompagner chaque aura, chaque humeur et chaque moment.",
+      copyright_suffix: "Nura — Tous droits réservés.",
+      payment_methods: [
+        "France · Carte bancaire",
+        "Côte d'Ivoire · Jèko, Wave, Orange Money, MTN, Moov, Djamo",
+      ],
+    },
+  },
+  {
+    key: "product_extras",
+    data: {
+      reassurance_question: "Une question ?",
+      reassurance_shipping:
+        "Expédition sous 24 à 48 h, puis livraison selon la destination",
+      reassurance_returns: "Retour sous 14 jours pour tout produit non ouvert",
+      shipping_tab_title: "Livraison",
+      shipping_tab_text:
+        "Expédition sous 24 à 48 h, puis livraison selon la destination.",
+      returns_tab_title: "Retours",
+      returns_tab_text:
+        "Retour sous 14 jours pour tout produit non ouvert, dans son emballage d'origine.",
+      related_title: "Vous aimerez aussi",
+      related_text: "Découvrez d'autres produits qui pourraient vous plaire.",
+      recently_viewed_text: "Reprenez là où vous vous étiez arrêté(e).",
+      reviews_empty_text: "Aucun avis pour ce produit pour le moment.",
+      review_submitted_text:
+        "Merci ! Votre avis a été envoyé et sera visible après validation.",
+    },
+  },
+  {
+    key: "cart_messages",
+    data: {
+      empty_title: "Votre panier est vide",
+      empty_text:
+        "Parfums, soins et coffrets vous attendent — laissez-vous porter par votre aura.",
+      empty_cta_label: "Découvrir la collection",
+      empty_cta_href: "/store",
+      sign_in_title: "Vous avez déjà un compte ?",
+      sign_in_text:
+        "Connectez-vous pour retrouver vos adresses et vos commandes.",
+      fix_cart_text:
+        "Retirez les articles indisponibles avant de passer commande.",
+      mini_cart_empty: "Votre panier est vide.",
+      mismatch_error:
+        "Une erreur est survenue lors du transfert de votre panier",
+      not_found_text:
+        "Le panier que vous essayez d'atteindre n'existe pas. Videz vos cookies et réessayez.",
+    },
+  },
+  {
+    key: "checkout_messages",
+    data: {
+      unavailable_title: "Le checkout est momentanément indisponible",
+      unavailable_text:
+        "Nous n'avons pas pu charger les options de livraison ou de paiement. Réessayez dans quelques instants ou contactez notre équipe.",
+      summary_question: "Une question sur votre commande ?",
+      shipping_question: "Comment souhaitez-vous être livré(e) ?",
+      pickup_label: "Retirer ma commande en boutique",
+      pickup_choose: "Choisissez une boutique près de chez vous",
+      payment_empty:
+        "Aucun moyen de paiement n'est disponible pour cette commande.",
+      payment_empty_hint:
+        "Vérifiez votre adresse et votre mode de livraison, puis réessayez ou contactez notre équipe.",
+      payment_error_generic: "Impossible de préparer ce moyen de paiement.",
+      mobile_wallet_prompt: "Choisissez un portefeuille mobile pour continuer.",
+      jeko_error:
+        "Impossible d'initier le paiement Jèko. Réessayez ou choisissez un autre moyen de paiement.",
+      gift_option_text:
+        "Emballer ma commande dans un écrin Nura, offert — idéal pour un cadeau.",
+      consent_text:
+        "En cliquant sur le bouton de paiement, vous confirmez avoir lu et accepté nos [conditions générales de vente](/cgv), notre [politique de retours](/livraison-retours) et notre [politique de confidentialité](/confidentialite). Votre commande implique une obligation de paiement.",
+      payment_failed_text:
+        "Le paiement n'a pas abouti. Aucun débit n'a été confirmé; vous pouvez réessayer.",
+      order_failed_text:
+        "Le paiement n'a pas pu être rattaché à une commande. Contactez-nous avant de réessayer.",
+    },
+  },
+  {
+    key: "account_messages",
+    data: {
+      login_title: "Bon retour",
+      login_text:
+        "Connectez-vous pour accéder à une expérience d'achat enrichie.",
+      verify_sent_text:
+        "Un lien de vérification a été envoyé à {email}. Vérifiez votre email puis connectez-vous.",
+      register_title: "Rejoindre Nura",
+      register_text:
+        "Créez votre compte Nura et profitez d'une expérience d'achat enrichie.",
+      register_verify_text:
+        "Un lien de vérification a été envoyé à {email}. Vérifiez votre boîte de réception puis connectez-vous.",
+      register_consent_text:
+        "En créant un compte, vous acceptez la [politique de confidentialité](/confidentialite) et les [conditions générales de vente](/cgv) de Nura.",
+      forgot_title: "Mot de passe oublié",
+      forgot_text:
+        "Indiquez votre adresse email, nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+      forgot_sent_title: "Vérifiez votre boîte mail",
+      forgot_sent_text:
+        "Si un compte existe avec cette adresse email, un lien de réinitialisation vient de vous être envoyé.",
+      reset_success_title: "Mot de passe mis à jour",
+      reset_success_text:
+        "Votre mot de passe a bien été réinitialisé. Vous pouvez maintenant vous connecter.",
+      reset_invalid_title: "Lien invalide",
+      reset_invalid_text:
+        "Ce lien de réinitialisation est invalide ou a expiré.",
+      verify_success_text:
+        "Votre email est vérifié. Vous pouvez maintenant vous connecter à votre compte.",
+      verify_invalid_text:
+        "Ce lien de vérification est invalide ou a expiré. Connectez-vous pour recevoir un nouvel email de vérification.",
+      sla_text: "Notre équipe vous répond sous 24 à 48 h.",
+      orders_intro: "Consultez vos commandes précédentes et leur statut.",
+      addresses_intro:
+        "Consultez et modifiez vos adresses de livraison, vous pouvez en ajouter autant que vous le souhaitez. Elles seront disponibles lors de votre prochaine commande.",
+      profile_intro:
+        "Consultez et modifiez vos informations : nom, téléphone, adresse de facturation et mot de passe.",
+      wishlist_intro:
+        "Retrouvez ici les produits que vous avez ajoutés à vos favoris.",
+      wishlist_empty_text: "Vous n'avez pas encore de favoris.",
+      order_overview_empty_title: "Rien à afficher ici",
+      order_overview_empty_text:
+        "Vous n'avez pas encore de commande, changeons ça :)",
+      referral_text:
+        "Partagez votre lien : dès que la personne que vous invitez passe sa première commande, vous recevez chacun un code de réduction.",
+      transfer_intro:
+        "Vous ne trouvez pas la commande que vous cherchez ? Rattachez une commande à votre compte.",
+    },
+  },
+  {
+    key: "order_messages",
+    data: {
+      thank_you_title: "Merci !",
+      thank_you_text: "Votre commande a bien été enregistrée.",
+      confirmation_email_text:
+        "Les détails de confirmation de votre commande ont été envoyés à {email}.",
+      help_title: "Besoin d'aide ?",
+      transfer_success_text: "Commande transférée avec succès !",
+      transfer_declined_text: "Transfert de commande refusé avec succès !",
+      transfer_request_text:
+        "Vous avez reçu une demande de transfert de propriété pour votre commande ({id}). Si vous acceptez cette demande, vous pouvez approuver le transfert en cliquant sur le bouton ci-dessous.",
+      transfer_ownership_text:
+        "Si vous acceptez, le nouveau propriétaire prendra en charge toutes les responsabilités et autorisations associées à cette commande.",
+      transfer_ignore_text:
+        "Si vous ne reconnaissez pas cette demande ou souhaitez conserver la propriété de la commande, aucune action supplémentaire n'est nécessaire.",
+    },
+  },
+  {
+    key: "not_found_messages",
+    data: {
+      title: "Page introuvable",
+      text: "La page que vous essayez d'atteindre n'existe pas.",
+      error_eyebrow: "Un contretemps",
+      error_title: "Cette page n'a pas pu être chargée",
+      error_text:
+        "Réessayez dans quelques instants ou poursuivez votre découverte de la maison Nura.",
+    },
+  },
+  {
+    key: "store_page",
+    data: {
+      eyebrow: "La boutique",
+      title: "Tous nos produits",
+      text: "Parfums, soins et coffrets : toute la maison Nura en un seul endroit.",
+      empty_state: "Aucun produit ne correspond à ces critères.",
+    },
+  },
+  {
+    key: "collections_page",
+    data: {
+      eyebrow: "Nos collections",
+      title: "Collections",
+      text: "Des ensembles pensés pour se répondre : un parfum, un soin, un geste.",
+      empty_state: "Nos collections arrivent très bientôt.",
+      collection_blurb_template:
+        "Découvrez les créations réunies dans la collection {title}.",
+    },
+  },
+  {
+    key: "contact_extras",
+    data: {
+      success_message:
+        "Merci, votre message a bien été envoyé. Nous vous répondons sous 24 à 48 h.",
+    },
+  },
+  {
+    key: "journal_page",
+    data: {
+      eyebrow: "Journal",
+      title: "Conseils & rituels",
+      text: "Choisir son parfum, prendre soin de sa peau, comprendre nos matières : les mots de la maison.",
+      empty_state: "Les premiers articles arrivent bientôt.",
     },
   },
 ]

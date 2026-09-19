@@ -9,7 +9,13 @@ import StarRating from "../star-rating"
 
 const initialState: CreateReviewState = { success: false, error: null }
 
-const ReviewForm = ({ productId }: { productId: string }) => {
+const ReviewForm = ({
+  productId,
+  successMessage,
+}: {
+  productId: string
+  successMessage?: string
+}) => {
   const [rating, setRating] = useState(0)
   const [state, formAction, isPending] = useActionState(
     createReview,
@@ -18,8 +24,9 @@ const ReviewForm = ({ productId }: { productId: string }) => {
 
   if (state.success) {
     return (
-      <Text className="text-ui-fg-subtle">
-        Merci ! Votre avis a été envoyé et sera visible après validation.
+      <Text className="text-ui-fg-subtle" role="status">
+        {successMessage ||
+          "Merci ! Votre avis a été envoyé et sera visible après validation."}
       </Text>
     )
   }

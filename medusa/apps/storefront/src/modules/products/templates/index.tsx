@@ -1,5 +1,6 @@
 import React, { Suspense } from "react"
 
+import { getHomeContent } from "@lib/data/home-content"
 import Breadcrumbs from "@modules/common/components/breadcrumbs"
 import ImageGallery from "@modules/products/components/image-gallery"
 import ProductActions from "@modules/products/components/product-actions"
@@ -23,15 +24,20 @@ type ProductTemplateProps = {
   images: HttpTypes.StoreProductImage[]
 }
 
-const ProductTemplate: React.FC<ProductTemplateProps> = ({
+const ProductTemplate = async ({
   product,
   region,
   countryCode,
   images,
-}) => {
+}: ProductTemplateProps) => {
   if (!product || !product.id) {
     return notFound()
   }
+
+  const { blocks, hidden } = await getHomeContent()
+  const productExtras = hidden.includes("product_extras")
+    ? null
+    : blocks.product_extras
 
   return (
     <>
@@ -65,22 +71,32 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
           >
             <ProductActionsWrapper id={product.id} region={region} />
           </Suspense>
-          <ProductTabs product={product} />
-          <ProductReassurance />
+          <ProductTabs product={product} content={productExtras} />
+          {productExtras !== null && (
+            <ProductReassurance content={productExtras} />
+          )}
         </div>
       </div>
-      <div className="content-container my-16 small:my-32">
-        <ProductReviews productId={product.id} />
+      <div id="avis-produits" className="content-container my-16 scroll-mt-24 small:my-32">
+        <ProductReviews productId={product.id} content={productExtras} />
       </div>
       <div
         className="content-container my-16 small:my-32"
         data-testid="related-products-container"
       >
         <Suspense fallback={<SkeletonRelatedProducts />}>
-          <RelatedProducts product={product} countryCode={countryCode} />
+          <RelatedProducts
+            product={product}
+            countryCode={countryCode}
+            content={productExtras}
+          />
         </Suspense>
       </div>
-      <RecentlyViewed region={region} excludeHandle={product.handle} />
+      <RecentlyViewed
+        region={region}
+        excludeHandle={product.handle}
+        text={productExtras?.recently_viewed_text}
+      />
     </>
   )
 }

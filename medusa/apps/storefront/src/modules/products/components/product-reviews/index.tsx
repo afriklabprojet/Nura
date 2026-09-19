@@ -1,10 +1,18 @@
+import { ProductExtrasBlock } from "@lib/data/home-content"
 import { listMyReviews, listProductReviews } from "@lib/data/reviews"
 import { retrieveCustomer } from "@lib/data/customer"
 import { Heading, Text } from "@modules/common/components/ui"
 import StarRating from "../star-rating"
 import ReviewForm from "./review-form"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
-const ProductReviews = async ({ productId }: { productId: string }) => {
+const ProductReviews = async ({
+  productId,
+  content,
+}: {
+  productId: string
+  content?: ProductExtrasBlock | null
+}) => {
   const [{ reviews, average_rating, count, breakdown }, customer] =
     await Promise.all([
       listProductReviews(productId),
@@ -51,7 +59,8 @@ const ProductReviews = async ({ productId }: { productId: string }) => {
 
       {count === 0 && (
         <Text className="text-ui-fg-subtle">
-          Aucun avis pour ce produit pour le moment.
+          {content?.reviews_empty_text ||
+            "Aucun avis pour ce produit pour le moment."}
         </Text>
       )}
 
@@ -78,8 +87,23 @@ const ProductReviews = async ({ productId }: { productId: string }) => {
       {customer && !hasReviewed && (
         <div className="flex flex-col gap-y-4 pt-2">
           <Heading level="h3">Laisser un avis</Heading>
-          <ReviewForm productId={productId} />
+          <ReviewForm
+            productId={productId}
+            successMessage={content?.review_submitted_text}
+          />
         </div>
+      )}
+      {!customer && (
+        <Text className="text-ui-fg-subtle">
+          Vous avez acheté ce produit ?{" "}
+          <LocalizedClientLink
+            href="/account"
+            className="underline underline-offset-4 hover:text-brown"
+          >
+            Connectez-vous pour laisser un avis
+          </LocalizedClientLink>
+          .
+        </Text>
       )}
     </div>
   )

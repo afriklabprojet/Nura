@@ -1,3 +1,4 @@
+import { ProductExtrasBlock } from "@lib/data/home-content"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import { HttpTypes } from "@medusajs/types"
@@ -6,11 +7,13 @@ import Product from "../product-preview"
 type RelatedProductsProps = {
   product: HttpTypes.StoreProduct
   countryCode: string
+  content?: ProductExtrasBlock | null
 }
 
 export default async function RelatedProducts({
   product,
   countryCode,
+  content,
 }: RelatedProductsProps) {
   const region = await getRegion(countryCode)
 
@@ -49,10 +52,11 @@ export default async function RelatedProducts({
     <div className="product-page-constraint">
       <div className="flex flex-col items-center text-center mb-16">
         <span className="text-base-regular text-gray-600 mb-6">
-          Vous aimerez aussi
+          {content?.related_title || "Vous aimerez aussi"}
         </span>
         <p className="text-2xl-regular text-ui-fg-base max-w-lg">
-          Découvrez d&apos;autres produits qui pourraient vous plaire.
+          {content?.related_text ||
+            "Découvrez d'autres produits qui pourraient vous plaire."}
         </p>
       </div>
 

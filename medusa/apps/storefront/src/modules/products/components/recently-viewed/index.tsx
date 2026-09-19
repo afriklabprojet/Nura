@@ -5,9 +5,11 @@ import Product from "../product-preview"
 const RecentlyViewed = async ({
   region,
   excludeHandle,
+  text,
 }: {
   region: HttpTypes.StoreRegion
   excludeHandle?: string
+  text?: string
 }) => {
   const products = await listRecentlyViewedProducts({
     regionId: region.id,
@@ -25,7 +27,7 @@ const RecentlyViewed = async ({
           Vu récemment
         </span>
         <p className="text-2xl-regular text-ui-fg-base max-w-lg">
-          Reprenez là où vous vous étiez arrêté(e).
+          {text || "Reprenez là où vous vous étiez arrêté(e)."}
         </p>
       </div>
 

@@ -35,6 +35,10 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
   images: {
+    // Every <Image> uses quality 75 (explicit in the thumbnail, the default
+    // elsewhere). Next 16 requires the allowlist; any other value is coerced
+    // to the closest entry and a direct /_next/image?q=… request gets a 400.
+    qualities: [75],
     remotePatterns: [
       {
         protocol: "http",

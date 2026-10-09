@@ -1,16 +1,16 @@
+import { parseInlineLinks } from "@lib/util/inline-links"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { Fragment } from "react"
 
 /**
  * Renders a single line of admin-editable text with [text](url) turned into
- * links — internal paths (starting with /) stay within the current locale,
- * everything else (mailto:, https://) opens as a plain link. Nothing else is
- * interpreted, so nothing an editor types can inject markup into the page.
+ * links. Only internal paths (kept within the current locale), https://,
+ * mailto: and tel: links are accepted (see toSafeHref); a link with any other
+ * URL is shown as plain text. Nothing else is interpreted, so nothing an
+ * editor types can inject markup or a script URL into the page.
  * Shared by PostBody (multi-paragraph content) and the one-line consent/
  * legal texts (cookie banner, newsletter, checkout, registration).
  */
-const LINK_RE = /\[([^\]]+)\]\(([^)]+)\)/g
-
 const InlineText = ({
   text,
   className = "text-gold underline underline-offset-4 hover:text-brown",
@@ -18,48 +18,37 @@ const InlineText = ({
   text: string
   className?: string
 }) => {
-  const parts: React.ReactNode[] = []
-  let lastIndex = 0
-  let match: RegExpExecArray | null
-  let key = 0
-  const linkPattern = new RegExp(LINK_RE)
+  return (
+    <>
+      {parseInlineLinks(text).map((segment, index) => {
+        if (segment.type === "text") {
+          return <Fragment key={index}>{segment.text}</Fragment>
+        }
 
-  while ((match = linkPattern.exec(text))) {
-    if (match.index > lastIndex) {
-      parts.push(
-        <Fragment key={key++}>{text.slice(lastIndex, match.index)}</Fragment>
-      )
-    }
+        const { link, label } = segment
 
-    const [, label, href] = match
-    const isInternal = href.startsWith("/")
+        if (link.kind === "internal") {
+          return (
+            <LocalizedClientLink key={index} href={link.href} className={className}>
+              {label}
+            </LocalizedClientLink>
+          )
+        }
 
-    parts.push(
-      isInternal ? (
-        <LocalizedClientLink key={key++} href={href} className={className}>
-          {label}
-        </LocalizedClientLink>
-      ) : (
-        <a
-          key={key++}
-          href={href}
-          target={href.startsWith("http") ? "_blank" : undefined}
-          rel={href.startsWith("http") ? "noreferrer" : undefined}
-          className={className}
-        >
-          {label}
-        </a>
-      )
-    )
-
-    lastIndex = match.index + match[0].length
-  }
-
-  if (lastIndex < text.length) {
-    parts.push(<Fragment key={key++}>{text.slice(lastIndex)}</Fragment>)
-  }
-
-  return <>{parts}</>
+        return (
+          <a
+            key={index}
+            href={link.href}
+            target={link.kind === "external" ? "_blank" : undefined}
+            rel={link.kind === "external" ? "noopener noreferrer" : undefined}
+            className={className}
+          >
+            {label}
+          </a>
+        )
+      })}
+    </>
+  )
 }
 
 export default InlineText

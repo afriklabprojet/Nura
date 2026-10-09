@@ -38,6 +38,7 @@
     "@graphql-codegen/plugin-helpers": {
       "lodash": "4.18.1"
     },
+    "@graphql-tools/utils": "12.0.3",
     "compression": "1.8.2",
     "proxy-addr": "2.0.8",
     "react": "19.0.5",

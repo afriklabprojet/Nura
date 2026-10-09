@@ -28,10 +28,23 @@ COPY apps/backend apps/backend
 WORKDIR /app/apps/backend
 RUN npm run build
 
-# `medusa build` emits a self-contained app in .medusa/server with its own
-# package.json — install its production deps there.
-WORKDIR /app/apps/backend/.medusa/server
-RUN npm install --omit=dev
+# `medusa build` emits the compiled app in .medusa/server, together with a copy
+# of apps/backend/package.json. It only copies a lockfile that sits next to that
+# package.json, and the repository's single lockfile is the workspace root's —
+# so running `npm install` inside .medusa/server would resolve every transitive
+# dependency from scratch at build time (no lockfile, none of the root
+# "overrides"), producing an image that differs from what CI audits.
+
+# Production dependencies are therefore installed from the root package-lock.json
+# and root overrides, exactly like the build stage above, minus dev dependencies.
+FROM node:22-bookworm-slim@sha256:83f487e0a63425e5b4d146fb5e5be574bcbe1b7b843d3ebafdd95eaf7767a7e5 AS prod-deps
+WORKDIR /app
+RUN npm install -g npm@11.17.0
+COPY package.json package-lock.json ./
+COPY apps/backend/package.json apps/backend/package.json
+COPY apps/storefront/package.json apps/storefront/package.json
+RUN npm ci --omit=dev --workspace=@dtc/backend --include-workspace-root \
+ && rm -rf node_modules/@dtc
 
 FROM node:22-bookworm-slim@sha256:83f487e0a63425e5b4d146fb5e5be574bcbe1b7b843d3ebafdd95eaf7767a7e5 AS runtime
 WORKDIR /app
@@ -39,6 +52,7 @@ ENV NODE_ENV=production
 
 RUN groupadd -r medusa && useradd -r -m -d /home/medusa -g medusa medusa
 COPY --from=build --chown=medusa:medusa /app/apps/backend/.medusa/server /app
+COPY --from=prod-deps --chown=medusa:medusa /app/node_modules /app/node_modules
 
 USER medusa
 EXPOSE 9000

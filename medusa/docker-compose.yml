@@ -79,12 +79,15 @@ services:
       ADMIN_CORS: ${ADMIN_CORS:?set ADMIN_CORS in .env, e.g. https://admin.nura-paris.com}
       AUTH_CORS: ${AUTH_CORS:?set AUTH_CORS in .env, combine STORE_CORS and ADMIN_CORS}
       STOREFRONT_URL: ${NEXT_PUBLIC_BASE_URL:?set to your public storefront URL, e.g. https://nura-paris.com}
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:-}
       STRIPE_API_KEY: ${STRIPE_API_KEY:-}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
       JEKO_API_KEY: ${JEKO_API_KEY:-}
       JEKO_API_KEY_ID: ${JEKO_API_KEY_ID:-}
       JEKO_STORE_ID: ${JEKO_STORE_ID:-}
       JEKO_WEBHOOK_SECRET: ${JEKO_WEBHOOK_SECRET:-}
+      JEKO_API_URL: ${JEKO_API_URL:-}
+      JEKO_AMOUNT_MULTIPLIER: ${JEKO_AMOUNT_MULTIPLIER:-}
       MEDUSA_FF_RBAC: "true"
       MEDUSA_FF_RBAC_FILTER_FIELDS: "true"
       RESEND_API_KEY: ${RESEND_API_KEY:?set a production Resend API key}
@@ -99,8 +102,9 @@ services:
       S3_ENDPOINT: ${S3_ENDPOINT:-}
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
       OTEL_SERVICE_NAME: nura-backend
-      REFERRAL_REWARD_EUR: ${REFERRAL_REWARD_EUR:-10}
-      REFERRAL_REWARD_XOF: ${REFERRAL_REWARD_XOF:-6500}
+      REFERRAL_REWARD_EUR: ${REFERRAL_REWARD_EUR:?set the EUR referral reward}
+      REFERRAL_REWARD_XOF: ${REFERRAL_REWARD_XOF:?set the XOF referral reward}
+      ALLOW_PLACEHOLDER_PRODUCT_IMAGES: ${ALLOW_PLACEHOLDER_PRODUCT_IMAGES:-false}
     expose:
       - "9000"
     healthcheck:
@@ -123,14 +127,14 @@ services:
         NEXT_PUBLIC_MEDUSA_BACKEND_URL: ${NEXT_PUBLIC_MEDUSA_BACKEND_URL:?set to your public backend URL, e.g. https://api.nura-paris.com}
         NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY:?create one in the admin (Settings > API Key Management) after the first deploy, then rebuild}
         NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:?set to your public storefront URL, e.g. https://nura-paris.com}
-        NEXT_PUBLIC_DEFAULT_REGION: fr
+        NEXT_PUBLIC_DEFAULT_REGION: ${NEXT_PUBLIC_DEFAULT_REGION:-fr}
         NEXT_PUBLIC_STRIPE_KEY: ${NEXT_PUBLIC_STRIPE_KEY:-}
         NEXT_PUBLIC_MEILISEARCH_HOST: ${NEXT_PUBLIC_MEILISEARCH_HOST:-}
         NEXT_PUBLIC_MEILISEARCH_API_KEY: ${NEXT_PUBLIC_MEILISEARCH_API_KEY:-}
         NEXT_PUBLIC_GA_MEASUREMENT_ID: ${NEXT_PUBLIC_GA_MEASUREMENT_ID:-}
         NEXT_PUBLIC_META_PIXEL_ID: ${NEXT_PUBLIC_META_PIXEL_ID:-}
         NEXT_PUBLIC_TIKTOK_PIXEL_ID: ${NEXT_PUBLIC_TIKTOK_PIXEL_ID:-}
-        NEXT_PUBLIC_WHATSAPP_NUMBER: ${NEXT_PUBLIC_WHATSAPP_NUMBER:-}
+        LEGAL_LAST_UPDATED: ${LEGAL_LAST_UPDATED:?set the legal pages revision date}
         LEGAL_BUSINESS_NAME: ${LEGAL_BUSINESS_NAME:?set the legal business name}
         LEGAL_FORM: ${LEGAL_FORM:?set the legal form, or Sans objet}
         LEGAL_CAPITAL: ${LEGAL_CAPITAL:?set the share capital, or Sans objet}
@@ -147,6 +151,8 @@ services:
     restart: unless-stopped
     environment:
       ORDER_ACCESS_SECRET: ${ORDER_ACCESS_SECRET:?set ORDER_ACCESS_SECRET in .env}
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:-}
+      LEGAL_LAST_UPDATED: ${LEGAL_LAST_UPDATED:?set the legal pages revision date}
       LEGAL_BUSINESS_NAME: ${LEGAL_BUSINESS_NAME:?set the legal business name}
       LEGAL_FORM: ${LEGAL_FORM:?set the legal form, or Sans objet}
       LEGAL_CAPITAL: ${LEGAL_CAPITAL:?set the share capital, or Sans objet}
@@ -182,6 +188,9 @@ services:
       context: .
       dockerfile: Dockerfile.caddy
     restart: unless-stopped
+    environment:
+      STOREFRONT_DOMAIN: ${STOREFRONT_DOMAIN:?set the storefront hostname}
+      BACKEND_DOMAIN: ${BACKEND_DOMAIN:?set the backend hostname}
     depends_on:
       backend:
         condition: service_healthy

@@ -87,7 +87,7 @@ export default async function CollectionsPage(props: {
                     alt={collection.title}
                     fill
                     sizes="(max-width: 512px) 100vw, 50vw"
-                    className="object-cover object-center transition-transform duration-[900ms] ease-out group-hover:scale-105"
+                    className="object-cover object-center transition-transform duration-900 ease-out group-hover:scale-105"
                   />
                 </div>
                 <div className="flex items-baseline justify-between">

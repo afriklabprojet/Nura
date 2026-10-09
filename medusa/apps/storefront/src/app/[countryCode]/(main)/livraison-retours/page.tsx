@@ -30,6 +30,12 @@ Vous disposez de 14 jours après réception pour exercer votre droit de rétract
 
 Pour des raisons d'hygiène, les produits descellés — parfums et cosmétiques ouverts — ne peuvent pas être repris. Le remboursement intervient dans les 14 jours suivant la réception du retour, sur le moyen de paiement utilisé lors de la commande.
 
+## Demander un retour
+
+- Écrivez à notre service client en indiquant votre numéro de commande, le produit concerné et le motif du retour.
+- Attendez notre confirmation et les instructions d'envoi avant d'expédier le colis.
+- Placez le produit non ouvert dans son emballage d'origine et conservez la preuve de dépôt. Les frais de retour restent à votre charge, sauf produit défectueux ou erreur de préparation.
+
 Les conditions complètes figurent dans nos [conditions générales de vente](/cgv).`
 
 export default async function LivraisonRetoursPage() {

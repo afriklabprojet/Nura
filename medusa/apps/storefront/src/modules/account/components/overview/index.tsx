@@ -13,8 +13,8 @@ type OverviewProps = {
 const Overview = ({ customer, orders }: OverviewProps) => {
   return (
     <div data-testid="overview-page-wrapper">
-      <div className="hidden small:block">
-        <div className="text-xl-semi flex justify-between items-center mb-4">
+      <div>
+        <div className="mb-4 flex flex-col gap-2 text-xl-semi xsmall:flex-row xsmall:items-center xsmall:justify-between">
           <span data-testid="welcome-message" data-value={customer?.first_name}>
             Bonjour {customer?.first_name}
           </span>
@@ -29,9 +29,9 @@ const Overview = ({ customer, orders }: OverviewProps) => {
             </span>
           </span>
         </div>
-        <div className="flex flex-col py-8 border-t border-gray-200">
+        <div className="flex flex-col border-t border-nude py-8">
           <div className="flex flex-col gap-y-4 h-full col-span-1 row-span-2 flex-1">
-            <div className="flex items-start gap-x-16 mb-6">
+            <div className="mb-8 grid grid-cols-2 gap-8">
               <div className="flex flex-col gap-y-4">
                 <h3 className="text-large-semi">Profil</h3>
                 <div className="flex items-end gap-x-2">
@@ -84,40 +84,33 @@ const Overview = ({ customer, orders }: OverviewProps) => {
                         <LocalizedClientLink
                           href={`/account/orders/details/${order.id}`}
                         >
-                          <Container className="bg-gray-50 flex justify-between items-center p-4">
-                            <div className="grid grid-cols-3 grid-rows-2 text-small-regular gap-x-4 flex-1">
-                              <span className="font-semibold">Date</span>
-                              <span className="font-semibold">
-                                N° de commande
-                              </span>
-                              <span className="font-semibold">
-                                Montant total
-                              </span>
-                              <span data-testid="order-created-date">
-                                {new Date(order.created_at).toDateString()}
-                              </span>
-                              <span
-                                data-testid="order-id"
-                                data-value={order.display_id}
-                              >
-                                #{order.display_id}
-                              </span>
-                              <span data-testid="order-amount">
-                                {convertToLocale({
-                                  amount: order.total,
-                                  currency_code: order.currency_code,
-                                })}
-                              </span>
+                          <Container className="flex items-center justify-between bg-bg-alt p-4">
+                            <div className="grid flex-1 grid-cols-1 gap-3 text-small-regular xsmall:grid-cols-3 xsmall:gap-4">
+                              <div>
+                                <span className="block font-semibold">Date</span>
+                                <span data-testid="order-created-date">
+                                  {new Date(order.created_at).toLocaleDateString("fr-FR")}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="block font-semibold">N° de commande</span>
+                                <span data-testid="order-id" data-value={order.display_id}>
+                                  #{order.display_id}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="block font-semibold">Montant total</span>
+                                <span data-testid="order-amount">
+                                  {convertToLocale({
+                                    amount: order.total,
+                                    currency_code: order.currency_code,
+                                  })}
+                                </span>
+                              </div>
                             </div>
-                            <button
-                              className="flex items-center justify-between"
-                              data-testid="open-order-button"
-                            >
-                              <span className="sr-only">
-                                Voir la commande #{order.display_id}
-                              </span>
+                            <span className="flex h-11 w-11 items-center justify-center" aria-hidden="true">
                               <ChevronDown className="-rotate-90" />
-                            </button>
+                            </span>
                           </Container>
                         </LocalizedClientLink>
                       </li>

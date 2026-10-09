@@ -220,12 +220,14 @@ const SideMenu = ({
                             {contact.label} : {contact.display}
                           </a>
                         ))}
-                        <a
-                          href={`mailto:${siteSettings.email}`}
-                          className="txt-small text-ui-fg-subtle hover:text-gold"
-                        >
-                          {siteSettings.email}
-                        </a>
+                        {siteSettings.email && (
+                          <a
+                            href={`mailto:${siteSettings.email}`}
+                            className="txt-small text-ui-fg-subtle hover:text-gold"
+                          >
+                            {siteSettings.email}
+                          </a>
+                        )}
                       </div>
 
                       {!!locales?.length && (

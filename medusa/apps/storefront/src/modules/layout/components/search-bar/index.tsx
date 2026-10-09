@@ -18,7 +18,10 @@ const SearchBar = () => {
   const [query, setQuery] = useState("")
   const [hits, setHits] = useState<SearchHit[]>([])
   const [isSearching, setIsSearching] = useState(false)
+  const [searchError, setSearchError] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const requestIdRef = useRef(0)
 
   useEffect(() => {
     if (!open) {
@@ -35,17 +38,31 @@ const SearchBar = () => {
     }
 
     document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false)
+        requestAnimationFrame(() => triggerRef.current?.focus())
+      }
+    }
+    document.addEventListener("keydown", handleEscape)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("keydown", handleEscape)
+    }
   }, [open])
 
   useEffect(() => {
     if (!searchClient || query.trim().length < 2) {
       setHits([])
+      setSearchError(false)
+      setIsSearching(false)
       return
     }
     const client = searchClient
+    const requestId = ++requestIdRef.current
 
     setIsSearching(true)
+    setSearchError(false)
     const timeout = setTimeout(() => {
       client
         .index("products")
@@ -55,9 +72,22 @@ const SearchBar = () => {
         .search<SearchHit>(query, {
           limit: 6,
         })
-        .then((res) => setHits(res.hits))
-        .catch(() => setHits([]))
-        .finally(() => setIsSearching(false))
+        .then((res) => {
+          if (requestId === requestIdRef.current) {
+            setHits(res.hits)
+          }
+        })
+        .catch(() => {
+          if (requestId === requestIdRef.current) {
+            setHits([])
+            setSearchError(true)
+          }
+        })
+        .finally(() => {
+          if (requestId === requestIdRef.current) {
+            setIsSearching(false)
+          }
+        })
     }, 250)
 
     return () => clearTimeout(timeout)
@@ -70,9 +100,10 @@ const SearchBar = () => {
   return (
     <div className="relative" ref={containerRef}>
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="hover:text-gold flex items-center"
+        className="flex h-11 w-11 items-center justify-center hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
         aria-label="Rechercher"
         data-testid="nav-search-button"
       >
@@ -81,7 +112,7 @@ const SearchBar = () => {
 
       {open && (
         <div
-          className="absolute top-full right-0 mt-3 w-80 bg-bg-alt border border-ui-border-base shadow-lg rounded-sm p-4 z-50"
+          className="fixed left-5 right-5 top-[92px] z-50 border border-ui-border-base bg-bg-alt p-4 shadow-lg xsmall:absolute xsmall:left-auto xsmall:right-0 xsmall:top-full xsmall:mt-3 xsmall:w-80"
           role="search"
         >
           <label htmlFor="product-search" className="sr-only">
@@ -94,7 +125,7 @@ const SearchBar = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Rechercher un produit..."
-            className="w-full bg-transparent border-b border-ui-fg-muted txt-small py-1 focus:outline-none focus:border-gold placeholder:text-ui-fg-muted"
+            className="min-h-11 w-full border-b border-ui-fg-muted bg-transparent py-2 txt-small placeholder:text-ui-fg-muted focus:border-gold focus:outline-none"
             data-testid="search-input"
           />
 
@@ -106,7 +137,19 @@ const SearchBar = () => {
             {isSearching && (
               <p className="txt-small text-ui-fg-subtle">Recherche...</p>
             )}
-            {!isSearching && query.trim().length >= 2 && hits.length === 0 && (
+            {!isSearching && searchError && (
+              <div className="txt-small text-rose-700" role="alert">
+                <p>La recherche est momentanément indisponible.</p>
+                <button
+                  type="button"
+                  onClick={() => setQuery((value) => `${value} `)}
+                  className="mt-1 min-h-11 underline underline-offset-4"
+                >
+                  Réessayer
+                </button>
+              </div>
+            )}
+            {!isSearching && !searchError && query.trim().length >= 2 && hits.length === 0 && (
               <p className="txt-small text-ui-fg-subtle">
                 Aucun résultat pour « {query} ».
               </p>

@@ -4,7 +4,7 @@ import { sdk } from "@lib/config"
 import medusaError from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
 import { FetchError } from "@medusajs/js-sdk"
-import { revalidateTag } from "@lib/util/revalidate"
+import { revalidateTag, updateTag } from "@lib/util/revalidate"
 import { redirect } from "next/navigation"
 import {
   getAuthHeaders,
@@ -244,7 +244,7 @@ async function completeLogin(
   await setAuthToken(token)
 
   const customerCacheTag = await getCacheTag("customers")
-  revalidateTag(customerCacheTag)
+  updateTag(customerCacheTag)
 
   try {
     await transferCart()
@@ -328,10 +328,6 @@ export async function resetPassword(
   return { state: "success" }
 }
 
-// Changes the password of the currently logged-in customer. Medusa's own
-// password-update endpoint only requires a valid bearer token (not the
-// current password), so the current-password check below is enforced here,
-// by attempting a fresh login with it before proceeding.
 export async function updatePassword(
   _currentState: Record<string, unknown>,
   formData: FormData
@@ -347,44 +343,27 @@ export async function updatePassword(
     }
   }
 
-  const customer = await retrieveCustomer()
-  if (!customer?.email) {
-    return { success: false, error: "Impossible de vérifier votre compte." }
-  }
-
-  let token: string
   try {
-    const result = await sdk.auth.login("customer", "emailpass", {
-      email: customer.email,
-      password: oldPassword,
+    await sdk.client.fetch("/store/customers/me/password", {
+      method: "POST",
+      headers: await getAuthHeaders(),
+      body: {
+        current_password: oldPassword,
+        new_password: newPassword,
+      },
     })
+  } catch (error) {
+    const fetchError = error as FetchError
 
-    if (typeof result !== "string") {
+    if (fetchError.status === 401) {
       return { success: false, error: "Mot de passe actuel incorrect." }
     }
 
-    token = result
-  } catch {
-    return { success: false, error: "Mot de passe actuel incorrect." }
-  }
-
-  try {
-    await sdk.auth.updateProvider(
-      "customer",
-      "emailpass",
-      { password: newPassword },
-      token
-    )
-  } catch {
     return {
       success: false,
       error: "Impossible de modifier votre mot de passe pour le moment. Réessayez.",
     }
   }
-
-  // The login above may have issued a new token — keep the customer's
-  // actual session cookie in sync with it.
-  await setAuthToken(token)
 
   return { success: true, error: null }
 }
@@ -395,7 +374,7 @@ export async function signout(countryCode: string) {
   await removeAuthToken()
 
   const customerCacheTag = await getCacheTag("customers")
-  revalidateTag(customerCacheTag)
+  updateTag(customerCacheTag)
 
   await removeCartId()
 
@@ -450,7 +429,7 @@ export const addCustomerAddress = async (
     .createAddress(address, {}, headers)
     .then(async () => {
       const customerCacheTag = await getCacheTag("customers")
-      revalidateTag(customerCacheTag)
+      updateTag(customerCacheTag)
       return { success: true, error: null }
     })
     .catch((err) => {
@@ -469,7 +448,7 @@ export const deleteCustomerAddress = async (
     .deleteAddress(addressId, headers)
     .then(async () => {
       const customerCacheTag = await getCacheTag("customers")
-      revalidateTag(customerCacheTag)
+      updateTag(customerCacheTag)
       return { success: true, error: null }
     })
     .catch((err) => {
@@ -514,7 +493,7 @@ export const updateCustomerAddress = async (
     .updateAddress(addressId, address, {}, headers)
     .then(async () => {
       const customerCacheTag = await getCacheTag("customers")
-      revalidateTag(customerCacheTag)
+      updateTag(customerCacheTag)
       return { success: true, error: null }
     })
     .catch((err) => {

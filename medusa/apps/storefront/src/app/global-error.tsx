@@ -1,5 +1,7 @@
 "use client"
 
+import Link from "next/link"
+
 export default function GlobalError({
   reset,
 }: {
@@ -14,12 +16,17 @@ export default function GlobalError({
           <p className="text-small-regular">
             Quelque chose s&apos;est mal passé. Veuillez réessayer.
           </p>
-          <button
-            onClick={() => reset()}
-            className="underline text-brown hover:text-gold"
-          >
-            Réessayer
-          </button>
+          <div className="flex flex-wrap justify-center gap-5">
+            <button
+              onClick={() => reset()}
+              className="min-h-11 underline text-brown hover:text-gold"
+            >
+              Réessayer
+            </button>
+            <Link href="/" className="inline-flex min-h-11 items-center underline">
+              Retour à l’accueil
+            </Link>
+          </div>
         </div>
       </body>
     </html>

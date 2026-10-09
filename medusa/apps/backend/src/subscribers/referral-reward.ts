@@ -101,9 +101,19 @@ export default async function referralRewardHandler({
     return
   }
 
-  const rewardAmount = REWARD_AMOUNT[order.currency_code] ?? REWARD_AMOUNT.eur
+  const rewardAmount = REWARD_AMOUNT[order.currency_code]
+
+  if (!rewardAmount) {
+    await customerModuleService.updateCustomers(customer.id, {
+      metadata: { ...metadata, referral_reward_issued: true },
+    })
+    return
+  }
 
   if ((order.total || 0) < rewardAmount) {
+    await customerModuleService.updateCustomers(customer.id, {
+      metadata: { ...metadata, referral_reward_issued: true },
+    })
     return
   }
 

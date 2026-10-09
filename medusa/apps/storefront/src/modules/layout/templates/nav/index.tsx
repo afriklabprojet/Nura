@@ -5,6 +5,7 @@ import { listLocales } from "@lib/data/locales"
 import { getLocale } from "@lib/data/locale-actions"
 import { listRegions } from "@lib/data/regions"
 import { getSiteSettings } from "@lib/data/site-settings"
+import { ShoppingBag } from "@medusajs/icons"
 import { StoreRegion } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import User from "@modules/common/icons/user"
@@ -84,7 +85,7 @@ export default async function Nav() {
             </div>
             <SearchBar />
             <LocalizedClientLink
-              className="hidden small:flex text-brown/70 hover:text-brown transition-colors items-center"
+              className="hidden h-11 w-11 items-center justify-center text-brown/70 transition-colors hover:text-brown focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold small:flex"
               href="/account"
               data-testid="nav-account-link"
               aria-label="Compte"
@@ -94,11 +95,15 @@ export default async function Nav() {
             <Suspense
               fallback={
                 <LocalizedClientLink
-                  className="nav-link"
+                  className="relative flex h-11 w-11 items-center justify-center text-brown/70 transition-colors hover:text-brown focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                   href="/cart"
                   data-testid="nav-cart-link"
+                  aria-label="Panier, 0 article"
                 >
-                  Panier (0)
+                  <ShoppingBag className="h-5 w-5" aria-hidden="true" />
+                  <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brown px-1 text-[9px] leading-none text-bg-alt">
+                    0
+                  </span>
                 </LocalizedClientLink>
               }
             >

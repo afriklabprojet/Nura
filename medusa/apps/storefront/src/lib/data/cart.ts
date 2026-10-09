@@ -3,7 +3,7 @@
 import { sdk } from "@lib/config"
 import medusaError from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
-import { revalidateTag } from "@lib/util/revalidate"
+import { revalidateTag, updateTag } from "@lib/util/revalidate"
 import { redirect } from "next/navigation"
 import {
   getAuthHeaders,
@@ -151,10 +151,10 @@ export async function addToCart({
     )
     .then(async () => {
       const cartCacheTag = await getCacheTag("carts")
-      revalidateTag(cartCacheTag)
+      updateTag(cartCacheTag)
 
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
-      revalidateTag(fulfillmentCacheTag)
+      updateTag(fulfillmentCacheTag)
     })
     .catch(medusaError)
 }
@@ -184,10 +184,10 @@ export async function updateLineItem({
     .updateLineItem(cartId, lineId, { quantity }, {}, headers)
     .then(async () => {
       const cartCacheTag = await getCacheTag("carts")
-      revalidateTag(cartCacheTag)
+      updateTag(cartCacheTag)
 
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
-      revalidateTag(fulfillmentCacheTag)
+      updateTag(fulfillmentCacheTag)
     })
     .catch(medusaError)
 }
@@ -211,10 +211,10 @@ export async function deleteLineItem(lineId: string) {
     .deleteLineItem(cartId, lineId, {}, headers)
     .then(async () => {
       const cartCacheTag = await getCacheTag("carts")
-      revalidateTag(cartCacheTag)
+      updateTag(cartCacheTag)
 
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
-      revalidateTag(fulfillmentCacheTag)
+      updateTag(fulfillmentCacheTag)
     })
     .catch(medusaError)
 }

@@ -16,13 +16,13 @@ export default async function ConfidentialitePage() {
   return (
     <LegalPageLayout
       title="Politique de confidentialité"
-      updatedAt="17 septembre 2026"
+      updatedAt={LEGAL_INFORMATION.lastUpdated}
     >
       <section>
         <h2>1. Responsable de traitement</h2>
         <p>
           Le responsable du traitement des données personnelles collectées
-          sur nura-paris.com est {LEGAL_INFORMATION.businessName}, dont
+          sur {LEGAL_INFORMATION.siteHost} est {LEGAL_INFORMATION.businessName}, dont
           les coordonnées figurent dans nos{" "}
           <LocalizedClientLink href="/mentions-legales">
             mentions légales

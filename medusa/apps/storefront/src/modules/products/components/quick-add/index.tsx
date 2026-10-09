@@ -16,6 +16,7 @@ const QuickAdd = ({ variants }: { variants: QuickAddVariant[] }) => {
   const [open, setOpen] = useState(false)
   const [pendingId, setPendingId] = useState<string | null>(null)
   const [added, setAdded] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const available = variants.filter((variant) => variant.available)
 
@@ -28,6 +29,7 @@ const QuickAdd = ({ variants }: { variants: QuickAddVariant[] }) => {
   }
 
   const add = async (variantId: string) => {
+    setError(null)
     setPendingId(variantId)
 
     try {
@@ -35,6 +37,8 @@ const QuickAdd = ({ variants }: { variants: QuickAddVariant[] }) => {
       setAdded(true)
       setOpen(false)
       setTimeout(() => setAdded(false), 2000)
+    } catch {
+      setError("Ajout impossible. Réessayez.")
     } finally {
       setPendingId(null)
     }
@@ -54,6 +58,14 @@ const QuickAdd = ({ variants }: { variants: QuickAddVariant[] }) => {
 
   return (
     <div className="relative">
+      {error && (
+        <p
+          className="absolute bottom-full left-0 right-0 bg-bg-alt px-3 py-2 text-center text-xs text-rose-700"
+          role="alert"
+        >
+          {error}
+        </p>
+      )}
       {open && (
         <ul className="absolute bottom-full left-0 right-0 mb-px flex flex-wrap gap-px bg-nude/60">
           {available.map((variant) => (
@@ -66,7 +78,7 @@ const QuickAdd = ({ variants }: { variants: QuickAddVariant[] }) => {
                   event.stopPropagation()
                   add(variant.id)
                 }}
-                className="w-full bg-bg-alt/95 py-3 text-[10px] uppercase tracking-[0.12em] text-brown transition-colors hover:bg-brown hover:text-bg-alt disabled:opacity-50"
+                className="min-h-11 w-full bg-bg-alt/95 px-2 py-3 text-[10px] uppercase tracking-[0.12em] text-brown transition-colors hover:bg-brown hover:text-bg-alt disabled:opacity-50"
               >
                 {pendingId === variant.id ? "…" : variant.title}
               </button>
@@ -80,7 +92,7 @@ const QuickAdd = ({ variants }: { variants: QuickAddVariant[] }) => {
         onClick={handleTrigger}
         disabled={pendingId !== null}
         className={clx(
-          "w-full bg-bg-alt/95 py-3 text-[10px] uppercase tracking-[0.2em] transition-colors hover:bg-brown hover:text-bg-alt disabled:opacity-60",
+          "min-h-11 w-full bg-bg-alt/95 px-3 py-3 text-[10px] uppercase tracking-[0.2em] transition-colors hover:bg-brown hover:text-bg-alt disabled:opacity-60",
           added ? "text-gold" : "text-brown"
         )}
       >

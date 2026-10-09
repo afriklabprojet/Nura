@@ -1,4 +1,5 @@
 import "server-only"
+import { getBaseURL } from "@lib/util/env"
 
 const legalValue = (key: string) => {
   const value = process.env[key]?.trim()
@@ -11,6 +12,8 @@ const legalValue = (key: string) => {
 }
 
 export const LEGAL_INFORMATION = {
+  siteHost: new URL(getBaseURL()).host,
+  lastUpdated: legalValue("LEGAL_LAST_UPDATED"),
   businessName: legalValue("LEGAL_BUSINESS_NAME"),
   legalForm: legalValue("LEGAL_FORM"),
   capital: legalValue("LEGAL_CAPITAL"),

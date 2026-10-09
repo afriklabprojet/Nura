@@ -36,7 +36,7 @@ const DEFAULT_ITEMS = [
   {
     question: "Comment vous contacter ?",
     answer:
-      "Vous pouvez nous écrire via le formulaire de contact, par email à contact@nura-paris.com, ou joindre notre service client France (+33 7 45 06 48 87) et Abidjan (+225 05 05 79 88 82), du lundi au vendredi.",
+      "Vous pouvez nous écrire ou retrouver toutes nos coordonnées sur la page Contact.",
   },
 ]
 

@@ -1,6 +1,7 @@
 "use client"
 
 import { convertToLocale } from "@lib/util/money"
+import { hasUnavailableCartItems } from "@lib/util/cart-availability"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { clx } from "@modules/common/components/ui"
@@ -38,11 +39,12 @@ const MobileCheckoutBar = ({
   }, [])
 
   useEffect(() => {
-    document.body.classList.add("has-cart-bar")
+    document.body.classList.toggle("has-cart-bar", visible)
     return () => document.body.classList.remove("has-cart-bar")
-  }, [])
+  }, [visible])
 
   const count = cart.items?.reduce((total, item) => total + item.quantity, 0) ?? 0
+  const hasUnavailableItems = hasUnavailableCartItems(cart)
 
   return (
     <div
@@ -64,13 +66,23 @@ const MobileCheckoutBar = ({
             })}
           </span>
         </div>
-        <LocalizedClientLink
-          href={checkoutHref}
-          className="inline-flex h-12 flex-1 items-center justify-center bg-brown px-6 text-[11px] uppercase tracking-[0.2em] text-bg-alt"
-          data-testid="mobile-checkout-button"
-        >
-          Passer commande
-        </LocalizedClientLink>
+        {hasUnavailableItems ? (
+          <span
+            className="inline-flex h-12 flex-1 items-center justify-center bg-brown/40 px-4 text-center text-[10px] uppercase tracking-[0.16em] text-bg-alt"
+            role="status"
+            data-testid="mobile-checkout-button"
+          >
+            Retirer les articles indisponibles
+          </span>
+        ) : (
+          <LocalizedClientLink
+            href={checkoutHref}
+            className="inline-flex h-12 flex-1 items-center justify-center bg-brown px-6 text-[11px] uppercase tracking-[0.2em] text-bg-alt"
+            data-testid="mobile-checkout-button"
+          >
+            Passer commande
+          </LocalizedClientLink>
+        )}
       </div>
     </div>
   )

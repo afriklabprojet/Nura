@@ -4,6 +4,53 @@ loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
 const modules: any[] = []
 const plugins: any[] = []
+const isProduction = process.env.NODE_ENV === 'production'
+
+const requireCompleteConfig = (name: string, keys: string[]) => {
+  const configuredKeys = keys.filter((key) => Boolean(process.env[key]))
+
+  if (configuredKeys.length > 0 && configuredKeys.length < keys.length) {
+    const missingKeys = keys.filter((key) => !process.env[key])
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      `${name} configuration is incomplete. Missing: ${missingKeys.join(', ')}.`
+    )
+  }
+}
+
+if (isProduction) {
+  const requiredKeys = [
+    'DATABASE_URL',
+    'REDIS_URL',
+    'JWT_SECRET',
+    'COOKIE_SECRET',
+    'ORDER_ACCESS_SECRET',
+    'STORE_CORS',
+    'ADMIN_CORS',
+    'AUTH_CORS',
+    'STOREFRONT_URL',
+    'REFERRAL_REWARD_EUR',
+    'REFERRAL_REWARD_XOF',
+  ]
+  const missingKeys = requiredKeys.filter((key) => !process.env[key])
+
+  if (missingKeys.length > 0) {
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      `Production configuration is incomplete. Missing: ${missingKeys.join(', ')}.`
+    )
+  }
+}
+
+requireCompleteConfig('Stripe', ['STRIPE_API_KEY', 'STRIPE_WEBHOOK_SECRET'])
+requireCompleteConfig('Jèko', [
+  'JEKO_API_KEY',
+  'JEKO_API_KEY_ID',
+  'JEKO_STORE_ID',
+  'JEKO_WEBHOOK_SECRET',
+  'JEKO_API_URL',
+  'JEKO_AMOUNT_MULTIPLIER',
+])
 
 // Payment providers are both optional and independent in development: Stripe (Europe,
 // cards) registers once STRIPE_API_KEY is set, Jèko (Côte d'Ivoire, mobile
@@ -34,7 +81,7 @@ if (process.env.S3_FILE_URL) {
       ],
     },
   })
-} else if (process.env.NODE_ENV === 'production') {
+} else if (isProduction) {
   throw new MedusaError(
     MedusaError.Types.INVALID_DATA,
     'Production requires persistent S3-compatible file storage.'
@@ -61,11 +108,13 @@ if (process.env.JEKO_API_KEY) {
       api_key_id: process.env.JEKO_API_KEY_ID,
       store_id: process.env.JEKO_STORE_ID,
       webhook_secret: process.env.JEKO_WEBHOOK_SECRET,
+      api_url: process.env.JEKO_API_URL,
+      amount_multiplier: Number(process.env.JEKO_AMOUNT_MULTIPLIER),
     },
   })
 }
 
-if (process.env.NODE_ENV === 'production' && paymentProviders.length === 0) {
+if (isProduction && paymentProviders.length === 0) {
   throw new MedusaError(
     MedusaError.Types.INVALID_DATA,
     'Production requires at least one configured payment provider.'
@@ -80,7 +129,7 @@ if (paymentProviders.length > 0) {
 }
 
 if (
-  process.env.NODE_ENV === 'production' &&
+  isProduction &&
   (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM_EMAIL)
 ) {
   throw new MedusaError(

@@ -1,7 +1,9 @@
 import { Metadata } from "next"
 import LegalPageLayout from "@modules/legal/components/legal-page-layout"
 import { getHomeContent } from "@lib/data/home-content"
+import { LEGAL_INFORMATION } from "@lib/legal"
 import PostBody from "@modules/journal/components/post-body"
+import CookiePreferencesButton from "@modules/layout/components/cookie-preferences-button"
 
 export const metadata: Metadata = {
   title: "Politique de cookies",
@@ -20,7 +22,7 @@ Cookies de mesure d'audience et de publicité — utilisés uniquement si vous l
 
 ## Gérer vos préférences
 
-Lors de votre première visite, un bandeau vous permet d'accepter ou de refuser les cookies non essentiels. Vous pouvez modifier votre choix à tout moment en effaçant les cookies de votre navigateur, ce qui réaffichera le bandeau lors de votre prochaine visite.`
+Lors de votre première visite, un bandeau vous permet d'accepter ou de refuser les cookies non essentiels. Vous pouvez modifier votre choix à tout moment avec le bouton de gestion des cookies disponible sur cette page et dans le pied de page.`
 
 export default async function PolitiqueCookiesPage() {
   const { blocks } = await getHomeContent()
@@ -29,9 +31,10 @@ export default async function PolitiqueCookiesPage() {
   return (
     <LegalPageLayout
       title={page?.title || "Politique de cookies"}
-      updatedAt="14 septembre 2026"
+      updatedAt={LEGAL_INFORMATION.lastUpdated}
     >
       <PostBody content={page?.content || DEFAULT_CONTENT} />
+      <CookiePreferencesButton className="mt-8 inline-flex min-h-11 items-center border border-brown px-5 text-[11px] uppercase tracking-[0.15em] text-brown hover:bg-nude/30" />
     </LegalPageLayout>
   )
 }

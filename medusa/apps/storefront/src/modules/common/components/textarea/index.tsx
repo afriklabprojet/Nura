@@ -23,17 +23,17 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         )}
         <div className="flex relative z-0 w-full txt-compact-medium">
           <textarea
+            id={name}
             name={name}
             placeholder=" "
             required={required}
             rows={rows}
-            className="pt-4 pb-1 block w-full px-4 mt-0 bg-ui-bg-field border rounded-md appearance-none focus:outline-none focus:ring-0 focus:shadow-borders-interactive-with-active border-ui-border-base hover:bg-ui-bg-field-hover resize-none"
+            className="mt-0 block w-full resize-none appearance-none rounded-sm border border-ui-border-base bg-ui-bg-field px-4 pb-1 pt-4 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-1 hover:bg-ui-bg-field-hover"
             {...props}
             ref={textareaRef}
           />
           <label
             htmlFor={name}
-            onClick={() => textareaRef.current?.focus()}
             className="flex items-center justify-center mx-3 px-1 transition-all absolute duration-300 top-3 -z-1 origin-0 text-ui-fg-subtle"
           >
             {label}

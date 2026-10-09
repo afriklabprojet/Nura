@@ -98,7 +98,7 @@ const ImageGallery = ({ images, productTitle }: ImageGalleryProps) => {
               type="button"
               onClick={() => setOpenIndex(index)}
               aria-label={`Agrandir ${getAlt(index)}`}
-              className="relative aspect-[4/5] max-h-[70dvh] w-full flex-none snap-center bg-nude/20"
+              className="relative aspect-[4/5] max-h-[70dvh] w-full flex-none snap-center bg-nude/20 xsmall:max-h-none"
             >
               {!!image.url && (
                 <Image
@@ -110,7 +110,7 @@ const ImageGallery = ({ images, productTitle }: ImageGalleryProps) => {
                   className="object-contain object-center"
                 />
               )}
-              <span className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-bg-alt/90 text-brown shadow-sm" aria-hidden="true">
+              <span className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full bg-bg-alt/90 text-brown shadow-sm" aria-hidden="true">
                 <MagnifyingGlass className="h-4 w-4" />
               </span>
             </button>
@@ -129,7 +129,7 @@ const ImageGallery = ({ images, productTitle }: ImageGalleryProps) => {
                   onClick={() => scrollToSlide(index)}
                   aria-label={`Afficher la photo ${index + 1}`}
                   aria-current={index === slide ? "true" : undefined}
-                  className="flex h-10 w-8 items-center justify-center"
+                  className="flex h-11 w-11 items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                 >
                   <span
                     className={clx(

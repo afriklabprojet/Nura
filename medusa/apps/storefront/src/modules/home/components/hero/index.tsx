@@ -21,7 +21,7 @@ const Hero = ({ block }: { block?: HeroBlock }) => {
   const video = block?.video?.trim()
 
   return (
-    <section className="relative h-[88vh] min-h-[560px] max-h-[900px] w-full overflow-hidden bg-nude">
+    <section className="relative h-[calc(100dvh-7rem)] min-h-[440px] max-h-[680px] w-full overflow-hidden bg-nude small:h-[88dvh] small:min-h-[560px] small:max-h-[900px]">
       {/* Both crops keep a clean field of backdrop for the wording, so no
           scrim is needed over the photograph. */}
       {video ? (
@@ -56,13 +56,13 @@ const Hero = ({ block }: { block?: HeroBlock }) => {
         </>
       )}
 
-      <div className="content-container relative z-10 flex h-full flex-col justify-end pb-14 small:justify-center small:pb-0">
+      <div className="content-container relative z-10 flex h-full flex-col justify-end pb-8 xsmall:pb-12 small:justify-center small:pb-0">
         <div className="flex max-w-xl animate-fade-up flex-col items-start gap-5 small:gap-7">
           <h1 className="flex flex-col gap-5 small:gap-7">
             <span className="font-serif text-2xl uppercase tracking-[0.45em] text-brown small:text-3xl">
               {content.eyebrow}
             </span>
-            <span className="font-serif text-[2.75rem] leading-[1.05] text-brown small:text-7xl">
+            <span className="font-serif text-[2.5rem] leading-[1.05] text-brown xsmall:text-[2.75rem] small:text-7xl">
               {content.title}
             </span>
           </h1>

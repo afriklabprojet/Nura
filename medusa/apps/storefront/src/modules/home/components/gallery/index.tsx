@@ -32,26 +32,23 @@ const Gallery = async ({ block }: { block?: GalleryBlock }) => {
               {subtitle}
             </p>
           </div>
-          <a
-            href={social.instagram}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex h-12 items-center justify-center self-start border border-brown/30 px-8 text-[11px] uppercase tracking-[0.2em] text-brown transition-colors hover:border-brown"
-          >
-            Suivre Nura
-          </a>
+          {social.instagram && (
+            <a
+              href={social.instagram}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex h-12 items-center justify-center self-start border border-brown/30 px-8 text-[11px] uppercase tracking-[0.2em] text-brown transition-colors hover:border-brown"
+            >
+              Suivre Nura
+            </a>
+          )}
         </Reveal>
 
         <Reveal>
           <ul className="grid grid-cols-2 gap-3 small:grid-cols-4 small:grid-rows-2">
             {tiles.map((tile) => (
               <li key={tile.src} className={tile.span}>
-                <a
-                  href={social.instagram}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group relative block h-full w-full overflow-hidden"
-                >
+                <div className="group relative block h-full w-full overflow-hidden">
                   <div className="relative aspect-square h-full w-full">
                     <Image
                       src={tile.src}
@@ -64,30 +61,36 @@ const Gallery = async ({ block }: { block?: GalleryBlock }) => {
                   <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/70 to-transparent px-4 py-3 text-[10px] uppercase tracking-[0.2em] text-bg-alt opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     {tile.label}
                   </span>
-                </a>
+                </div>
               </li>
             ))}
           </ul>
         </Reveal>
 
-        <div className="mt-6 flex justify-center gap-6 text-[11px] uppercase tracking-[0.2em] text-brown/70">
-          <a
-            href={social.instagram}
-            target="_blank"
-            rel="noreferrer"
-            className="link-underline hover:text-brown"
-          >
-            Instagram
-          </a>
-          <a
-            href={social.tiktok}
-            target="_blank"
-            rel="noreferrer"
-            className="link-underline hover:text-brown"
-          >
-            TikTok
-          </a>
-        </div>
+        {(social.instagram || social.tiktok) && (
+          <div className="mt-6 flex justify-center gap-6 text-[11px] uppercase tracking-[0.2em] text-brown/70">
+            {social.instagram && (
+              <a
+                href={social.instagram}
+                target="_blank"
+                rel="noreferrer"
+                className="link-underline hover:text-brown"
+              >
+                Instagram
+              </a>
+            )}
+            {social.tiktok && (
+              <a
+                href={social.tiktok}
+                target="_blank"
+                rel="noreferrer"
+                className="link-underline hover:text-brown"
+              >
+                TikTok
+              </a>
+            )}
+          </div>
+        )}
       </div>
     </section>
   )

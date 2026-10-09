@@ -10,6 +10,8 @@ const options = {
   api_key_id: "api-key-id",
   store_id: "store-id",
   webhook_secret: "webhook-secret",
+  api_url: "https://api.jeko.africa/partner_api",
+  amount_multiplier: 100,
 }
 
 const createService = () =>
@@ -95,6 +97,37 @@ describe("JekoPaymentProviderService", () => {
     })
   })
 
+  it("rejects non-XOF payment sessions", async () => {
+    await expect(
+      createService().initiatePayment({
+        amount: 125,
+        currency_code: "eur",
+        data: {
+          session_id: "payment-session-id",
+          paymentMethod: "wave",
+          cart_id: "cart-id",
+          country_code: "FR",
+        },
+      } as InitiatePaymentInput)
+    ).rejects.toThrow("only enabled for XOF")
+  })
+
+  it("rejects invalid provider contract options", () => {
+    expect(() =>
+      JekoPaymentProviderService.validateOptions({
+        ...options,
+        api_url: "http://api.jeko.test",
+      })
+    ).toThrow("valid HTTPS URL")
+
+    expect(() =>
+      JekoPaymentProviderService.validateOptions({
+        ...options,
+        amount_multiplier: 0,
+      })
+    ).toThrow("positive integer")
+  })
+
   it("accepts a correctly signed successful transaction webhook", async () => {
     const data = {
       id: "transaction-id",
@@ -110,6 +143,21 @@ describe("JekoPaymentProviderService", () => {
       .createHmac("sha256", options.webhook_secret)
       .update(rawData)
       .digest("hex")
+
+    jest.spyOn(global, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "request-id",
+          storeId: "store-id",
+          reference: "payment-session-id",
+          paymentMethod: "wave",
+          amountCents: 12500,
+          currency: "XOF",
+          status: "success",
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      )
+    )
 
     const result = await createService().getWebhookActionAndData({
       data,
@@ -196,6 +244,46 @@ describe("JekoPaymentProviderService", () => {
     ).rejects.toThrow("Invalid Jèko webhook signature")
   })
 
+  it("rejects a webhook that does not match its payment request", async () => {
+    const data = {
+      id: "transaction-id",
+      status: "success",
+      amount: { amount: 12500, currency: "XOF" },
+      transactionDetails: {
+        id: "request-id",
+        reference: "payment-session-id",
+      },
+    }
+    const rawData = JSON.stringify(data)
+    const signature = crypto
+      .createHmac("sha256", options.webhook_secret)
+      .update(rawData)
+      .digest("hex")
+
+    jest.spyOn(global, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "request-id",
+          storeId: "another-store",
+          reference: "payment-session-id",
+          paymentMethod: "wave",
+          amountCents: 12500,
+          currency: "XOF",
+          status: "success",
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      )
+    )
+
+    await expect(
+      createService().getWebhookActionAndData({
+        data,
+        rawData,
+        headers: { "jeko-signature": signature },
+      } as ProviderWebhookPayload["payload"])
+    ).rejects.toThrow("does not match")
+  })
+
   it("rejects a status response for a different reference", async () => {
     jest.spyOn(global, "fetch").mockResolvedValue(
       new Response(
@@ -242,5 +330,27 @@ describe("JekoPaymentProviderService", () => {
         },
       } as never)
     ).rejects.toThrow("cannot be changed")
+  })
+
+  it("uses the configured multiplier when validating an unchanged amount", async () => {
+    const service = new JekoPaymentProviderService(
+      { logger: {} as never },
+      { ...options, amount_multiplier: 1 }
+    )
+
+    await expect(
+      service.updatePayment({
+        amount: 125,
+        currency_code: "xof",
+        data: {
+          paymentRequestId: "request-id",
+          reference: "payment-session-id",
+          paymentMethod: "wave",
+          amountCents: 125,
+          currency: "XOF",
+          storeId: "store-id",
+        },
+      } as never)
+    ).resolves.toMatchObject({ data: { amountCents: 125 } })
   })
 })

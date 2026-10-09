@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default async function PageLayout(props: { children: React.ReactNode }) {
   const customer = await retrieveCustomer()
   const cart = await retrieveCart()
-  const { blocks } = await getHomeContent()
+  const { blocks, hidden } = await getHomeContent()
   let shippingOptions: StoreCartShippingOption[] = []
 
   if (cart) {
@@ -30,7 +30,9 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
 
   return (
     <>
-      <AnnouncementBar messages={blocks.announcement?.messages} />
+      {!hidden.includes("announcement") && (
+        <AnnouncementBar messages={blocks.announcement?.messages} />
+      )}
       <Nav />
       {customer && cart && (
         <CartMismatchBanner
@@ -48,7 +50,9 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
         />
       )}
       <main id="main-content">{props.children}</main>
-      <NewsletterBand block={blocks.newsletter_band} />
+      {!hidden.includes("newsletter_band") && (
+        <NewsletterBand block={blocks.newsletter_band} />
+      )}
       <Footer />
     </>
   )

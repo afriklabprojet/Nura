@@ -35,10 +35,12 @@ export function Pagination({
   ) => (
     <button
       key={p}
-      className={clx("txt-xlarge-plus text-ui-fg-muted", {
+      className={clx("flex h-11 min-w-11 items-center justify-center txt-xlarge-plus text-ui-fg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold", {
         "text-ui-fg-base hover:text-ui-fg-subtle": isCurrent,
       })}
       disabled={isCurrent}
+      aria-current={isCurrent ? "page" : undefined}
+      aria-label={`Page ${p}`}
       onClick={() => handlePageChange(p)}
     >
       {label}
@@ -107,8 +109,26 @@ export function Pagination({
 
   // Render the component
   return (
-    <div className="flex justify-center w-full mt-12">
-      <div className="flex gap-3 items-end" data-testid={dataTestid}>{renderPageButtons()}</div>
-    </div>
+    <nav className="mt-12 flex w-full justify-center" aria-label="Pagination des produits">
+      <div className="flex flex-wrap items-end justify-center gap-1 xsmall:gap-3" data-testid={dataTestid}>
+        <button
+          type="button"
+          disabled={page === 1}
+          onClick={() => handlePageChange(page - 1)}
+          className="min-h-11 px-2 text-sm disabled:opacity-40"
+        >
+          Précédent
+        </button>
+        {renderPageButtons()}
+        <button
+          type="button"
+          disabled={page === totalPages}
+          onClick={() => handlePageChange(page + 1)}
+          className="min-h-11 px-2 text-sm disabled:opacity-40"
+        >
+          Suivant
+        </button>
+      </div>
+    </nav>
   )
 }

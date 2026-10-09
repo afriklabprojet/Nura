@@ -1,5 +1,9 @@
 import { MedusaContainer } from "@medusajs/framework"
-import { ContainerRegistrationKeys, ProductStatus } from "@medusajs/framework/utils"
+import {
+  ContainerRegistrationKeys,
+  MedusaError,
+  ProductStatus,
+} from "@medusajs/framework/utils"
 import {
   createProductCategoriesWorkflow,
   createProductOptionsWorkflow,
@@ -19,6 +23,16 @@ export default async function seedNura({
 }) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
+
+  if (
+    process.env.NODE_ENV === "production" &&
+    process.env.ALLOW_PLACEHOLDER_PRODUCT_IMAGES !== "true"
+  ) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_ALLOWED,
+      "Production seed blocked: replace the Unsplash placeholders or explicitly set ALLOW_PLACEHOLDER_PRODUCT_IMAGES=true."
+    )
+  }
 
   logger.info("Renaming store to Nura...")
   const { data: stores } = await query.graph({

@@ -13,6 +13,7 @@ import Input from "@modules/common/components/input"
 import Modal from "@modules/common/components/modal"
 import { Button, Heading, Text, clx } from "@modules/common/components/ui"
 import Spinner from "@modules/common/icons/spinner"
+import { useRouter } from "next/navigation"
 import React, { useActionState, useEffect, useState } from "react"
 
 type EditAddressProps = {
@@ -28,6 +29,7 @@ const EditAddress: React.FC<EditAddressProps> = ({
 }) => {
   const [removing, setRemoving] = useState(false)
   const [successState, setSuccessState] = useState(false)
+  const router = useRouter()
   const { state, open, close: closeModal } = useToggleState(false)
 
   const [formState, formAction] = useActionState(updateCustomerAddress, {
@@ -50,12 +52,14 @@ const EditAddress: React.FC<EditAddressProps> = ({
   useEffect(() => {
     if (formState.success) {
       setSuccessState(true)
+      router.refresh()
     }
-  }, [formState])
+  }, [formState, router])
 
   const removeAddress = async () => {
     setRemoving(true)
     await deleteCustomerAddress(address.id)
+    router.refresh()
     setRemoving(false)
   }
 

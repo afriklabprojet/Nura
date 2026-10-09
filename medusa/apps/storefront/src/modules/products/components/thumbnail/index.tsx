@@ -19,7 +19,6 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
   thumbnail,
   images,
   size = "small",
-  isFeatured,
   className,
   hoverImage,
   title,
@@ -33,8 +32,7 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
         "relative w-full overflow-hidden bg-nude/20",
         className,
         {
-          "aspect-[4/5]": isFeatured,
-          "aspect-[9/16]": !isFeatured && size !== "square",
+          "aspect-[4/5]": size !== "square",
           "aspect-[1/1]": size === "square",
           "w-[180px]": size === "small",
           "w-[290px]": size === "medium",
@@ -52,7 +50,7 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
           aria-hidden="true"
           className="absolute inset-0 object-cover object-center opacity-0 transition-opacity duration-500 group-hover:opacity-100"
           draggable={false}
-          quality={50}
+          quality={75}
           sizes="(max-width: 512px) 50vw, (max-width: 900px) 33vw, 25vw"
           fill
         />
@@ -70,9 +68,9 @@ const ImageOrPlaceholder = ({
     <Image
       src={image}
       alt={title || "Photo du produit"}
-      className="absolute inset-0 object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+      className="absolute inset-0 object-contain object-center transition-transform duration-700 ease-out group-hover:scale-[1.03]"
       draggable={false}
-      quality={60}
+      quality={75}
       sizes="(max-width: 512px) 50vw, (max-width: 900px) 33vw, 25vw"
       fill
     />

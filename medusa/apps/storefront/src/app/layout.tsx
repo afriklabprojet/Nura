@@ -5,27 +5,38 @@ import AnalyticsScripts from "@modules/layout/components/analytics-scripts"
 import CookieConsent from "@modules/layout/components/cookie-consent"
 import WhatsappButton from "@modules/layout/components/whatsapp-button"
 import { Metadata } from "next"
-import { Cormorant_Garamond, Jost } from "next/font/google"
+import "@fontsource/cormorant-garamond/400-italic.css"
+import "@fontsource/cormorant-garamond/400.css"
+import "@fontsource/cormorant-garamond/500-italic.css"
+import "@fontsource/cormorant-garamond/500.css"
+import "@fontsource/cormorant-garamond/600-italic.css"
+import "@fontsource/cormorant-garamond/600.css"
+import "@fontsource/jost/300.css"
+import "@fontsource/jost/400.css"
+import "@fontsource/jost/500.css"
+import "@fontsource/jost/600.css"
 import "styles/globals.css"
-
-const jost = Jost({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  variable: "--font-jost",
-  display: "swap",
-})
-
-const cormorant = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-cormorant",
-  display: "swap",
-})
 
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
   title: { default: "Nura", template: "%s | Nura" },
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      {
+        url: "/apple-touch-icon.png",
+        sizes: "180x180",
+        type: "image/png",
+      },
+    ],
+  },
   openGraph: {
     type: "website",
     siteName: "Nura",
@@ -35,7 +46,7 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
-  const [siteSettings, { blocks }] = await Promise.all([
+  const [siteSettings, { blocks, hidden }] = await Promise.all([
     getSiteSettings(),
     getHomeContent(),
   ])
@@ -44,7 +55,6 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
     <html
       lang="fr"
       data-mode="light"
-      className={`${jost.variable} ${cormorant.variable}`}
     >
       <body className="bg-bg text-ink font-sans">
         <a
@@ -54,12 +64,16 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
           Aller au contenu principal
         </a>
         <div className="relative">{props.children}</div>
-        <CookieConsent text={blocks.cookie_banner?.text} />
+        {!hidden.includes("cookie_banner") && (
+          <CookieConsent text={blocks.cookie_banner?.text} />
+        )}
         <AnalyticsScripts />
-        <WhatsappButton
-          phones={siteSettings.phones}
-          message={blocks.whatsapp?.message}
-        />
+        {!hidden.includes("whatsapp") && (
+          <WhatsappButton
+            phones={siteSettings.phones}
+            message={blocks.whatsapp?.message}
+          />
+        )}
       </body>
     </html>
   )

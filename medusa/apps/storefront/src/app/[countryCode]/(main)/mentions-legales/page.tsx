@@ -13,11 +13,14 @@ export default async function MentionsLegalesPage() {
   const siteSettings = await getSiteSettings()
 
   return (
-    <LegalPageLayout title="Mentions légales" updatedAt="17 septembre 2026">
+    <LegalPageLayout
+      title="Mentions légales"
+      updatedAt={LEGAL_INFORMATION.lastUpdated}
+    >
       <section>
         <h2>Éditeur du site</h2>
         <p>
-          Le site nura-paris.com est édité par :
+          Le site {LEGAL_INFORMATION.siteHost} est édité par :
           <br />
           <strong>{LEGAL_INFORMATION.businessName}</strong>,{" "}
           {LEGAL_INFORMATION.legalForm}, au capital de {LEGAL_INFORMATION.capital}

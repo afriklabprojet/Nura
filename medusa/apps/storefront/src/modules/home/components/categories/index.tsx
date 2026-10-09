@@ -98,7 +98,7 @@ const CategoriesSection = async ({
                     alt={tile.title}
                     fill
                     sizes="(max-width: 900px) 100vw, 33vw"
-                    className="object-cover object-center transition-transform duration-[900ms] ease-out group-hover:scale-105"
+                    className="object-cover object-center transition-transform duration-900 ease-out group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent" />
                 </div>

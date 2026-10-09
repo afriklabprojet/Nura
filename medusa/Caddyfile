@@ -1,5 +1,4 @@
-# Replace these with your real domains before deploying, then Caddy
-# handles HTTPS (Let's Encrypt) automatically — no manual certs needed.
+# Domain names are supplied by docker-compose from the deployment environment.
 
 (security_headers) {
 	header {
@@ -13,7 +12,7 @@
 	}
 }
 
-nura-paris.com {
+{$STOREFRONT_DOMAIN} {
 	import security_headers
 	# GeoIP-based market detection (Côte d'Ivoire → XOF/Jèko, everything
 	# else keeps the default Europe/EUR/Stripe market). See DEPLOYMENT.md
@@ -37,7 +36,7 @@ nura-paris.com {
 	reverse_proxy storefront:8000
 }
 
-api.nura-paris.com {
+{$BACKEND_DOMAIN} {
 	import security_headers
 
 	handle_path /meilisearch/* {

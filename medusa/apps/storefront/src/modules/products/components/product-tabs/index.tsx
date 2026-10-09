@@ -5,12 +5,14 @@ import Refresh from "@modules/common/icons/refresh"
 
 import Accordion from "./accordion"
 import { HttpTypes } from "@medusajs/types"
+import { ProductExtrasBlock } from "@lib/data/home-content"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct
+  content?: ProductExtrasBlock | null
 }
 
-const ProductTabs = ({ product }: ProductTabsProps) => {
+const ProductTabs = ({ product, content }: ProductTabsProps) => {
   const metadata = (product.metadata || {}) as Record<string, string>
   const hasNotes =
     metadata.notes_tete || metadata.notes_coeur || metadata.notes_fond
@@ -33,10 +35,14 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
           },
         ]
       : []),
-    {
-      label: "Livraison & retours",
-      component: <ShippingInfoTab />,
-    },
+    ...(content !== null
+      ? [
+          {
+            label: content?.shipping_tab_title || "Livraison & retours",
+            component: <ShippingInfoTab content={content} />,
+          },
+        ]
+      : []),
   ]
 
   return (
@@ -105,28 +111,41 @@ const UsageTab = ({ metadata }: { metadata: Record<string, string> }) => {
   )
 }
 
-const ShippingInfoTab = () => {
+const ShippingInfoTab = ({ content }: { content?: ProductExtrasBlock }) => {
   return (
     <div className="text-small-regular py-8">
       <div className="grid grid-cols-1 gap-y-8">
         <div className="flex items-start gap-x-2">
           <FastDelivery />
           <div>
-            <span className="font-semibold">Livraison rapide</span>
-            <p className="max-w-sm">
-              Expédition sous 24 à 48 h. Livraison offerte dès 49 € en France
-              métropolitaine.
-            </p>
+            <span className="font-semibold">
+              {content?.shipping_tab_title || "Livraison"}
+            </span>
+            {content?.shipping_tab_text && (
+              <p className="max-w-sm">{content.shipping_tab_text}</p>
+            )}
+            {!content?.shipping_tab_text && (
+              <p className="max-w-sm">
+                Expédition sous 24 à 48 h, puis livraison selon la destination.
+              </p>
+            )}
           </div>
         </div>
         <div className="flex items-start gap-x-2">
           <Refresh />
           <div>
-            <span className="font-semibold">Retours simples</span>
-            <p className="max-w-sm">
-              Un doute sur votre choix ? Nous échangeons votre produit sans
-              difficulté.
-            </p>
+            <span className="font-semibold">
+              {content?.returns_tab_title || "Retours"}
+            </span>
+            {content?.returns_tab_text && (
+              <p className="max-w-sm">{content.returns_tab_text}</p>
+            )}
+            {!content?.returns_tab_text && (
+              <p className="max-w-sm">
+                Retour sous 14 jours pour tout produit non ouvert, dans son
+                emballage d’origine.
+              </p>
+            )}
           </div>
         </div>
       </div>

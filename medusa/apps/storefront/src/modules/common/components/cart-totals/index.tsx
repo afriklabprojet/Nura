@@ -36,8 +36,14 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
         </div>
         <div className="flex items-center justify-between">
           <span>Livraison</span>
-          <span data-testid="cart-shipping" data-value={shipping_subtotal || 0}>
-            {convertToLocale({ amount: shipping_subtotal ?? 0, currency_code })}
+          <span
+            className="text-right"
+            data-testid="cart-shipping"
+            data-value={shipping_subtotal ?? undefined}
+          >
+            {shipping_subtotal == null
+              ? "Calculée à l’étape suivante"
+              : convertToLocale({ amount: shipping_subtotal, currency_code })}
           </span>
         </div>
         {!!discount_subtotal && (
@@ -58,12 +64,18 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
         )}
         <div className="flex justify-between">
           <span className="flex gap-x-1 items-center ">Taxes</span>
-          <span data-testid="cart-taxes" data-value={tax_total || 0}>
-            {convertToLocale({ amount: tax_total ?? 0, currency_code })}
+          <span
+            className="text-right"
+            data-testid="cart-taxes"
+            data-value={tax_total ?? undefined}
+          >
+            {tax_total == null
+              ? "Calculées à l’étape suivante"
+              : convertToLocale({ amount: tax_total, currency_code })}
           </span>
         </div>
       </div>
-      <div className="h-px w-full border-b border-gray-200 my-4" />
+      <div className="my-4 h-px w-full border-b border-nude" />
       <div className="flex items-center justify-between text-ui-fg-base mb-2 txt-medium ">
         <span>Total</span>
         <span
@@ -74,7 +86,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
           {convertToLocale({ amount: total ?? 0, currency_code })}
         </span>
       </div>
-      <div className="h-px w-full border-b border-gray-200 mt-4" />
+      <div className="mt-4 h-px w-full border-b border-nude" />
     </div>
   )
 }

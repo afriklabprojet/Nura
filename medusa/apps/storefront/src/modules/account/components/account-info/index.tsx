@@ -81,7 +81,7 @@ const AccountInfo = ({
           )}
           data-testid="success-message"
         >
-          <Badge className="p-2 my-4" color="green">
+          <Badge className="p-2 my-4" color="green" role="status">
             <span>{label} mis à jour avec succès</span>
           </Badge>
         </Disclosure.Panel>
@@ -100,7 +100,7 @@ const AccountInfo = ({
           )}
           data-testid="error-message"
         >
-          <Badge className="p-2 my-4" color="red">
+          <Badge className="p-2 my-4" color="red" role="alert">
             <span>{errorMessage}</span>
           </Badge>
         </Disclosure.Panel>
@@ -110,10 +110,10 @@ const AccountInfo = ({
         <Disclosure.Panel
           static
           className={clx(
-            "transition-[max-height,opacity] duration-300 ease-in-out overflow-visible",
+            "transition-[max-height,opacity] duration-300 ease-in-out",
             {
-              "max-h-[1000px] opacity-100": state,
-              "max-h-0 opacity-0": !state,
+              "max-h-[1000px] overflow-visible opacity-100": state,
+              "max-h-0 overflow-hidden opacity-0": !state,
             }
           )}
         >

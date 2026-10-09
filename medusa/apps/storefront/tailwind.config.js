@@ -19,13 +19,16 @@ module.exports = {
         visibility: "visibility",
         padding: "padding-top padding-right padding-bottom padding-left",
       },
+      transitionDuration: {
+        900: "900ms",
+      },
       colors: {
         bg: "#F7F1E8",
         "bg-alt": "#FBF8F3",
         ink: "#2F231B",
         brown: "#3A2A20",
         nude: "#E7D3C0",
-        gold: "#B79B6E",
+        gold: "#806747",
         grey: {
           0: "#FFFFFF",
           5: "#F9FAFB",
@@ -67,12 +70,12 @@ module.exports = {
       },
       fontFamily: {
         sans: [
-          "var(--font-jost)",
+          "Jost",
           "-apple-system",
           "BlinkMacSystemFont",
           "sans-serif",
         ],
-        serif: ["var(--font-cormorant)", "Georgia", "serif"],
+        serif: ["Cormorant Garamond", "Georgia", "serif"],
       },
       keyframes: {
         ring: {

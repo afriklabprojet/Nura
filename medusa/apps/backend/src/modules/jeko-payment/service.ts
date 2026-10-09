@@ -34,13 +34,13 @@ type Options = {
   api_key_id: string
   store_id: string
   webhook_secret: string
+  api_url: string
+  amount_multiplier: number
 }
 
 type InjectedDependencies = {
   logger: Logger
 }
-
-const JEKO_API_URL = "https://api.jeko.africa/partner_api"
 
 const JEKO_PAYMENT_METHODS = ["wave", "orange", "mtn", "moov", "djamo"] as const
 type JekoPaymentMethod = (typeof JEKO_PAYMENT_METHODS)[number]
@@ -96,7 +96,13 @@ class JekoPaymentProviderService extends AbstractPaymentProvider<Options> {
   }
 
   static validateOptions(options: Record<string, unknown>) {
-    for (const key of ["api_key", "api_key_id", "store_id", "webhook_secret"]) {
+    for (const key of [
+      "api_key",
+      "api_key_id",
+      "store_id",
+      "webhook_secret",
+      "api_url",
+    ]) {
       if (!options[key]) {
         throw new MedusaError(
           MedusaError.Types.INVALID_DATA,
@@ -104,10 +110,39 @@ class JekoPaymentProviderService extends AbstractPaymentProvider<Options> {
         )
       }
     }
+
+    let apiUrl: URL
+    try {
+      apiUrl = new URL(String(options.api_url))
+    } catch {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "api_url must be a valid HTTPS URL."
+      )
+    }
+
+    if (apiUrl.protocol !== "https:") {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "api_url must be a valid HTTPS URL."
+      )
+    }
+
+    if (
+      !Number.isSafeInteger(options.amount_multiplier) ||
+      Number(options.amount_multiplier) <= 0
+    ) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "amount_multiplier must be a positive integer confirmed with Jèko."
+      )
+    }
   }
 
   private async request<T>(path: string, init: RequestInit = {}): Promise<T> {
-    const response = await fetch(`${JEKO_API_URL}${path}`, {
+    const response = await fetch(
+      `${this.options_.api_url.replace(/\/$/, "")}${path}`,
+      {
       ...init,
       headers: {
         "Content-Type": "application/json",
@@ -115,7 +150,8 @@ class JekoPaymentProviderService extends AbstractPaymentProvider<Options> {
         "X-API-KEY-ID": this.options_.api_key_id,
         ...(init.headers as Record<string, string> | undefined),
       },
-    })
+      }
+    )
 
     const body = await response.json().catch(() => null)
 
@@ -198,6 +234,13 @@ class JekoPaymentProviderService extends AbstractPaymentProvider<Options> {
       )
     }
 
+    if (currency_code.toLowerCase() !== "xof") {
+      throw new MedusaError(
+        MedusaError.Types.NOT_ALLOWED,
+        "Jèko payments are only enabled for XOF."
+      )
+    }
+
     const countryCode = data?.country_code as string | undefined
     const storefrontUrl = process.env.STOREFRONT_URL
     if (!storefrontUrl && process.env.NODE_ENV === "production") {
@@ -226,11 +269,9 @@ class JekoPaymentProviderService extends AbstractPaymentProvider<Options> {
     const successUrl = createReturnUrl("success")
     const errorUrl = createReturnUrl("error")
 
-    // NOTE: Jèko's `amountCents` field is a multiple of 100 even for XOF (a
-    // currency with no minor unit in everyday use) — confirmed against their
-    // own sample payload (10000 amountCents for a small "test payment").
-    // Verify this against a real Jèko test transaction before going live.
-    const amountCents = Math.round(Number(amount) * 100)
+    const amountCents = Math.round(
+      Number(amount) * this.options_.amount_multiplier
+    )
 
     const response = await this.request<JekoPaymentRequestResponse>(
       "/payment_requests",
@@ -327,7 +368,9 @@ class JekoPaymentProviderService extends AbstractPaymentProvider<Options> {
 
   async updatePayment(input: UpdatePaymentInput): Promise<UpdatePaymentOutput> {
     const data = input.data as unknown as JekoSessionData
-    const amountCents = Math.round(Number(input.amount) * 100)
+    const amountCents = Math.round(
+      Number(input.amount) * this.options_.amount_multiplier
+    )
 
     if (!data?.amountCents || amountCents !== data.amountCents) {
       throw new MedusaError(
@@ -418,20 +461,40 @@ class JekoPaymentProviderService extends AbstractPaymentProvider<Options> {
       )
     }
 
-    const sessionId = (
-      data.transactionDetails as Record<string, unknown> | undefined
-    )?.reference as string | undefined
-    const amountValue = (data.amount as Record<string, unknown> | undefined)
-      ?.amount as number | undefined
+    const transactionDetails = data.transactionDetails as
+      | Record<string, unknown>
+      | undefined
+    const sessionId = transactionDetails?.reference as string | undefined
+    const paymentRequestId = transactionDetails?.id as string | undefined
+    const webhookAmount = data.amount as Record<string, unknown> | undefined
+    const amountValue = webhookAmount?.amount as number | undefined
+    const currency = webhookAmount?.currency as string | undefined
 
-    if (!sessionId) {
+    if (!sessionId || !paymentRequestId) {
       // Nothing we can correlate back to a Medusa payment session.
       return {
         action: "not_supported",
       }
     }
 
-    const amount = new BigNumber((amountValue ?? 0) / 100)
+    const paymentRequest = await this.getPaymentRequest(paymentRequestId)
+
+    if (
+      paymentRequest.id !== paymentRequestId ||
+      paymentRequest.reference !== sessionId ||
+      paymentRequest.storeId !== this.options_.store_id ||
+      paymentRequest.amountCents !== amountValue ||
+      paymentRequest.currency?.toUpperCase() !== currency?.toUpperCase()
+    ) {
+      throw new MedusaError(
+        MedusaError.Types.UNEXPECTED_STATE,
+        "Jèko webhook data does not match the stored payment request."
+      )
+    }
+
+    const amount = new BigNumber(
+      (amountValue ?? 0) / this.options_.amount_multiplier
+    )
 
     switch (data.status) {
       case "success":

@@ -146,7 +146,7 @@ const LanguageSelect = ({
             )}
           </div>
         </ListboxButton>
-        <div className="flex relative w-full min-w-[320px]">
+        <div className="relative flex min-w-0 w-full">
           <Transition
             show={state}
             as={Fragment}
@@ -155,7 +155,7 @@ const LanguageSelect = ({
             leaveTo="opacity-0"
           >
             <ListboxOptions
-              className="absolute -bottom-[calc(100%-36px)] left-0 xsmall:left-auto xsmall:right-0 max-h-[442px] overflow-y-scroll z-[900] bg-bg-alt border border-nude drop-shadow-md text-small-regular uppercase text-brown no-scrollbar w-full"
+              className="absolute -bottom-[calc(100%-36px)] left-0 z-[900] max-h-[min(442px,60dvh)] w-full overflow-y-auto border border-nude bg-bg-alt text-small-regular uppercase text-brown drop-shadow-md no-scrollbar xsmall:left-auto xsmall:right-0"
               static
             >
               {options.map((o) => (

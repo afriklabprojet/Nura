@@ -22,12 +22,14 @@ const HELP_LINKS = [
 ]
 
 export default async function Footer() {
-  const [productCategories, siteSettings, { blocks }] = await Promise.all([
+  const [productCategories, siteSettings, { blocks, hidden }] = await Promise.all([
     listCategories(),
     getSiteSettings(),
     getHomeContent(),
   ])
-  const footerExtra = blocks.footer_extra
+  const footerExtra = hidden.includes("footer_extra")
+    ? null
+    : blocks.footer_extra
   const topLevel = productCategories?.filter((c) => !c.parent_category) || []
 
   return (
@@ -41,30 +43,38 @@ export default async function Footer() {
             >
               Nura
             </LocalizedClientLink>
-            <p className="font-serif text-lg text-brown/70">
-              {footerExtra?.tagline || "Votre aura commence ici."}
-            </p>
-            <p className="text-sm leading-relaxed text-ui-fg-subtle">
-              {footerExtra?.blurb ||
-                "Parfums et soins pensés pour accompagner chaque aura, chaque humeur et chaque moment."}
-            </p>
+            {footerExtra !== null && (
+              <>
+                <p className="font-serif text-lg text-brown/70">
+                  {footerExtra?.tagline || "Votre aura commence ici."}
+                </p>
+                <p className="text-sm leading-relaxed text-ui-fg-subtle">
+                  {footerExtra?.blurb ||
+                    "Parfums et soins pensés pour accompagner chaque aura, chaque humeur et chaque moment."}
+                </p>
+              </>
+            )}
             <div className="flex gap-x-5 pt-2">
-              <a
-                href={siteSettings.social.instagram}
-                target="_blank"
-                rel="noreferrer"
-                className="text-[11px] uppercase tracking-[0.2em] text-brown/70 hover:text-gold"
-              >
-                Instagram
-              </a>
-              <a
-                href={siteSettings.social.tiktok}
-                target="_blank"
-                rel="noreferrer"
-                className="text-[11px] uppercase tracking-[0.2em] text-brown/70 hover:text-gold"
-              >
-                TikTok
-              </a>
+              {siteSettings.social.instagram && (
+                <a
+                  href={siteSettings.social.instagram}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[11px] uppercase tracking-[0.2em] text-brown/70 hover:text-gold"
+                >
+                  Instagram
+                </a>
+              )}
+              {siteSettings.social.tiktok && (
+                <a
+                  href={siteSettings.social.tiktok}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[11px] uppercase tracking-[0.2em] text-brown/70 hover:text-gold"
+                >
+                  TikTok
+                </a>
+              )}
             </div>
           </div>
 
@@ -143,15 +153,21 @@ export default async function Footer() {
                     </a>
                   </li>
                 ))}
-                <li>
-                  <a
-                    href={`mailto:${siteSettings.email}`}
-                    className="hover:text-gold"
-                  >
-                    {siteSettings.email}
-                  </a>
-                </li>
-                <li className="text-xs text-ui-fg-muted">{siteSettings.hours}</li>
+                {siteSettings.email && (
+                  <li>
+                    <a
+                      href={`mailto:${siteSettings.email}`}
+                      className="hover:text-gold"
+                    >
+                      {siteSettings.email}
+                    </a>
+                  </li>
+                )}
+                {siteSettings.hours && (
+                  <li className="text-xs text-ui-fg-muted">
+                    {siteSettings.hours}
+                  </li>
+                )}
               </ul>
             </div>
             <CookiePreferencesButton className="min-h-11 self-start text-left text-xs text-ui-fg-subtle underline underline-offset-4 hover:text-brown" />
@@ -163,22 +179,26 @@ export default async function Footer() {
             © {new Date().getFullYear()}{" "}
             {footerExtra?.copyright_suffix || "Nura — Tous droits réservés."}
           </p>
-          <ul className="flex flex-wrap gap-2">
-            {(footerExtra?.payment_methods?.length
-              ? footerExtra.payment_methods
-              : DEFAULT_PAYMENT_METHODS
-            ).map((method) => (
-              <li
-                key={method}
-                className="border border-nude px-2.5 py-1 text-[10px] uppercase tracking-[0.1em]"
-              >
-                {method}
-              </li>
-            ))}
-          </ul>
-          <p className="text-xs">
-            {footerExtra?.tagline || "Votre aura commence ici."}
-          </p>
+          {footerExtra !== null && (
+            <>
+              <ul className="flex flex-wrap gap-2">
+                {(footerExtra?.payment_methods?.length
+                  ? footerExtra.payment_methods
+                  : DEFAULT_PAYMENT_METHODS
+                ).map((method) => (
+                  <li
+                    key={method}
+                    className="border border-nude px-2.5 py-1 text-[10px] uppercase tracking-[0.1em]"
+                  >
+                    {method}
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs">
+                {footerExtra?.tagline || "Votre aura commence ici."}
+              </p>
+            </>
+          )}
         </div>
       </div>
     </footer>

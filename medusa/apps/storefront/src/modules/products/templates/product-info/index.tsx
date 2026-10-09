@@ -1,13 +1,16 @@
 import { HttpTypes } from "@medusajs/types"
 import { Heading, Text } from "@modules/common/components/ui"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { listProductReviews } from "@lib/data/reviews"
+import StarRating from "@modules/products/components/star-rating"
 
 type ProductInfoProps = {
   product: HttpTypes.StoreProduct
 }
 
-const ProductInfo = ({ product }: ProductInfoProps) => {
+const ProductInfo = async ({ product }: ProductInfoProps) => {
   const metadata = (product.metadata || {}) as Record<string, string>
+  const { average_rating, count } = await listProductReviews(product.id!)
 
   return (
     <div id="product-info">
@@ -39,6 +42,16 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
         >
           {product.title}
         </Heading>
+
+        {count > 0 && (
+          <a
+            href="#avis-produits"
+            className="flex min-h-11 items-center gap-2 self-start text-sm text-ui-fg-subtle underline-offset-4 hover:underline"
+          >
+            <StarRating value={Math.round(average_rating)} size="small" />
+            <span>{average_rating.toFixed(1)} / 5 · {count} avis</span>
+          </a>
+        )}
 
         <Text
           className="text-medium text-ui-fg-subtle whitespace-pre-line"

@@ -14,6 +14,32 @@ type ProductListQueryParams = (HttpTypes.FindParams &
   option_value_id?: string | string[]
 }
 
+export const listProductOptions = async () => {
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+  const next = {
+    ...(await getCacheOptions("products")),
+  }
+
+  return sdk.client
+    .fetch<{ product_options?: HttpTypes.StoreProductOption[] }>(
+      "/store/product-options",
+      {
+        method: "GET",
+        query: {
+          is_exclusive: false,
+          fields: "*values",
+        },
+        headers,
+        next,
+        cache: "force-cache",
+      }
+    )
+    .then(({ product_options }) => product_options || [])
+    .catch(() => [])
+}
+
 export const listProducts = async ({
   pageParam = 1,
   queryParams,

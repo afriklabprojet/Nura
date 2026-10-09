@@ -55,6 +55,7 @@ export default function ProductActions({
     return {}
   })
   const [isAdding, setIsAdding] = useState(false)
+  const [addError, setAddError] = useState<string | null>(null)
   const countryCode = useParams().countryCode as string
 
   // If there is only 1 variant, preselect the options
@@ -167,6 +168,7 @@ export default function ProductActions({
   const handleAddToCart = async (): Promise<void> => {
     if (!selectedVariant?.id) return
 
+    setAddError(null)
     setIsAdding(true)
 
     try {
@@ -175,6 +177,10 @@ export default function ProductActions({
         quantity: 1,
         countryCode,
       })
+    } catch {
+      setAddError(
+        "Impossible d’ajouter cet article au panier. Vérifiez votre connexion et réessayez."
+      )
     } finally {
       setIsAdding(false)
     }
@@ -246,6 +252,11 @@ export default function ProductActions({
             isInWishlist={isInWishlist}
           />
         </div>
+        {addError && (
+          <p className="text-sm text-rose-700" role="alert">
+            {addError}
+          </p>
+        )}
         <MobileActions
           product={product}
           variant={selectedVariant}

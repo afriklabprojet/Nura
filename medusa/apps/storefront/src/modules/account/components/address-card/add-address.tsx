@@ -11,6 +11,7 @@ import CountrySelect from "@modules/checkout/components/country-select"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
 import Input from "@modules/common/components/input"
 import Modal from "@modules/common/components/modal"
+import { useRouter } from "next/navigation"
 
 const AddAddress = ({
   region,
@@ -19,6 +20,7 @@ const AddAddress = ({
   addresses: HttpTypes.StoreCustomerAddress[]
 }) => {
   const [successState, setSuccessState] = useState(false)
+  const router = useRouter()
   const { state, open, close: closeModal } = useToggleState(false)
 
   const [formState, formAction] = useActionState(addCustomerAddress, {
@@ -41,8 +43,9 @@ const AddAddress = ({
   useEffect(() => {
     if (formState.success) {
       setSuccessState(true)
+      router.refresh()
     }
-  }, [formState])
+  }, [formState, router])
 
   return (
     <>

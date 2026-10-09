@@ -29,22 +29,33 @@ alors sur ton propre serveur : tu possèdes le code et les données.
      `openssl rand -hex 32` (une valeur différente pour chacun).
     - `ORDER_ACCESS_SECRET` et `BACKUP_ENCRYPTION_KEY` — deux autres valeurs
        distinctes générées de la même façon.
-   - `STORE_CORS` / `ADMIN_CORS` / `AUTH_CORS` — tes vrais domaines.
+    - `STOREFRONT_DOMAIN` / `BACKEND_DOMAIN` — les noms d'hôte publics sans
+       `https://`; Caddy les utilise directement.
+    - `STORE_CORS` / `ADMIN_CORS` / `AUTH_CORS` — tes vraies origines HTTPS.
    - `NEXT_PUBLIC_MEDUSA_BACKEND_URL` / `NEXT_PUBLIC_BASE_URL` — tes vraies
      URLs publiques.
+    - `NEXT_PUBLIC_DEFAULT_REGION` — le code pays utilisé en dernier recours
+       (`fr` par défaut).
     - Les variables `S3_*` d'un bucket S3/R2 persistant (voir « Médias »).
-    - Toutes les variables `LEGAL_*` avec les informations réelles de
+   - Toutes les variables `LEGAL_*`, dont `LEGAL_LAST_UPDATED`, avec les informations réelles de
        l'entreprise, de l'hébergeur et du médiateur choisi. Le storefront de
        production ne se construit pas si l'une d'elles manque.
     - Au moins Stripe ou Jèko doit être configuré avant le premier démarrage
        de production. Le paiement manuel n'y est jamais proposé.
     - `RESEND_API_KEY` et `RESEND_FROM_EMAIL` sont obligatoires en production;
        l'adresse d'envoi doit appartenir à un domaine vérifié dans Resend.
+    - `REFERRAL_REWARD_EUR` / `REFERRAL_REWARD_XOF` — les montants métier
+       validés, en unités monétaires majeures.
+    - `REVALIDATE_SECRET` — une valeur partagée générée avec
+       `openssl rand -hex 32`, afin que les publications Admin soient visibles
+       immédiatement.
    - `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` — laisser vide pour l'instant
        (étape 5). Caddy peut exposer l'admin avant le storefront.
 
-3. **Adapter `Caddyfile`** avec tes vrais domaines (remplace
-   `nura-paris.com` et `api.nura-paris.com`).
+3. **Vérifier la configuration** avant le démarrage :
+   ```bash
+   docker compose config --quiet
+   ```
 
 4. **Démarrer** :
    ```bash
@@ -60,7 +71,7 @@ alors sur ton propre serveur : tu possèdes le code et les données.
    ```bash
    docker compose exec backend npx medusa user -e ton-email@exemple.com -p un-mot-de-passe-solide
    ```
-   Connecte-toi ensuite sur `https://api.nura-paris.com/app`, va dans
+   Connecte-toi ensuite sur `https://<BACKEND_DOMAIN>/app`, va dans
    **Settings > API Key Management > Publishable Keys**, crée une clé, et
    colle-la dans `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` du fichier `.env`.
 
@@ -76,7 +87,9 @@ alors sur ton propre serveur : tu possèdes le code et les données.
    ```
 
 7. **Seeder le catalogue Nura et les rôles** (une seule fois, dans cet ordre —
-   fais-le juste après l'étape 5, avant de créer d'autres comptes admin) :
+   fais-le juste après l'étape 5, avant de créer d'autres comptes admin).
+   Remplace d'abord les URL Unsplash de `src/scripts/product-images.ts` par
+   les vrais packshots Nura; le seed bloque ces placeholders en production :
    ```bash
    docker compose exec backend npx medusa exec ./src/scripts/seed-nura.ts
    docker compose exec backend npx medusa exec ./src/scripts/add-nura-collection.ts
@@ -106,7 +119,7 @@ validés, connecte-les au site avec les étapes ci-dessous.
 2. Récupère tes clés API (`dashboard.stripe.com/apikeys`), mets-les dans
    `.env` (`STRIPE_API_KEY`, `NEXT_PUBLIC_STRIPE_KEY`).
 3. Crée un webhook Stripe pointant vers
-   `https://api.nura-paris.com/hooks/payment/stripe_stripe`, copie le
+   `https://<BACKEND_DOMAIN>/hooks/payment/stripe_stripe`, copie le
    secret de signature dans `STRIPE_WEBHOOK_SECRET`, et abonne-le aux
    événements `payment_intent.amount_capturable_updated`,
    `payment_intent.succeeded`, `payment_intent.payment_failed` et
@@ -125,11 +138,14 @@ validés, connecte-les au site avec les étapes ci-dessous.
 3. Récupère l'identifiant de ta boutique via
    `GET https://api.jeko.africa/partner_api/stores` (avec les headers
    `X-API-KEY` / `X-API-KEY-ID`), mets-le dans `.env` (`JEKO_STORE_ID`).
-4. Configure l'URL de webhook `https://api.nura-paris.com/hooks/payment/jeko_jeko`
+4. Fais confirmer par Jèko l'URL d'API et la convention de montant, puis
+   renseigne `JEKO_API_URL` et `JEKO_AMOUNT_MULTIPLIER`. Le provider actuel
+   refuse toute devise autre que XOF.
+5. Configure l'URL de webhook `https://<BACKEND_DOMAIN>/hooks/payment/jeko_jeko`
    dans le même écran, copie le secret webhook affiché dans `.env`
    (`JEKO_WEBHOOK_SECRET`).
-5. Redéploie : `docker compose up -d --build backend`.
-6. Dans l'admin, **Settings > Regions > Côte d'Ivoire**, active le mode de
+6. Redéploie : `docker compose up -d --build backend`.
+7. Dans l'admin, **Settings > Regions > Côte d'Ivoire**, active le mode de
    paiement Jèko.
 
 ⚠️ Jèko ne propose pas de remboursement via son API : un remboursement doit
@@ -208,7 +224,7 @@ Auto-hébergée, aucun compte tiers requis :
    ```
    Copie le `key` retourné dans `.env` (`NEXT_PUBLIC_MEILISEARCH_API_KEY`),
    mets `NEXT_PUBLIC_MEILISEARCH_HOST` sur
-   `https://api.nura-paris.com/meilisearch` (Caddy expose déjà ce chemin avec
+   `https://<BACKEND_DOMAIN>/meilisearch` (Caddy expose déjà ce chemin avec
    une limite de débit), puis :
    ```bash
    docker compose up -d --build storefront

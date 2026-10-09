@@ -1,54 +1,26 @@
 "use client"
 
 import * as Accordion from "@radix-ui/react-accordion"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 import { ChevronDownMini } from "@medusajs/icons"
-import { sdk } from "@lib/config"
 import { HttpTypes } from "@medusajs/types"
 import clsx from "clsx"
 
 type OptionsPickerProps = {
+  options: HttpTypes.StoreProductOption[]
   selectedValueIds: string[]
   setOptionValueIds: (valueIds: string[]) => void
 }
 
 const OptionsPicker = ({
+  options,
   selectedValueIds,
   setOptionValueIds,
 }: OptionsPickerProps) => {
-  const [options, setOptions] = useState<HttpTypes.StoreProductOption[]>([])
-  const [openItems, setOpenItems] = useState<string[]>([])
-
-  useEffect(() => {
-    const fetchOptions = async () => {
-      try {
-        const response = await sdk.client.fetch<{
-          product_options?: HttpTypes.StoreProductOption[]
-        }>("/store/product-options", {
-          method: "GET",
-          query: {
-            is_exclusive: false,
-            fields: "*values",
-          },
-        })
-
-        if (response?.product_options) {
-          setOptions(response.product_options)
-        }
-      } catch (error) {
-        console.error("Failed to fetch product options", error)
-      }
-    }
-
-    fetchOptions()
-  }, [])
-
-  useEffect(() => {
-    if (options.length) {
-      setOpenItems(options.map((option) => option.id))
-    }
-  }, [options])
+  const [openItems, setOpenItems] = useState<string[]>(() =>
+    options.map((option) => option.id)
+  )
 
   if (!options.length) {
     return null
@@ -104,7 +76,7 @@ const OptionsPicker = ({
               className="overflow-hidden"
             >
               <Accordion.Header>
-                <Accordion.Trigger className="flex w-full items-center justify-between py-3 text-left">
+                <Accordion.Trigger className="flex min-h-11 w-full items-center justify-between py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold">
                   <div className="flex items-center gap-2">
                     <span className="txt-compact-small-plus text-ui-fg-base">
                       {option.title || "Option"}
@@ -135,7 +107,7 @@ const OptionsPicker = ({
                         key={value.id}
                         onClick={() => toggleValue(value.id)}
                         className={clsx(
-                          "border-ui-border-base border text-small-regular h-10 rounded-rounded px-3 flex items-center transition-colors duration-150",
+                          "border-ui-border-base border text-small-regular min-h-11 min-w-11 rounded-rounded px-3 flex items-center justify-center transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
                           {
                             "border-ui-border-interactive text-ui-fg-base":
                               isSelected,

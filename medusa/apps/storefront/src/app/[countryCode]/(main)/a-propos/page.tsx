@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     "Découvrez la maison Nura : notre histoire, notre philosophie et nos engagements.",
 }
 
-const DEFAULT_TITLE = "Votre aura commence ici."
+const DEFAULT_TITLE = "La maison Nura"
 const DEFAULT_CONTENT = `Nura imagine des parfums et des soins pensés pour accompagner chaque aura, chaque humeur et chaque moment.
 
 ## Notre histoire
@@ -36,7 +36,7 @@ export default async function AProposPage() {
       <section className="relative h-[52vh] min-h-[380px] w-full overflow-hidden">
         <Image
           src="/images/about-values.webp"
-          alt="La maison Nura"
+          alt="Flacons et soins Nura mis en scène dans l’univers de la maison"
           fill
           priority
           sizes="100vw"
@@ -57,7 +57,7 @@ export default async function AProposPage() {
         <div className="relative aspect-[4/5] w-full overflow-hidden small:order-2">
           <Image
             src="/images/about-story.webp"
-            alt="Notre histoire"
+            alt="Gestes et matières qui inspirent les créations Nura"
             fill
             sizes="(max-width: 900px) 100vw, 50vw"
             className="object-cover object-center"

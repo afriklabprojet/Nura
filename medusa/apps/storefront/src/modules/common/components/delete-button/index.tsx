@@ -13,12 +13,14 @@ const DeleteButton = ({
   className?: string
 }) => {
   const [isDeleting, setIsDeleting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleDelete = async (id: string) => {
+    setError(null)
     setIsDeleting(true)
-    await deleteLineItem(id).catch((_err) => {
-      setIsDeleting(false)
-    })
+    await deleteLineItem(id)
+      .catch(() => setError("Suppression impossible. Réessayez."))
+      .finally(() => setIsDeleting(false))
   }
 
   return (
@@ -29,12 +31,16 @@ const DeleteButton = ({
       )}
     >
       <button
-        className="flex gap-x-1 text-ui-fg-subtle hover:text-ui-fg-base cursor-pointer"
+        type="button"
+        aria-label={children ? undefined : "Retirer cet article du panier"}
+        disabled={isDeleting}
+        className="flex min-h-11 min-w-11 items-center justify-center gap-x-1 text-ui-fg-subtle hover:text-ui-fg-base cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold disabled:opacity-50"
         onClick={() => handleDelete(id)}
       >
         {isDeleting ? <Spinner className="animate-spin" /> : <Trash />}
         <span>{children}</span>
       </button>
+      {error && <span className="ml-2 text-xs text-rose-700" role="alert">{error}</span>}
     </div>
   )
 }

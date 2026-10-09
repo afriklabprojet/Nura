@@ -1,6 +1,7 @@
 "use client"
 
 import { updateLineItem } from "@lib/data/cart"
+import { isCartItemUnavailable } from "@lib/util/cart-availability"
 import { HttpTypes } from "@medusajs/types"
 import { useState } from "react"
 
@@ -18,8 +19,9 @@ export const useLineItem = (item: HttpTypes.StoreCartLineItem) => {
       .finally(() => setUpdating(false))
   }
 
-  const maxQuantity =
-    !item.variant?.manage_inventory || item.variant?.allow_backorder
+  const maxQuantity = isCartItemUnavailable(item)
+    ? 0
+    : !item.variant?.manage_inventory || item.variant?.allow_backorder
       ? 10
       : Math.min(item.variant?.inventory_quantity ?? 0, 10)
 

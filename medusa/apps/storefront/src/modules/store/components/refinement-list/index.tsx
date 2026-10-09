@@ -7,12 +7,14 @@ import {
   OPTION_VALUE_QUERY_KEY,
   parseOptionValueIds,
 } from "@lib/util/product-option-filters"
+import { HttpTypes } from "@medusajs/types"
 import { clx } from "@modules/common/components/ui"
 import OptionsPicker from "./options-picker"
 import { SortOptions, sortOptions } from "./sort-products"
 
 type RefinementListProps = {
   sortBy: SortOptions
+  options?: HttpTypes.StoreProductOption[]
   search?: boolean
   hideOptionsPicker?: boolean
   count?: number
@@ -21,6 +23,7 @@ type RefinementListProps = {
 
 const RefinementList = ({
   sortBy,
+  options = [],
   hideOptionsPicker = false,
   count,
   "data-testid": dataTestId,
@@ -76,7 +79,7 @@ const RefinementList = ({
               type="button"
               onClick={() => setFiltersOpen((open) => !open)}
               aria-expanded={filtersOpen}
-              className="text-[11px] uppercase tracking-[0.2em] text-brown hover:text-gold"
+              className="min-h-11 px-1 text-[11px] uppercase tracking-[0.2em] text-brown hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
             >
               {filtersOpen ? "Masquer les filtres" : "Filtrer"}
             </button>
@@ -85,7 +88,7 @@ const RefinementList = ({
             <button
               type="button"
               onClick={clearFilters}
-              className="text-[11px] uppercase tracking-[0.2em] text-gold hover:text-brown"
+              className="min-h-11 px-1 text-[11px] uppercase tracking-[0.2em] text-gold hover:text-brown focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
             >
               Tout effacer ({selectedOptionValueIds.length})
             </button>
@@ -110,7 +113,7 @@ const RefinementList = ({
               type="button"
               onClick={() => updateQueryParams((p) => p.set("sortBy", option.value))}
               className={clx(
-                "whitespace-nowrap text-[11px] uppercase tracking-[0.15em] transition-colors",
+                "min-h-11 whitespace-nowrap px-1 text-[11px] uppercase tracking-[0.15em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold",
                 sortBy === option.value
                   ? "text-brown underline underline-offset-4 decoration-gold"
                   : "text-ui-fg-muted hover:text-brown"
@@ -126,6 +129,7 @@ const RefinementList = ({
       {!hideOptionsPicker && filtersOpen && (
         <div className="border-t border-nude py-6">
           <OptionsPicker
+            options={options}
             selectedValueIds={selectedOptionValueIds}
             setOptionValueIds={setOptionValueIds}
           />

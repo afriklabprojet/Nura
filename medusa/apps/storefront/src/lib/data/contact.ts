@@ -14,22 +14,29 @@ export async function submitContactForm(
   const name = formData.get("name") as string
   const email = formData.get("email") as string
   const phone = formData.get("phone") as string
+  const subject = formData.get("subject") as string
+  const orderReference = formData.get("order_reference") as string
   const message = formData.get("message") as string
+  const contextualMessage = [
+    `Sujet : ${subject}`,
+    orderReference ? `Commande : ${orderReference}` : null,
+    "",
+    message,
+  ]
+    .filter((line) => line !== null)
+    .join("\n")
 
   try {
     await sdk.client.fetch("/store/contact", {
       method: "POST",
-      body: { name, email, phone, message },
+      body: { name, email, phone, message: contextualMessage },
     })
 
     return { success: true, error: null }
-  } catch (error) {
+  } catch (_error) {
     return {
       success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Une erreur est survenue, veuillez réessayer.",
+      error: "Votre message n’a pas pu être envoyé. Réessayez dans quelques instants.",
     }
   }
 }

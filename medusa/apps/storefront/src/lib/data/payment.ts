@@ -3,7 +3,12 @@
 import { sdk } from "@lib/config"
 import { getAuthHeaders, getCacheOptions } from "./cookies"
 import { HttpTypes } from "@medusajs/types"
-import { isManual } from "@lib/constants"
+import { isManual, isStripeLike } from "@lib/constants"
+
+const hasStripeBrowserKey = Boolean(
+  process.env.NEXT_PUBLIC_STRIPE_KEY ||
+    process.env.NEXT_PUBLIC_MEDUSA_PAYMENTS_PUBLISHABLE_KEY
+)
 
 export const listCartPaymentMethods = async (regionId: string) => {
   const headers = {
@@ -29,7 +34,8 @@ export const listCartPaymentMethods = async (regionId: string) => {
       payment_providers
         .filter(
           (provider) =>
-            process.env.NODE_ENV !== "production" || !isManual(provider.id)
+            (process.env.NODE_ENV !== "production" || !isManual(provider.id)) &&
+            (!isStripeLike(provider.id) || hasStripeBrowserKey)
         )
         .sort((a, b) => {
           return a.id > b.id ? 1 : -1

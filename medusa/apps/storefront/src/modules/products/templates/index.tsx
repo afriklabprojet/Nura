@@ -77,26 +77,30 @@ const ProductTemplate = async ({
           )}
         </div>
       </div>
-      <div id="avis-produits" className="content-container my-16 scroll-mt-24 small:my-32">
-        <ProductReviews productId={product.id} content={productExtras} />
-      </div>
-      <div
-        className="content-container my-16 small:my-32"
-        data-testid="related-products-container"
-      >
-        <Suspense fallback={<SkeletonRelatedProducts />}>
-          <RelatedProducts
-            product={product}
-            countryCode={countryCode}
-            content={productExtras}
+      {productExtras !== null && (
+        <>
+          <div id="avis-produits" className="content-container my-16 scroll-mt-24 small:my-32">
+            <ProductReviews productId={product.id} content={productExtras} />
+          </div>
+          <div
+            className="content-container my-16 small:my-32"
+            data-testid="related-products-container"
+          >
+            <Suspense fallback={<SkeletonRelatedProducts />}>
+              <RelatedProducts
+                product={product}
+                countryCode={countryCode}
+                content={productExtras}
+              />
+            </Suspense>
+          </div>
+          <RecentlyViewed
+            region={region}
+            excludeHandle={product.handle}
+            text={productExtras?.recently_viewed_text}
           />
-        </Suspense>
-      </div>
-      <RecentlyViewed
-        region={region}
-        excludeHandle={product.handle}
-        text={productExtras?.recently_viewed_text}
-      />
+        </>
+      )}
     </>
   )
 }

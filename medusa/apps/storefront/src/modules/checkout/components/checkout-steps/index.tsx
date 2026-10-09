@@ -7,6 +7,7 @@ const steps = [
   { key: "address", label: "Adresse" },
   { key: "delivery", label: "Livraison" },
   { key: "payment", label: "Paiement" },
+  { key: "review", label: "Validation" },
 ]
 
 const CheckoutSteps = () => {
@@ -18,14 +19,21 @@ const CheckoutSteps = () => {
   )
 
   return (
-    <ol className="mb-10 flex items-center gap-4 border-b border-nude pb-6">
+    <ol
+      className="mb-10 grid grid-cols-4 border-b border-nude pb-6"
+      aria-label="Étapes de la commande"
+    >
       {steps.map((step, index) => (
-        <li key={step.key} className="flex items-center gap-4">
+        <li
+          key={step.key}
+          className="relative flex min-w-0 justify-center first:justify-start last:justify-end"
+        >
           <span
             className={clx(
-              "flex items-center gap-2 text-[11px] uppercase tracking-[0.2em]",
+              "relative z-10 flex min-w-0 flex-col items-center gap-2 bg-bg-alt px-1 text-[9px] uppercase tracking-[0.1em] xsmall:flex-row xsmall:px-2 xsmall:text-[11px] xsmall:tracking-[0.16em]",
               index <= currentIndex ? "text-brown" : "text-ui-fg-muted"
             )}
+            aria-current={index === currentIndex ? "step" : undefined}
           >
             <span
               className={clx(
@@ -40,7 +48,7 @@ const CheckoutSteps = () => {
             {step.label}
           </span>
           {index < steps.length - 1 && (
-            <span className="h-px w-6 bg-nude small:w-10" />
+            <span className="absolute left-1/2 right-[-50%] top-3 h-px bg-nude" />
           )}
         </li>
       ))}

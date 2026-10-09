@@ -15,13 +15,13 @@ export default async function CgvPage() {
   return (
     <LegalPageLayout
       title="Conditions générales de vente"
-      updatedAt="17 septembre 2026"
+      updatedAt={LEGAL_INFORMATION.lastUpdated}
     >
       <section>
         <h2>1. Objet</h2>
         <p>
           Les présentes conditions générales de vente (CGV) régissent les
-          ventes de produits réalisées sur le site nura-paris.com entre{" "}
+          ventes de produits réalisées sur le site {LEGAL_INFORMATION.siteHost} entre{" "}
           {LEGAL_INFORMATION.businessName} (voir{" "}
           <LocalizedClientLink href="/mentions-legales">
             mentions légales

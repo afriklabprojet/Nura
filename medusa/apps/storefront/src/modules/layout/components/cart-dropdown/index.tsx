@@ -4,6 +4,7 @@ import {
   Transition,
 } from "@headlessui/react"
 import { convertToLocale } from "@lib/util/money"
+import { ShoppingBag } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Button } from "@modules/common/components/ui"
 import DeleteButton from "@modules/common/components/delete-button"
@@ -85,11 +86,17 @@ const CartDropdown = ({
       }}
     >
       <LocalizedClientLink
-        className="flex h-full items-center hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+        className="relative flex h-11 w-11 items-center justify-center text-brown/70 transition-colors hover:text-brown focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
         href="/cart"
         data-testid="nav-cart-link"
+        aria-label={`Panier, ${totalItems} article${totalItems > 1 ? "s" : ""}`}
         aria-expanded={cartDropdownOpen}
-      >{`Panier (${totalItems})`}</LocalizedClientLink>
+      >
+        <ShoppingBag className="h-5 w-5" aria-hidden="true" />
+        <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brown px-1 text-[9px] leading-none text-bg-alt">
+          {totalItems}
+        </span>
+      </LocalizedClientLink>
         <Transition
           show={cartDropdownOpen}
           as={Fragment}

@@ -102,6 +102,19 @@ const AccountNav = ({
                   </LocalizedClientLink>
                 </li>
                 <li>
+                  <LocalizedClientLink
+                    href="/account/parrainage"
+                    className="flex items-center justify-between border-b border-nude px-1 py-4"
+                    data-testid="referral-link"
+                  >
+                    <div className="flex items-center gap-x-2">
+                      <Heart width={20} height={20} />
+                      <span>Parrainage</span>
+                    </div>
+                    <ChevronDown className="transform -rotate-90" />
+                  </LocalizedClientLink>
+                </li>
+                <li>
                   <button
                     type="button"
                     className="flex items-center justify-between py-4 border-b border-nude px-1 w-full"

@@ -96,25 +96,6 @@ export const noDivisionCurrencies = [
   "xau",
 ]
 
-// --- Customer service contacts (single source of truth) ---
-export const CONTACT_EMAIL = "contact@nura-paris.com"
-
-export type ServiceClientContact = {
-  label: string
-  tel: string
-  display: string
-}
-
-export const SERVICE_CLIENT_CONTACTS: ServiceClientContact[] = [
-  { label: "France", tel: "+33745064887", display: "+33 7 45 06 48 87" },
-  { label: "Abidjan", tel: "+2250505798882", display: "+225 05 05 79 88 82" },
-]
-
-export const SOCIAL_LINKS = {
-  instagram: "https://instagram.com/nura",
-  tiktok: "https://tiktok.com/@nura",
-}
-
 // Editorial artwork used when a category has no product image of its own.
 const CATEGORY_IMAGES: Record<string, string> = {
   parfums: "/images/category-parfums.webp",

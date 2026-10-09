@@ -66,6 +66,11 @@ const authorizeOrderRead = async (
 export default defineMiddlewares({
   routes: [
     {
+      matcher: "/store/customers/me/password",
+      methods: ["POST"],
+      middlewares: [authenticate("customer", ["session", "bearer"])],
+    },
+    {
       matcher: "/store/orders/:id",
       methods: ["GET"],
       middlewares: [

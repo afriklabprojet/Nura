@@ -95,6 +95,21 @@ class JekoPaymentProviderService extends AbstractPaymentProvider<Options> {
     this.options_ = options
   }
 
+  private toAmountCents(amount: unknown) {
+    const amountCents = Math.round(
+      Number(amount) * this.options_.amount_multiplier
+    )
+
+    if (!Number.isSafeInteger(amountCents) || amountCents <= 0) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "Jèko payment amounts must convert to a positive integer."
+      )
+    }
+
+    return amountCents
+  }
+
   static validateOptions(options: Record<string, unknown>) {
     for (const key of [
       "api_key",
@@ -269,9 +284,7 @@ class JekoPaymentProviderService extends AbstractPaymentProvider<Options> {
     const successUrl = createReturnUrl("success")
     const errorUrl = createReturnUrl("error")
 
-    const amountCents = Math.round(
-      Number(amount) * this.options_.amount_multiplier
-    )
+    const amountCents = this.toAmountCents(amount)
 
     const response = await this.request<JekoPaymentRequestResponse>(
       "/payment_requests",
@@ -368,9 +381,7 @@ class JekoPaymentProviderService extends AbstractPaymentProvider<Options> {
 
   async updatePayment(input: UpdatePaymentInput): Promise<UpdatePaymentOutput> {
     const data = input.data as unknown as JekoSessionData
-    const amountCents = Math.round(
-      Number(input.amount) * this.options_.amount_multiplier
-    )
+    const amountCents = this.toAmountCents(input.amount)
 
     if (!data?.amountCents || amountCents !== data.amountCents) {
       throw new MedusaError(

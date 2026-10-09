@@ -29,6 +29,7 @@ if (isProduction) {
     'ADMIN_CORS',
     'AUTH_CORS',
     'STOREFRONT_URL',
+    'REVALIDATE_SECRET',
     'REFERRAL_REWARD_EUR',
     'REFERRAL_REWARD_XOF',
   ]

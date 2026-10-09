@@ -79,7 +79,7 @@ services:
       ADMIN_CORS: ${ADMIN_CORS:?set ADMIN_CORS in .env, e.g. https://admin.nura-paris.com}
       AUTH_CORS: ${AUTH_CORS:?set AUTH_CORS in .env, combine STORE_CORS and ADMIN_CORS}
       STOREFRONT_URL: ${NEXT_PUBLIC_BASE_URL:?set to your public storefront URL, e.g. https://nura-paris.com}
-      REVALIDATE_SECRET: ${REVALIDATE_SECRET:-}
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:?set REVALIDATE_SECRET in .env}
       STRIPE_API_KEY: ${STRIPE_API_KEY:-}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
       JEKO_API_KEY: ${JEKO_API_KEY:-}
@@ -125,7 +125,7 @@ services:
       dockerfile: apps/storefront/Dockerfile
       args:
         NEXT_PUBLIC_MEDUSA_BACKEND_URL: ${NEXT_PUBLIC_MEDUSA_BACKEND_URL:?set to your public backend URL, e.g. https://api.nura-paris.com}
-        NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY:?create one in the admin (Settings > API Key Management) after the first deploy, then rebuild}
+        NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY-}
         NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:?set to your public storefront URL, e.g. https://nura-paris.com}
         NEXT_PUBLIC_DEFAULT_REGION: ${NEXT_PUBLIC_DEFAULT_REGION:-fr}
         NEXT_PUBLIC_STRIPE_KEY: ${NEXT_PUBLIC_STRIPE_KEY:-}
@@ -151,7 +151,7 @@ services:
     restart: unless-stopped
     environment:
       ORDER_ACCESS_SECRET: ${ORDER_ACCESS_SECRET:?set ORDER_ACCESS_SECRET in .env}
-      REVALIDATE_SECRET: ${REVALIDATE_SECRET:-}
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:?set REVALIDATE_SECRET in .env}
       LEGAL_LAST_UPDATED: ${LEGAL_LAST_UPDATED:?set the legal pages revision date}
       LEGAL_BUSINESS_NAME: ${LEGAL_BUSINESS_NAME:?set the legal business name}
       LEGAL_FORM: ${LEGAL_FORM:?set the legal form, or Sans objet}

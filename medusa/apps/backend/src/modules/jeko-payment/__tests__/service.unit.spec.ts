@@ -112,6 +112,20 @@ describe("JekoPaymentProviderService", () => {
     ).rejects.toThrow("only enabled for XOF")
   })
 
+  it("rejects amounts that do not convert to positive Jeko cents", async () => {
+    await expect(
+      createService().initiatePayment({
+        amount: 0,
+        currency_code: "xof",
+        data: {
+          session_id: "payment-session-id",
+          paymentMethod: "wave",
+          cart_id: "cart-id",
+        },
+      } as InitiatePaymentInput)
+    ).rejects.toThrow("positive integer")
+  })
+
   it("rejects invalid provider contract options", () => {
     expect(() =>
       JekoPaymentProviderService.validateOptions({

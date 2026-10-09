@@ -1,0 +1,16 @@
+{
+  "policy": "Une exception ne neutralise qu'un avis high/critical précis (id + paquet + plage affectée), jusqu'à sa date d'expiration. Toute autre alerte, plage modifiée ou exception expirée fait échouer la CI (scripts/audit-gate.mjs). Le seuil de `npm audit --omit=dev --audit-level=high` n'est pas modifié.",
+  "exceptions": [
+    {
+      "id": "GHSA-vfj7-8cjw-p6xm",
+      "package": "braces",
+      "range": "<=3.0.3",
+      "installed": "3.0.3",
+      "reason": "Déni de service par épuisement de pile via des motifs d'accolades très imbriqués. Aucune version corrigée n'est publiée : toutes les versions <=3.0.3 sont concernées, et la seule 'correction' proposée par npm audit est une rétrogradation de Medusa en 2.10.3, refusée.",
+      "exposure": "braces n'est atteint que via micromatch/fast-glob (awilix, umzug, MikroORM) et tailwindcss (admin-bundler). Les motifs viennent de la configuration et de chemins de dossiers du serveur, jamais d'une requête. Mesuré sur Medusa 2.21.0 : 15 appels, tous avec le motif interne constant '.medusa/client/**/*.{js,ts,jsx,tsx}' ; 0 appel pendant le smoke test ni pendant 13 requêtes hostiles (motifs imbriqués de 20 000 niveaux dans URL, query, en-têtes et corps). Limite : mesure limitée à ces scénarios ; le comportement en cas de dépassement de pile n'a pas été testé.",
+      "reviewer": "Paulin N'ZIAN (propriétaire du projet)",
+      "expires": "2027-01-09",
+      "removeWhen": "Une version de braces > 3.0.3 est publiée et installée, ou une mise à jour de Medusa/micromatch retire braces de l'arbre de production. Renouveler seulement après un nouveau contrôle d'exposition."
+    }
+  ]
+}
